@@ -327,6 +327,11 @@
         "description": "Physical evaluation is locked until payment is completed.",
         "instruction": "Please complete payment in Sample Management to unlock physical evaluation."
       },
+      "paymentWarning": {
+        "title": "Unpaid Samples Detected",
+        "description": "{{count}} sample(s) require payment before physical evaluation.",
+        "instruction": "Complete payment in Sample Management to unlock all samples for evaluation."
+      },
       "evaluationForm": {
         "title": "Physical Parameters Evaluation",
         "description": "Complete physical evaluation with automatic disqualification rules applied",
@@ -571,6 +576,7 @@
         "processing": "Processing...",
       "checkingPaymentStatus": "Checking Payment Status...",
       "paymentCompleted": "Payment Completed",
+      "allSamplesPaid": "All Samples Paid",
       "summary": {
         "totalSamples": "Total Samples",
         "submitted": "Submitted",
@@ -632,6 +638,8 @@
         "errorDeletingUnexpected": "An unexpected error occurred",
         "noSamplesForPhysicalEval": "No Samples for Physical Evaluation",
         "noSamplesForPhysicalEvalDescription": "There are no received samples that need physical evaluation",
+        "noUnpaidSamples": "No Unpaid Samples",
+        "noUnpaidSamplesDescription": "All received samples have already been paid for",
         "physicalEvalStarted": "Physical Evaluation Started",
         "physicalEvalStartedDescription": "Physical evaluation has been started for {{count}} sample(s)",
         "physicalEvalError": "Physical Evaluation Error",
@@ -649,7 +657,9 @@
         "title": "Payment Information",
         "description": "Complete payment to start physical evaluation process",
         "summaryTitle": "Payment Summary",
-        "samplesCount": "Samples Count",
+        "totalReceivedSamples": "Total Received Samples",
+        "paidSamples": "Paid Samples",
+        "unpaidSamples": "Unpaid Samples",
         "samplePrice": "Price per Sample",
         "totalAmount": "Total Amount",
         "methodLabel": "Payment Method",

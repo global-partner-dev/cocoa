@@ -327,6 +327,11 @@
         "description": "La evaluación física está bloqueada hasta que se complete el pago.",
         "instruction": "Por favor complete el pago en Gestión de Muestras para desbloquear la evaluación física."
       },
+      "paymentWarning": {
+        "title": "Muestras Sin Pagar Detectadas",
+        "description": "{{count}} muestra(s) requieren pago antes de la evaluación física.",
+        "instruction": "Complete el pago en Gestión de Muestras para desbloquear todas las muestras para evaluación."
+      },
       "evaluationForm": {
         "title": "Evaluación de Parámetros Físicos",
         "description": "Evaluación física completa con reglas automáticas de descalificación aplicadas",
@@ -571,6 +576,7 @@
         "processing": "Procesando...",
       "checkingPaymentStatus": "Verificando Estado de Pago...",
       "paymentCompleted": "Pago Completado",
+      "allSamplesPaid": "Todas las Muestras Pagadas",
       "summary": {
         "totalSamples": "Muestras Totales",
         "submitted": "Enviadas",
@@ -632,6 +638,8 @@
         "errorDeletingUnexpected": "Ocurrió un error inesperado",
         "noSamplesForPhysicalEval": "No Hay Muestras para Evaluación Física",
         "noSamplesForPhysicalEvalDescription": "No hay muestras recibidas que necesiten evaluación física",
+        "noUnpaidSamples": "No Hay Muestras Sin Pagar",
+        "noUnpaidSamplesDescription": "Todas las muestras recibidas ya han sido pagadas",
         "physicalEvalStarted": "Evaluación Física Iniciada",
         "physicalEvalStartedDescription": "La evaluación física ha sido iniciada para {{count}} muestra(s)",
         "physicalEvalError": "Error en Evaluación Física",
@@ -649,7 +657,9 @@
         "title": "Información de Pago",
         "description": "Complete el pago para iniciar el proceso de evaluación física",
         "summaryTitle": "Resumen de Pago",
-        "samplesCount": "Cantidad de Muestras",
+        "totalReceivedSamples": "Muestras Recibidas Totales",
+        "paidSamples": "Muestras Pagadas",
+        "unpaidSamples": "Muestras Sin Pagar",
         "samplePrice": "Precio por Muestra",
         "totalAmount": "Monto Total",
         "methodLabel": "Método de Pago",

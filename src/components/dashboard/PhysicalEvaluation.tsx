@@ -51,6 +51,8 @@ const PhysicalEvaluation = () => {
   const [saving, setSaving] = useState(false);
   const [hasPaidForPhysicalEval, setHasPaidForPhysicalEval] = useState(false);
   const [checkingPaymentStatus, setCheckingPaymentStatus] = useState(false);
+  const [unpaidSamples, setUnpaidSamples] = useState<string[]>([]);
+  const [paidSamples, setPaidSamples] = useState<string[]>([]);
   const { toast } = useToast();
 
   const getStatusColor = (status: PhysicalEvaluationSample['status']) => {
@@ -123,23 +125,32 @@ const PhysicalEvaluation = () => {
       
       if (samplesNeedingPhysicalEval.length === 0) {
         setHasPaidForPhysicalEval(false);
+        setUnpaidSamples([]);
+        setPaidSamples([]);
         return;
       }
 
       const { FinanceService } = await import('@/lib/financeService');
       const sampleIds = samplesNeedingPhysicalEval.map(s => s.id);
       
-      const paymentStatus = await FinanceService.hasDirectorPaidForPhysicalEvaluation(sampleIds);
+      const paymentStatus = await FinanceService.getUnpaidSamplesForPhysicalEvaluation(sampleIds);
       
       if (paymentStatus.success) {
-        setHasPaidForPhysicalEval(paymentStatus.hasPaid);
+        setUnpaidSamples(paymentStatus.unpaidSamples);
+        setPaidSamples(paymentStatus.paidSamples);
+        // Physical evaluation is unlocked if there are any paid samples
+        setHasPaidForPhysicalEval(paymentStatus.paidSamples.length > 0);
       } else {
         console.error('Error checking payment status:', paymentStatus.error);
         setHasPaidForPhysicalEval(false);
+        setUnpaidSamples([]);
+        setPaidSamples([]);
       }
     } catch (error) {
       console.error('Error checking payment status:', error);
       setHasPaidForPhysicalEval(false);
+      setUnpaidSamples([]);
+      setPaidSamples([]);
     } finally {
       setCheckingPaymentStatus(false);
     }
@@ -313,8 +324,28 @@ const PhysicalEvaluation = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6 sm:space-y-8 relative">
-            {/* Payment Lock Overlay */}
-            {!hasPaidForPhysicalEval && !checkingPaymentStatus && (
+            {/* Payment Warning Banner */}
+            {unpaidSamples.length > 0 && !checkingPaymentStatus && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                <div className="flex items-start space-x-3">
+                  <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <h4 className="text-sm font-semibold text-amber-800 mb-1">
+                      {t('dashboard.physicalEvaluation.paymentWarning.title')}
+                    </h4>
+                    <p className="text-sm text-amber-700 mb-2">
+                      {t('dashboard.physicalEvaluation.paymentWarning.description', { count: unpaidSamples.length })}
+                    </p>
+                    <p className="text-xs text-amber-600">
+                      {t('dashboard.physicalEvaluation.paymentWarning.instruction')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Complete Lock Overlay - Only show if no paid samples exist */}
+            {!hasPaidForPhysicalEval && !checkingPaymentStatus && unpaidSamples.length > 0 && paidSamples.length === 0 && (
               <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-lg">
                 <div className="text-center p-6">
                   <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
@@ -752,7 +783,17 @@ const PhysicalEvaluation = () => {
                 </p>
               </div>
             ) : (
-              samples.map((sample) => (
+              samples
+                .filter(sample => {
+                  // Show samples that are:
+                  // 1. Already in physical_evaluation, approved, or disqualified status
+                  // 2. In received status AND have been paid for
+                  return sample.status === 'physical_evaluation' || 
+                         sample.status === 'approved' || 
+                         sample.status === 'disqualified' ||
+                         (sample.status === 'received' && paidSamples.includes(sample.id));
+                })
+                .map((sample) => (
               <div
                 key={sample.id}
                 className="p-3 sm:p-4 border rounded-lg hover:shadow-[var(--shadow-chocolate)] transition-[var(--transition-smooth)] cursor-pointer"

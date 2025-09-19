@@ -267,4 +267,40 @@ export class FinanceService {
     }
   }
 
+  /** Get unpaid samples for physical evaluation payment */
+  static async getUnpaidSamplesForPhysicalEvaluation(allSampleIds: string[]) {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('payments')
+        .select('sample_id')
+        .eq('user_id', user.id)
+        .eq('role', 'director')
+        .eq('status', 'paid')
+        .in('sample_id', allSampleIds);
+
+      if (error) throw error;
+      
+      const paidSampleIds = new Set((data || []).map((p: any) => p.sample_id));
+      const unpaidSampleIds = allSampleIds.filter(id => !paidSampleIds.has(id));
+      
+      return { 
+        success: true, 
+        unpaidSamples: unpaidSampleIds, 
+        paidSamples: Array.from(paidSampleIds),
+        hasUnpaidSamples: unpaidSampleIds.length > 0
+      } as const;
+    } catch (e: any) {
+      return { 
+        success: false, 
+        unpaidSamples: [], 
+        paidSamples: [], 
+        hasUnpaidSamples: false,
+        error: e?.message || 'Failed to get unpaid samples' 
+      } as const;
+    }
+  }
+
 }

@@ -30,6 +30,8 @@ const SampleManagement = () => {
   const [payingForPhysicalEval, setPayingForPhysicalEval] = useState(false);
   const [hasPaidForPhysicalEval, setHasPaidForPhysicalEval] = useState(false);
   const [checkingPaymentStatus, setCheckingPaymentStatus] = useState(false);
+  const [unpaidSamples, setUnpaidSamples] = useState<string[]>([]);
+  const [paidSamples, setPaidSamples] = useState<string[]>([]);
   
   // Payment modal state
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
@@ -117,13 +119,11 @@ const SampleManagement = () => {
 
   // Pay & Start Physical Evaluation
   const handlePayAndStartPhysicalEvaluation = async () => {
-    // Check if there are samples that need physical evaluation
-    const samplesNeedingPhysicalEval = samples.filter(s => s.status === 'received');
-    
-    if (samplesNeedingPhysicalEval.length === 0) {
+    // Check if there are unpaid samples that need physical evaluation
+    if (unpaidSamples.length === 0) {
       toast({
-        title: t('dashboard.sampleManagement.toasts.noSamplesForPhysicalEval'),
-        description: t('dashboard.sampleManagement.toasts.noSamplesForPhysicalEvalDescription'),
+        title: t('dashboard.sampleManagement.toasts.noUnpaidSamples'),
+        description: t('dashboard.sampleManagement.toasts.noUnpaidSamplesDescription'),
         variant: "destructive"
       });
       return;
@@ -146,7 +146,7 @@ const SampleManagement = () => {
       // Use the first contest's sample price (assuming all samples are from the same contest)
       const contest = contests[0];
       const samplePrice = contest.samplePrice || 0;
-      const totalAmount = samplesNeedingPhysicalEval.length * samplePrice;
+      const totalAmount = unpaidSamples.length * samplePrice; // Only calculate for unpaid samples
       
       setPayingAmount(totalAmount);
       setPaymentDialogOpen(true);
@@ -165,23 +165,18 @@ const SampleManagement = () => {
     try {
       setPayingForPhysicalEval(true);
       
-      // Get samples that need physical evaluation
-      const samplesNeedingPhysicalEval = samples.filter(s => s.status === 'received');
-      const sampleIds = samplesNeedingPhysicalEval.map(s => s.id);
-      
-      console.log('Payment success - samplesNeedingPhysicalEval:', samplesNeedingPhysicalEval);
-      console.log('Payment success - sampleIds:', sampleIds);
+      console.log('Payment success - unpaidSamples:', unpaidSamples);
       console.log('Payment success - payingAmount:', payingAmount);
       console.log('Payment success - details:', details);
       
-      // Record the payment in the database
+      // Record the payment in the database (only for unpaid samples)
       const { FinanceService } = await import('@/lib/financeService');
       const amountCents = Math.round((payingAmount || 0) * 100);
       
       console.log('Payment success - amountCents:', amountCents);
       
       const paymentResult = await FinanceService.recordDirectorPhysicalEvaluationPayment(
-        sampleIds,
+        unpaidSamples, // Only process unpaid samples
         amountCents,
         'USD',
         {
@@ -196,9 +191,9 @@ const SampleManagement = () => {
         throw new Error(paymentResult.error || 'Failed to record payment');
       }
       
-      // Update all 'received' samples to 'physical_evaluation' status
+      // Update only the paid samples to 'physical_evaluation' status
       const updatedSamples = samples.map(sample => 
-        sample.status === 'received' 
+        unpaidSamples.includes(sample.id) && sample.status === 'received'
           ? { ...sample, status: 'physical_evaluation' as const }
           : sample
       );
@@ -207,7 +202,7 @@ const SampleManagement = () => {
       toast({
         title: t('dashboard.sampleManagement.toasts.physicalEvalStarted'),
         description: t('dashboard.sampleManagement.toasts.physicalEvalStartedDescription', {
-          count: samplesNeedingPhysicalEval.length
+          count: unpaidSamples.length
         }),
       });
 
@@ -239,23 +234,31 @@ const SampleManagement = () => {
       
       if (samplesNeedingPhysicalEval.length === 0) {
         setHasPaidForPhysicalEval(false);
+        setUnpaidSamples([]);
+        setPaidSamples([]);
         return;
       }
 
       const { FinanceService } = await import('@/lib/financeService');
       const sampleIds = samplesNeedingPhysicalEval.map(s => s.id);
       
-      const paymentStatus = await FinanceService.hasDirectorPaidForPhysicalEvaluation(sampleIds);
+      const paymentStatus = await FinanceService.getUnpaidSamplesForPhysicalEvaluation(sampleIds);
       
       if (paymentStatus.success) {
-        setHasPaidForPhysicalEval(paymentStatus.hasPaid);
+        setUnpaidSamples(paymentStatus.unpaidSamples);
+        setPaidSamples(paymentStatus.paidSamples);
+        setHasPaidForPhysicalEval(!paymentStatus.hasUnpaidSamples);
       } else {
         console.error('Error checking payment status:', paymentStatus.error);
         setHasPaidForPhysicalEval(false);
+        setUnpaidSamples([]);
+        setPaidSamples([]);
       }
     } catch (error) {
       console.error('Error checking payment status:', error);
       setHasPaidForPhysicalEval(false);
+      setUnpaidSamples([]);
+      setPaidSamples([]);
     } finally {
       setCheckingPaymentStatus(false);
     }
@@ -394,8 +397,7 @@ const SampleManagement = () => {
               disabled={
                 payingForPhysicalEval || 
                 checkingPaymentStatus ||
-                samples.filter(s => s.status === 'received').length === 0 ||
-                hasPaidForPhysicalEval
+                unpaidSamples.length === 0
               }
               className={`w-full sm:w-auto ${
                 hasPaidForPhysicalEval 
@@ -409,8 +411,8 @@ const SampleManagement = () => {
                 ? t('dashboard.sampleManagement.checkingPaymentStatus')
                 : payingForPhysicalEval 
                   ? t('dashboard.sampleManagement.processing') 
-                  : hasPaidForPhysicalEval
-                    ? t('dashboard.sampleManagement.paymentCompleted')
+                  : unpaidSamples.length === 0
+                    ? t('dashboard.sampleManagement.allSamplesPaid')
                     : t('dashboard.sampleManagement.payAndStartPhysicalEval')
               }
             </Button>
@@ -646,12 +648,20 @@ const SampleManagement = () => {
               <h4 className="font-medium mb-3">{t('dashboard.sampleManagement.payment.summaryTitle')}</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span>{t('dashboard.sampleManagement.payment.samplesCount')}</span>
+                  <span>{t('dashboard.sampleManagement.payment.totalReceivedSamples')}</span>
                   <span>{samples.filter(s => s.status === 'received').length}</span>
                 </div>
                 <div className="flex justify-between">
+                  <span>{t('dashboard.sampleManagement.payment.paidSamples')}</span>
+                  <span className="text-green-600">{paidSamples.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>{t('dashboard.sampleManagement.payment.unpaidSamples')}</span>
+                  <span className="text-amber-600">{unpaidSamples.length}</span>
+                </div>
+                <div className="flex justify-between">
                   <span>{t('dashboard.sampleManagement.payment.samplePrice')}</span>
-                  <span>${((payingAmount ?? 0) / Math.max(samples.filter(s => s.status === 'received').length, 1)).toFixed(2)}</span>
+                  <span>${((payingAmount ?? 0) / Math.max(unpaidSamples.length, 1)).toFixed(2)}</span>
                 </div>
                 <div className="border-t my-2" />
                 <div className="flex justify-between font-semibold">
