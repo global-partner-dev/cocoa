@@ -159,12 +159,42 @@ const SampleManagement = () => {
   };
 
   // Handle successful payment
-  const handlePaymentSuccess = async () => {
+  const handlePaymentSuccess = async (details: any) => {
     try {
       setPayingForPhysicalEval(true);
       
-      // Update all 'received' samples to 'physical_evaluation' status
+      // Get samples that need physical evaluation
       const samplesNeedingPhysicalEval = samples.filter(s => s.status === 'received');
+      const sampleIds = samplesNeedingPhysicalEval.map(s => s.id);
+      
+      console.log('Payment success - samplesNeedingPhysicalEval:', samplesNeedingPhysicalEval);
+      console.log('Payment success - sampleIds:', sampleIds);
+      console.log('Payment success - payingAmount:', payingAmount);
+      console.log('Payment success - details:', details);
+      
+      // Record the payment in the database
+      const { FinanceService } = await import('@/lib/financeService');
+      const amountCents = Math.round((payingAmount || 0) * 100);
+      
+      console.log('Payment success - amountCents:', amountCents);
+      
+      const paymentResult = await FinanceService.recordDirectorPhysicalEvaluationPayment(
+        sampleIds,
+        amountCents,
+        'USD',
+        {
+          orderId: details.orderID,
+          captureId: details.captureID
+        }
+      );
+      
+      console.log('Payment success - paymentResult:', paymentResult);
+
+      if (!paymentResult.success) {
+        throw new Error(paymentResult.error || 'Failed to record payment');
+      }
+      
+      // Update all 'received' samples to 'physical_evaluation' status
       const updatedSamples = samples.map(sample => 
         sample.status === 'received' 
           ? { ...sample, status: 'physical_evaluation' as const }
@@ -637,9 +667,8 @@ const SampleManagement = () => {
                   disabled={!agreeTerms}
                   onApproved={async ({ orderId, captureId }) => {
                     try {
-                      // Simulate payment processing
-                      await new Promise(resolve => setTimeout(resolve, 1000));
-                      await handlePaymentSuccess();
+                      // Record payment and start physical evaluation
+                      await handlePaymentSuccess({ orderID: orderId, captureID: captureId });
                       toast({ 
                         title: t('dashboard.sampleManagement.toasts.paymentSuccessTitle'), 
                         description: t('dashboard.sampleManagement.toasts.paymentSuccessDesc') 

@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 
-export type PaymentRole = 'participant' | 'evaluator';
+export type PaymentRole = 'participant' | 'evaluator' | 'director';
 export type PaymentStatus = 'paid' | 'refunded' | 'failed' | 'pending';
 
 export interface PaymentRecord {
@@ -209,6 +209,36 @@ export class FinanceService {
       return { success: true, data: Math.round(Number(price) * 100) } as const;
     } catch (e: any) {
       return { success: false, error: e?.message || 'Failed to fetch evaluation price' } as const;
+    }
+  }
+
+  /** Record a director payment for physical evaluation of multiple samples */
+  static async recordDirectorPhysicalEvaluationPayment(
+    sampleIds: string[], 
+    amountCents: number, 
+    currency = 'USD', 
+    paypal: { orderId: string; captureId?: string }
+  ) {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) throw new Error('Not authenticated');
+
+      // Call edge function to verify and persist via Supabase client
+      const { data, error } = await supabase.functions.invoke('paypal-capture', {
+        body: {
+          role: 'director',
+          sampleIds, // Array of sample IDs for bulk payment
+          amountCents,
+          currency,
+          orderId: paypal.orderId,
+          captureId: paypal.captureId,
+        },
+      });
+      if (error) throw new Error(error.message || 'Capture failed');
+      if ((data as any)?.error) throw new Error((data as any).error);
+      return { success: true } as const;
+    } catch (e: any) {
+      return { success: false, error: e?.message || 'Failed to record payment' } as const;
     }
   }
 

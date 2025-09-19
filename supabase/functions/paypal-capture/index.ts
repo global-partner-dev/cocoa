@@ -75,36 +75,71 @@ serve(async (req) => {
     const userId = userData.user.id;
 
     const payload = await req.json();
-    const role = payload?.role as 'evaluator';
+    const role = payload?.role as 'evaluator' | 'director';
     const sampleId = payload?.sampleId as string;
+    const sampleIds = payload?.sampleIds as string[];
     const amountCents = Number(payload?.amountCents);
     const currency = (payload?.currency || 'USD').toUpperCase();
     const orderId = payload?.orderId as string;
     const captureId = payload?.captureId as (string | undefined);
 
-    if (!role || !sampleId || !orderId || !amountCents || !currency) {
+    if (!role || !orderId || !amountCents || !currency) {
       return json(400, { error: 'Missing fields' });
+    }
+
+    // For evaluator payments, require sampleId; for director payments, require sampleIds array
+    if (role === 'evaluator' && !sampleId) {
+      return json(400, { error: 'Missing sampleId for evaluator payment' });
+    }
+    if (role === 'director' && (!sampleIds || !Array.isArray(sampleIds) || sampleIds.length === 0)) {
+      return json(400, { error: 'Missing sampleIds array for director payment' });
     }
 
     // Read expected amount from DB
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Fetch contest and expected amount
-    const { data: sampleRow, error: sampleErr } = await admin
-      .from('samples')
-      .select('contest_id')
-      .eq('id', sampleId)
-      .single();
-    if (sampleErr || !sampleRow?.contest_id) return json(400, { error: 'Invalid sample' });
+    let expectedCents: number;
 
-    // Only handle evaluator payments now
-    const { data: contest, error: contestErr } = await admin
-      .from('contests')
-      .select('evaluation_price')
-      .eq('id', sampleRow.contest_id)
-      .single();
-    if (contestErr) return json(400, { error: 'Contest lookup failed' });
-    const expectedCents = Math.round(Number(contest?.evaluation_price ?? 0) * 100);
+    if (role === 'evaluator') {
+      // Fetch contest and expected amount for evaluator payment
+      const { data: sampleRow, error: sampleErr } = await admin
+        .from('samples')
+        .select('contest_id')
+        .eq('id', sampleId)
+        .single();
+      if (sampleErr || !sampleRow?.contest_id) return json(400, { error: 'Invalid sample' });
+
+      const { data: contest, error: contestErr } = await admin
+        .from('contests')
+        .select('evaluation_price')
+        .eq('id', sampleRow.contest_id)
+        .single();
+      if (contestErr) return json(400, { error: 'Contest lookup failed' });
+      expectedCents = Math.round(Number(contest?.evaluation_price ?? 0) * 100);
+    } else if (role === 'director') {
+      // For director payments, calculate expected amount based on sample price
+      const { data: sampleRows, error: sampleErr } = await admin
+        .from('samples')
+        .select('contest_id')
+        .in('id', sampleIds);
+      if (sampleErr || !sampleRows || sampleRows.length === 0) return json(400, { error: 'Invalid samples' });
+
+      // Get unique contest IDs
+      const contestIds = [...new Set(sampleRows.map(row => row.contest_id))];
+      if (contestIds.length > 1) return json(400, { error: 'All samples must be from the same contest' });
+
+      const { data: contest, error: contestErr } = await admin
+        .from('contests')
+        .select('sample_price')
+        .eq('id', contestIds[0])
+        .single();
+      if (contestErr) return json(400, { error: 'Contest lookup failed' });
+      
+      const samplePrice = Number(contest?.sample_price ?? 0);
+      expectedCents = Math.round(samplePrice * sampleIds.length * 100);
+    } else {
+      return json(400, { error: 'Invalid role' });
+    }
 
     if (!expectedCents || isNaN(expectedCents)) return json(400, { error: 'Invalid expected price' });
 
@@ -135,24 +170,55 @@ serve(async (req) => {
     }
 
     // Persist payment
-    const { error: insertErr } = await admin.from('payments').insert({
-      user_id: userId,
-      role,
-      amount_cents: expectedCents,
-      currency,
-      status: 'paid',
-      source: 'paypal',
-      sample_id: sampleId,
-      provider: 'paypal',
-      provider_order_id: orderId,
-      provider_capture_id: captureId || actualCaptureId || null,
-      provider_payload: order,
-    });
-    if (insertErr) return json(500, { error: 'DB insert failed' });
+    if (role === 'evaluator') {
+      // For evaluator payments, create single payment record
+      const paymentData = {
+        user_id: userId,
+        role,
+        amount_cents: expectedCents,
+        currency,
+        status: 'paid',
+        source: 'paypal',
+        sample_id: sampleId,
+      };
+
+      const { error: insertErr } = await admin.from('payments').insert(paymentData);
+      if (insertErr) {
+        console.error('Evaluator payment insert failed:', insertErr);
+        return json(500, { error: 'DB insert failed: ' + insertErr.message });
+      }
+    } else if (role === 'director') {
+      // For director payments, create one payment record per sample
+      // This maintains the current schema while supporting bulk payments
+      console.log('Director payment - sampleIds:', sampleIds);
+      console.log('Director payment - expectedCents:', expectedCents);
+      console.log('Director payment - userId:', userId);
+      
+      const paymentRecords = sampleIds.map(sampleId => ({
+        user_id: userId,
+        role,
+        amount_cents: Math.round(expectedCents / sampleIds.length), // Split amount per sample
+        currency,
+        status: 'paid',
+        source: 'paypal',
+        sample_id: sampleId,
+      }));
+
+      console.log('Director payment records to insert:', paymentRecords);
+
+      const { error: insertErr } = await admin.from('payments').insert(paymentRecords);
+      if (insertErr) {
+        console.error('Director payment insert failed:', insertErr);
+        return json(500, { error: 'DB insert failed: ' + insertErr.message });
+      }
+      
+      console.log('Director payment insert successful');
+    }
 
 
     return json(200, { ok: true });
   } catch (e: any) {
+    console.error('PayPal capture error:', e);
     return json(500, { error: e?.message || 'Unexpected error' });
   }
 });
