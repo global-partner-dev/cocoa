@@ -4,21 +4,36 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Package, Search, Filter, Eye, CheckCircle, Clock, AlertTriangle, Trash2, RefreshCw } from "lucide-react";
+import { Package, Search, Filter, Eye, CheckCircle, Clock, AlertTriangle, Trash2, RefreshCw, CreditCard, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SampleManagementService, type SampleManagement } from "@/lib/sampleManagement";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/hooks/useAuth";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import PayPalButtonsMount from '@/components/payments/PayPalButtonsMount';
+import visa from "@/assets/visa.png";
+import nequi from "@/assets/nequi.png";
+import paypal from "@/assets/paypal.png";
 
 // Using SampleManagement interface from the service
 
 const SampleManagement = () => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [samples, setSamples] = useState<SampleManagement[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [trackingCodeSearch, setTrackingCodeSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [payingForPhysicalEval, setPayingForPhysicalEval] = useState(false);
+  
+  // Payment modal state
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'paypal' | 'card' | 'nequi' | null>(null);
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [payingAmount, setPayingAmount] = useState<number | null>(null);
 
   const { toast } = useToast();
 
@@ -95,6 +110,63 @@ const SampleManagement = () => {
       console.error('Error refreshing samples:', error);
     } finally {
       setRefreshing(false);
+    }
+  };
+
+  // Pay & Start Physical Evaluation
+  const handlePayAndStartPhysicalEvaluation = async () => {
+    // Check if there are samples that need physical evaluation
+    const samplesNeedingPhysicalEval = samples.filter(s => s.status === 'received');
+    
+    if (samplesNeedingPhysicalEval.length === 0) {
+      toast({
+        title: t('dashboard.sampleManagement.toasts.noSamplesForPhysicalEval'),
+        description: t('dashboard.sampleManagement.toasts.noSamplesForPhysicalEvalDescription'),
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Set a fixed amount for physical evaluation (you can make this dynamic)
+    setPayingAmount(50.00); // $50 for physical evaluation
+    setPaymentDialogOpen(true);
+  };
+
+  // Handle successful payment
+  const handlePaymentSuccess = async () => {
+    try {
+      setPayingForPhysicalEval(true);
+      
+      // Update all 'received' samples to 'physical_evaluation' status
+      const samplesNeedingPhysicalEval = samples.filter(s => s.status === 'received');
+      const updatedSamples = samples.map(sample => 
+        sample.status === 'received' 
+          ? { ...sample, status: 'physical_evaluation' as const }
+          : sample
+      );
+      setSamples(updatedSamples);
+
+      toast({
+        title: t('dashboard.sampleManagement.toasts.physicalEvalStarted'),
+        description: t('dashboard.sampleManagement.toasts.physicalEvalStartedDescription', {
+          count: samplesNeedingPhysicalEval.length
+        }),
+      });
+
+      // Close modal and reset state
+      setPaymentDialogOpen(false);
+      setPaymentMethod(null);
+      setAgreeTerms(false);
+      setPayingAmount(null);
+    } catch (error) {
+      console.error('Error starting physical evaluation:', error);
+      toast({
+        title: t('dashboard.sampleManagement.toasts.physicalEvalError'),
+        description: t('dashboard.sampleManagement.toasts.physicalEvalErrorDescription'),
+        variant: "destructive"
+      });
+    } finally {
+      setPayingForPhysicalEval(false);
     }
   };
 
@@ -216,16 +288,30 @@ const SampleManagement = () => {
           <h2 className="text-xl sm:text-2xl font-bold text-[hsl(var(--chocolate-dark))]">{t('dashboard.sampleManagement.title')}</h2>
           <p className="text-muted-foreground">{t('dashboard.sampleManagement.subtitle')}</p>
         </div>
-        <Button
-          onClick={refreshSamples}
-          disabled={refreshing}
-          variant="outline"
-          size="sm"
-          className="w-full sm:w-auto"
-        >
-          <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-          {refreshing ? t('dashboard.sampleManagement.refreshing') : t('dashboard.sampleManagement.refresh')}
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          {/* Only show Pay & Start Physical Evaluation button for directors */}
+          {user?.role === 'director' && (
+            <Button
+              onClick={handlePayAndStartPhysicalEvaluation}
+              disabled={payingForPhysicalEval || samples.filter(s => s.status === 'received').length === 0}
+              className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] text-white w-full sm:w-auto"
+              size="sm"
+            >
+              <CreditCard className={`w-4 h-4 mr-2 ${payingForPhysicalEval ? 'animate-pulse' : ''}`} />
+              {payingForPhysicalEval ? t('dashboard.sampleManagement.processing') : t('dashboard.sampleManagement.payAndStartPhysicalEval')}
+            </Button>
+          )}
+          <Button
+            onClick={refreshSamples}
+            disabled={refreshing}
+            variant="outline"
+            size="sm"
+            className="w-full sm:w-auto"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? t('dashboard.sampleManagement.refreshing') : t('dashboard.sampleManagement.refresh')}
+          </Button>
+        </div>
       </div>
 
       {/* Summary Cards */}
@@ -431,6 +517,133 @@ const SampleManagement = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Payment Modal */}
+      <Dialog open={paymentDialogOpen} onOpenChange={(o) => { setPaymentDialogOpen(o); if (!o) { setPaymentMethod(null); setAgreeTerms(false); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('dashboard.sampleManagement.payment.title')}</DialogTitle>
+            <DialogDescription>{t('dashboard.sampleManagement.payment.description')}</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Summary */}
+            <div className="rounded-lg border bg-muted/30 p-4">
+              <h4 className="font-medium mb-3">{t('dashboard.sampleManagement.payment.summaryTitle')}</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>{t('dashboard.sampleManagement.payment.physicalEvaluationFee')}</span>
+                  <span>${payingAmount ?? '-'}</span>
+                </div>
+                <div className="border-t my-2" />
+                <div className="flex justify-between font-semibold">
+                  <span>{t('dashboard.sampleManagement.payment.totalAmount')}</span>
+                  <span>${payingAmount ?? '-'}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Methods */}
+            <div className="space-y-3">
+              <p className="text-sm font-medium">{t('dashboard.sampleManagement.payment.methodLabel')}</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {[
+                  { value: 'card', label: t('dashboard.sampleManagement.payment.methods.card'), icon: CreditCard, img: visa },
+                  { value: 'nequi', label: t('dashboard.sampleManagement.payment.methods.nequi'), icon: DollarSign, img: nequi },
+                  { value: 'paypal', label: t('dashboard.sampleManagement.payment.methods.paypal'), icon: DollarSign, img: paypal },
+                ].map(({ value, label, icon: Icon, img }) => (
+                  <button
+                    type="button"
+                    key={value}
+                    className={`w-full p-3 rounded-xl border flex items-center justify-between transition-all ${
+                      paymentMethod === value
+                        ? 'border-[hsl(var(--chocolate-medium))] bg-[hsl(var(--chocolate-cream))] shadow-sm'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setPaymentMethod(value as 'paypal' | 'card' | 'nequi')}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className="w-5 h-5" />
+                      <span className="font-medium">{label}</span>
+                    </div>
+                    <img src={img} alt={`${label} logo`} className="h-6 w-auto object-contain" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Details per method */}
+            {paymentMethod === 'card' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input disabled placeholder="1234 5678 9012 3456" className="h-10 rounded-md border px-3 text-sm bg-muted/50" />
+                <input disabled placeholder="John Doe" className="h-10 rounded-md border px-3 text-sm bg-muted/50" />
+                <input disabled placeholder="MM/YY" className="h-10 rounded-md border px-3 text-sm bg-muted/50" />
+                <input disabled placeholder="CVV" className="h-10 rounded-md border px-3 text-sm bg-muted/50" />
+                <p className="md:col-span-2 text-xs text-muted-foreground">{t('dashboard.sampleManagement.payment.comingSoon.card')}</p>
+              </div>
+            )}
+
+            {paymentMethod === 'nequi' && (
+              <div className="text-sm text-muted-foreground">
+                {t('dashboard.sampleManagement.payment.comingSoon.nequi')}
+              </div>
+            )}
+
+            {/* Agreement */}
+            <label className="flex items-start gap-3 text-sm">
+              <Checkbox checked={agreeTerms} onCheckedChange={(v) => setAgreeTerms(Boolean(v))} />
+              <span>{t('dashboard.sampleManagement.payment.agreeTerms')}</span>
+            </label>
+
+            {/* PayPal action zone */}
+            {paymentMethod === 'paypal' && payingAmount != null && (
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{t('dashboard.sampleManagement.payment.total')}</span>
+                  <span className="font-semibold">${payingAmount}</span>
+                </div>
+                <PayPalButtonsMount
+                  amount={String(payingAmount)}
+                  disabled={!agreeTerms}
+                  onApproved={async ({ orderId, captureId }) => {
+                    try {
+                      // Simulate payment processing
+                      await new Promise(resolve => setTimeout(resolve, 1000));
+                      await handlePaymentSuccess();
+                      toast({ 
+                        title: t('dashboard.sampleManagement.toasts.paymentSuccessTitle'), 
+                        description: t('dashboard.sampleManagement.toasts.paymentSuccessDesc') 
+                      });
+                    } catch (e: any) {
+                      toast({ 
+                        title: t('dashboard.sampleManagement.toasts.paymentFailedTitle'), 
+                        description: e?.message || t('dashboard.sampleManagement.toasts.paymentFailedDesc'), 
+                        variant: 'destructive' 
+                      });
+                    }
+                  }}
+                />
+                {!agreeTerms && (
+                  <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                    {t('dashboard.sampleManagement.payment.enablePayPalHint')}
+                  </Badge>
+                )}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="justify-between">
+            <Button variant="outline" onClick={() => { setPaymentDialogOpen(false); setPaymentMethod(null); setAgreeTerms(false); }}>
+              {t('dashboard.sampleManagement.payment.back')}
+            </Button>
+            {paymentMethod !== 'paypal' && (
+              <Button disabled className="opacity-60">
+                {t('dashboard.sampleManagement.payment.paySubmit', { amount: payingAmount ?? '-' })}
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

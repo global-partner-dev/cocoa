@@ -41,6 +41,7 @@ const getRoleMenuItems = (t: any): Record<UserRole, Array<{ icon: React.Componen
   ],
   director: [
     { icon: LayoutDashboard, label: t('dashboard.sidebar.menuItems.dashboard'), path: "/dashboard" },
+    { icon: Calendar, label: t('dashboard.sidebar.menuItems.contestManagement'), path: "/dashboard/contests" },
     { icon: FileText, label: t('dashboard.sidebar.menuItems.sampleManagement'), path: "/dashboard/samples" },
     { icon: Microscope, label: t('dashboard.sidebar.menuItems.physicalEvaluation'), path: "/dashboard/physical-evaluation" },
     { icon: UserPlus, label: t('dashboard.sidebar.menuItems.judgeAssignment'), path: "/dashboard/sample-assignment" },

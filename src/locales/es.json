@@ -561,6 +561,8 @@
       "subtitle": "Recibir, registrar y gestionar envíos de muestras",
       "refresh": "Actualizar",
       "refreshing": "Actualizando...",
+      "payAndStartPhysicalEval": "Pagar e Iniciar Evaluación Física",
+      "processing": "Procesando...",
       "summary": {
         "totalSamples": "Muestras Totales",
         "submitted": "Enviadas",
@@ -619,7 +621,39 @@
         "sampleDeletedDescription": "La muestra {{externalCode}} ha sido eliminada",
         "errorDeleting": "Error al Eliminar Muestra",
         "errorDeletingDescription": "Error al eliminar muestra",
-        "errorDeletingUnexpected": "Ocurrió un error inesperado"
+        "errorDeletingUnexpected": "Ocurrió un error inesperado",
+        "noSamplesForPhysicalEval": "No Hay Muestras para Evaluación Física",
+        "noSamplesForPhysicalEvalDescription": "No hay muestras recibidas que necesiten evaluación física",
+        "physicalEvalStarted": "Evaluación Física Iniciada",
+        "physicalEvalStartedDescription": "La evaluación física ha sido iniciada para {{count}} muestra(s)",
+        "physicalEvalError": "Error en Evaluación Física",
+        "physicalEvalErrorDescription": "Error al iniciar la evaluación física",
+        "paymentSuccessTitle": "Pago Exitoso",
+        "paymentSuccessDesc": "El pago se completó exitosamente",
+        "paymentFailedTitle": "Pago Fallido",
+        "paymentFailedDesc": "No se pudo procesar el pago"
+      },
+      "payment": {
+        "title": "Información de Pago",
+        "description": "Complete el pago para iniciar el proceso de evaluación física",
+        "summaryTitle": "Resumen de Pago",
+        "physicalEvaluationFee": "Tarifa de Evaluación Física",
+        "totalAmount": "Monto Total",
+        "methodLabel": "Método de Pago",
+        "methods": {
+          "card": "Tarjeta de Crédito",
+          "nequi": "Nequi",
+          "paypal": "PayPal"
+        },
+        "comingSoon": {
+          "card": "Los pagos con tarjeta de crédito estarán disponibles pronto.",
+          "nequi": "Los pagos con Nequi estarán disponibles pronto. Selecciona PayPal para continuar hoy."
+        },
+        "agreeTerms": "Acepto los términos y condiciones del concurso y entiendo el proceso de evaluación física.",
+        "total": "Total",
+        "back": "Atrás",
+        "paySubmit": "Pagar ${{amount}} e Iniciar",
+        "enablePayPalHint": "Por favor acepta los términos para habilitar PayPal"
       }
     },
     "sampleSubmission": {

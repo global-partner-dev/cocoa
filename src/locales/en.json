@@ -561,6 +561,8 @@
       "subtitle": "Receive, register and manage sample submissions",
       "refresh": "Refresh",
       "refreshing": "Refreshing...",
+      "payAndStartPhysicalEval": "Pay & Start Physical Evaluation",
+      "processing": "Processing...",
       "summary": {
         "totalSamples": "Total Samples",
         "submitted": "Submitted",
@@ -619,7 +621,39 @@
         "sampleDeletedDescription": "Sample {{externalCode}} has been deleted",
         "errorDeleting": "Error Deleting Sample",
         "errorDeletingDescription": "Failed to delete sample",
-        "errorDeletingUnexpected": "An unexpected error occurred"
+        "errorDeletingUnexpected": "An unexpected error occurred",
+        "noSamplesForPhysicalEval": "No Samples for Physical Evaluation",
+        "noSamplesForPhysicalEvalDescription": "There are no received samples that need physical evaluation",
+        "physicalEvalStarted": "Physical Evaluation Started",
+        "physicalEvalStartedDescription": "Physical evaluation has been started for {{count}} sample(s)",
+        "physicalEvalError": "Physical Evaluation Error",
+        "physicalEvalErrorDescription": "Failed to start physical evaluation",
+        "paymentSuccessTitle": "Payment Successful",
+        "paymentSuccessDesc": "Payment completed successfully",
+        "paymentFailedTitle": "Payment Failed",
+        "paymentFailedDesc": "Payment could not be processed"
+      },
+      "payment": {
+        "title": "Payment Information",
+        "description": "Complete payment to start physical evaluation process",
+        "summaryTitle": "Payment Summary",
+        "physicalEvaluationFee": "Physical Evaluation Fee",
+        "totalAmount": "Total Amount",
+        "methodLabel": "Payment Method",
+        "methods": {
+          "card": "Credit Card",
+          "nequi": "Nequi",
+          "paypal": "PayPal"
+        },
+        "comingSoon": {
+          "card": "Credit Card payments are coming soon.",
+          "nequi": "Nequi payments are coming soon. Please select PayPal to continue today."
+        },
+        "agreeTerms": "I agree to the contest terms and conditions and understand the physical evaluation process.",
+        "total": "Total",
+        "back": "Back",
+        "paySubmit": "Pay ${{amount}} & Start",
+        "enablePayPalHint": "Please agree to the terms to enable PayPal"
       }
     },
     "sampleSubmission": {
