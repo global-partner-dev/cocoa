@@ -631,13 +631,18 @@
         "paymentSuccessTitle": "Pago Exitoso",
         "paymentSuccessDesc": "El pago se completó exitosamente",
         "paymentFailedTitle": "Pago Fallido",
-        "paymentFailedDesc": "No se pudo procesar el pago"
+        "paymentFailedDesc": "No se pudo procesar el pago",
+        "noContestFound": "No se Encontró Concurso",
+        "noContestFoundDescription": "No se pudo encontrar información del concurso para calcular el pago",
+        "paymentCalculationError": "Error en Cálculo de Pago",
+        "paymentCalculationErrorDescription": "Error al calcular el monto del pago"
       },
       "payment": {
         "title": "Información de Pago",
         "description": "Complete el pago para iniciar el proceso de evaluación física",
         "summaryTitle": "Resumen de Pago",
-        "physicalEvaluationFee": "Tarifa de Evaluación Física",
+        "samplesCount": "Cantidad de Muestras",
+        "samplePrice": "Precio por Muestra",
         "totalAmount": "Monto Total",
         "methodLabel": "Método de Pago",
         "methods": {

@@ -631,13 +631,18 @@
         "paymentSuccessTitle": "Payment Successful",
         "paymentSuccessDesc": "Payment completed successfully",
         "paymentFailedTitle": "Payment Failed",
-        "paymentFailedDesc": "Payment could not be processed"
+        "paymentFailedDesc": "Payment could not be processed",
+        "noContestFound": "No Contest Found",
+        "noContestFoundDescription": "Unable to find contest information for payment calculation",
+        "paymentCalculationError": "Payment Calculation Error",
+        "paymentCalculationErrorDescription": "Failed to calculate payment amount"
       },
       "payment": {
         "title": "Payment Information",
         "description": "Complete payment to start physical evaluation process",
         "summaryTitle": "Payment Summary",
-        "physicalEvaluationFee": "Physical Evaluation Fee",
+        "samplesCount": "Samples Count",
+        "samplePrice": "Price per Sample",
         "totalAmount": "Total Amount",
         "methodLabel": "Payment Method",
         "methods": {

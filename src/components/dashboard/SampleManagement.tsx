@@ -127,9 +127,35 @@ const SampleManagement = () => {
       return;
     }
 
-    // Set a fixed amount for physical evaluation (you can make this dynamic)
-    setPayingAmount(50.00); // $50 for physical evaluation
-    setPaymentDialogOpen(true);
+    try {
+      // Get the contest information to calculate the total amount
+      const { ContestsService } = await import('@/lib/contestsService');
+      const contests = await ContestsService.getAvailableContests();
+      
+      if (contests.length === 0) {
+        toast({
+          title: t('dashboard.sampleManagement.toasts.noContestFound'),
+          description: t('dashboard.sampleManagement.toasts.noContestFoundDescription'),
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Use the first contest's sample price (assuming all samples are from the same contest)
+      const contest = contests[0];
+      const samplePrice = contest.samplePrice || 0;
+      const totalAmount = samplesNeedingPhysicalEval.length * samplePrice;
+      
+      setPayingAmount(totalAmount);
+      setPaymentDialogOpen(true);
+    } catch (error) {
+      console.error('Error calculating payment amount:', error);
+      toast({
+        title: t('dashboard.sampleManagement.toasts.paymentCalculationError'),
+        description: t('dashboard.sampleManagement.toasts.paymentCalculationErrorDescription'),
+        variant: "destructive"
+      });
+    }
   };
 
   // Handle successful payment
@@ -532,13 +558,17 @@ const SampleManagement = () => {
               <h4 className="font-medium mb-3">{t('dashboard.sampleManagement.payment.summaryTitle')}</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span>{t('dashboard.sampleManagement.payment.physicalEvaluationFee')}</span>
-                  <span>${payingAmount ?? '-'}</span>
+                  <span>{t('dashboard.sampleManagement.payment.samplesCount')}</span>
+                  <span>{samples.filter(s => s.status === 'received').length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>{t('dashboard.sampleManagement.payment.samplePrice')}</span>
+                  <span>${((payingAmount ?? 0) / Math.max(samples.filter(s => s.status === 'received').length, 1)).toFixed(2)}</span>
                 </div>
                 <div className="border-t my-2" />
                 <div className="flex justify-between font-semibold">
                   <span>{t('dashboard.sampleManagement.payment.totalAmount')}</span>
-                  <span>${payingAmount ?? '-'}</span>
+                  <span>${payingAmount?.toFixed(2) ?? '-'}</span>
                 </div>
               </div>
             </div>
