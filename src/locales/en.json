@@ -321,6 +321,12 @@
       "refresh": "Refresh",
       "refreshing": "Refreshing...",
       "loading": "Loading samples...",
+      "checkingPaymentStatus": "Checking Payment Status...",
+      "paymentRequired": {
+        "title": "Payment Required",
+        "description": "Physical evaluation is locked until payment is completed.",
+        "instruction": "Please complete payment in Sample Management to unlock physical evaluation."
+      },
       "evaluationForm": {
         "title": "Physical Parameters Evaluation",
         "description": "Complete physical evaluation with automatic disqualification rules applied",
@@ -561,8 +567,10 @@
       "subtitle": "Receive, register and manage sample submissions",
       "refresh": "Refresh",
       "refreshing": "Refreshing...",
-      "payAndStartPhysicalEval": "Pay & Start Physical Evaluation",
-      "processing": "Processing...",
+        "payAndStartPhysicalEval": "Pay & Start Physical Evaluation",
+        "processing": "Processing...",
+      "checkingPaymentStatus": "Checking Payment Status...",
+      "paymentCompleted": "Payment Completed",
       "summary": {
         "totalSamples": "Total Samples",
         "submitted": "Submitted",

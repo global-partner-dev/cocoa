@@ -28,6 +28,8 @@ const SampleManagement = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [payingForPhysicalEval, setPayingForPhysicalEval] = useState(false);
+  const [hasPaidForPhysicalEval, setHasPaidForPhysicalEval] = useState(false);
+  const [checkingPaymentStatus, setCheckingPaymentStatus] = useState(false);
   
   // Payment modal state
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
@@ -214,6 +216,9 @@ const SampleManagement = () => {
       setPaymentMethod(null);
       setAgreeTerms(false);
       setPayingAmount(null);
+      
+      // Refresh payment status
+      await checkPaymentStatus();
     } catch (error) {
       console.error('Error starting physical evaluation:', error);
       toast({
@@ -226,10 +231,47 @@ const SampleManagement = () => {
     }
   };
 
+  // Check payment status for physical evaluation
+  const checkPaymentStatus = async () => {
+    try {
+      setCheckingPaymentStatus(true);
+      const samplesNeedingPhysicalEval = samples.filter(s => s.status === 'received');
+      
+      if (samplesNeedingPhysicalEval.length === 0) {
+        setHasPaidForPhysicalEval(false);
+        return;
+      }
+
+      const { FinanceService } = await import('@/lib/financeService');
+      const sampleIds = samplesNeedingPhysicalEval.map(s => s.id);
+      
+      const paymentStatus = await FinanceService.hasDirectorPaidForPhysicalEvaluation(sampleIds);
+      
+      if (paymentStatus.success) {
+        setHasPaidForPhysicalEval(paymentStatus.hasPaid);
+      } else {
+        console.error('Error checking payment status:', paymentStatus.error);
+        setHasPaidForPhysicalEval(false);
+      }
+    } catch (error) {
+      console.error('Error checking payment status:', error);
+      setHasPaidForPhysicalEval(false);
+    } finally {
+      setCheckingPaymentStatus(false);
+    }
+  };
+
   // Load samples on component mount
   useEffect(() => {
     loadSamples();
   }, []);
+
+  // Check payment status when samples change
+  useEffect(() => {
+    if (samples.length > 0) {
+      checkPaymentStatus();
+    }
+  }, [samples]);
 
   const handleReceiveSample = async (sampleId: string) => {
     const sample = samples.find(s => s.id === sampleId);
@@ -349,12 +391,28 @@ const SampleManagement = () => {
           {user?.role === 'director' && (
             <Button
               onClick={handlePayAndStartPhysicalEvaluation}
-              disabled={payingForPhysicalEval || samples.filter(s => s.status === 'received').length === 0}
-              className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] text-white w-full sm:w-auto"
+              disabled={
+                payingForPhysicalEval || 
+                checkingPaymentStatus ||
+                samples.filter(s => s.status === 'received').length === 0 ||
+                hasPaidForPhysicalEval
+              }
+              className={`w-full sm:w-auto ${
+                hasPaidForPhysicalEval 
+                  ? 'bg-green-600 hover:bg-green-700 text-white' 
+                  : 'bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] text-white'
+              }`}
               size="sm"
             >
-              <CreditCard className={`w-4 h-4 mr-2 ${payingForPhysicalEval ? 'animate-pulse' : ''}`} />
-              {payingForPhysicalEval ? t('dashboard.sampleManagement.processing') : t('dashboard.sampleManagement.payAndStartPhysicalEval')}
+              <CreditCard className={`w-4 h-4 mr-2 ${payingForPhysicalEval || checkingPaymentStatus ? 'animate-pulse' : ''}`} />
+              {checkingPaymentStatus 
+                ? t('dashboard.sampleManagement.checkingPaymentStatus')
+                : payingForPhysicalEval 
+                  ? t('dashboard.sampleManagement.processing') 
+                  : hasPaidForPhysicalEval
+                    ? t('dashboard.sampleManagement.paymentCompleted')
+                    : t('dashboard.sampleManagement.payAndStartPhysicalEval')
+              }
             </Button>
           )}
           <Button

@@ -49,6 +49,8 @@ const PhysicalEvaluation = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [hasPaidForPhysicalEval, setHasPaidForPhysicalEval] = useState(false);
+  const [checkingPaymentStatus, setCheckingPaymentStatus] = useState(false);
   const { toast } = useToast();
 
   const getStatusColor = (status: PhysicalEvaluationSample['status']) => {
@@ -113,10 +115,47 @@ const PhysicalEvaluation = () => {
     }
   };
 
+  // Check payment status for physical evaluation
+  const checkPaymentStatus = async () => {
+    try {
+      setCheckingPaymentStatus(true);
+      const samplesNeedingPhysicalEval = samples.filter(s => s.status === 'received');
+      
+      if (samplesNeedingPhysicalEval.length === 0) {
+        setHasPaidForPhysicalEval(false);
+        return;
+      }
+
+      const { FinanceService } = await import('@/lib/financeService');
+      const sampleIds = samplesNeedingPhysicalEval.map(s => s.id);
+      
+      const paymentStatus = await FinanceService.hasDirectorPaidForPhysicalEvaluation(sampleIds);
+      
+      if (paymentStatus.success) {
+        setHasPaidForPhysicalEval(paymentStatus.hasPaid);
+      } else {
+        console.error('Error checking payment status:', paymentStatus.error);
+        setHasPaidForPhysicalEval(false);
+      }
+    } catch (error) {
+      console.error('Error checking payment status:', error);
+      setHasPaidForPhysicalEval(false);
+    } finally {
+      setCheckingPaymentStatus(false);
+    }
+  };
+
   // Load samples on component mount
   useEffect(() => {
     loadSamples();
   }, []);
+
+  // Check payment status when samples change
+  useEffect(() => {
+    if (samples.length > 0) {
+      checkPaymentStatus();
+    }
+  }, [samples]);
 
   const handleEvaluationChange = <K extends keyof PhysicalEvaluationData>(
     field: K, 
@@ -273,7 +312,36 @@ const PhysicalEvaluation = () => {
               {t('dashboard.physicalEvaluation.evaluationForm.description')}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6 sm:space-y-8">
+          <CardContent className="space-y-6 sm:space-y-8 relative">
+            {/* Payment Lock Overlay */}
+            {!hasPaidForPhysicalEval && !checkingPaymentStatus && (
+              <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-lg">
+                <div className="text-center p-6">
+                  <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-amber-800 mb-2">
+                    {t('dashboard.physicalEvaluation.paymentRequired.title')}
+                  </h3>
+                  <p className="text-sm text-amber-700 mb-4">
+                    {t('dashboard.physicalEvaluation.paymentRequired.description')}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('dashboard.physicalEvaluation.paymentRequired.instruction')}
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            {/* Loading State */}
+            {checkingPaymentStatus && (
+              <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-lg">
+                <div className="text-center p-6">
+                  <RefreshCw className="w-8 h-8 text-blue-500 mx-auto mb-4 animate-spin" />
+                  <p className="text-sm text-muted-foreground">
+                    {t('dashboard.physicalEvaluation.checkingPaymentStatus')}
+                  </p>
+                </div>
+              </div>
+            )}
             
             {/* 1. Odor Checklist */}
             <div>

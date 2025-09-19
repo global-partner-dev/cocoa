@@ -321,6 +321,12 @@
       "refresh": "Actualizar",
       "refreshing": "Actualizando...",
       "loading": "Cargando muestras...",
+      "checkingPaymentStatus": "Verificando Estado de Pago...",
+      "paymentRequired": {
+        "title": "Pago Requerido",
+        "description": "La evaluación física está bloqueada hasta que se complete el pago.",
+        "instruction": "Por favor complete el pago en Gestión de Muestras para desbloquear la evaluación física."
+      },
       "evaluationForm": {
         "title": "Evaluación de Parámetros Físicos",
         "description": "Evaluación física completa con reglas automáticas de descalificación aplicadas",
@@ -561,8 +567,10 @@
       "subtitle": "Recibir, registrar y gestionar envíos de muestras",
       "refresh": "Actualizar",
       "refreshing": "Actualizando...",
-      "payAndStartPhysicalEval": "Pagar e Iniciar Evaluación Física",
-      "processing": "Procesando...",
+        "payAndStartPhysicalEval": "Pagar e Iniciar Evaluación Física",
+        "processing": "Procesando...",
+      "checkingPaymentStatus": "Verificando Estado de Pago...",
+      "paymentCompleted": "Pago Completado",
       "summary": {
         "totalSamples": "Muestras Totales",
         "submitted": "Enviadas",

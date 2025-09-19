@@ -242,4 +242,29 @@ export class FinanceService {
     }
   }
 
+  /** Check if director has already paid for physical evaluation of samples */
+  static async hasDirectorPaidForPhysicalEvaluation(sampleIds: string[]) {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('payments')
+        .select('sample_id')
+        .eq('user_id', user.id)
+        .eq('role', 'director')
+        .eq('status', 'paid')
+        .in('sample_id', sampleIds);
+
+      if (error) throw error;
+      
+      const paidSampleIds = new Set((data || []).map((p: any) => p.sample_id));
+      const hasPaidForAll = sampleIds.every(id => paidSampleIds.has(id));
+      
+      return { success: true, hasPaid: hasPaidForAll, paidSamples: Array.from(paidSampleIds) } as const;
+    } catch (e: any) {
+      return { success: false, hasPaid: false, error: e?.message || 'Failed to check payment status' } as const;
+    }
+  }
+
 }
