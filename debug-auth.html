@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Auth Debug</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Supabase Authentication Debug</h1>
+    
+    <div>
+        <h2>Test Registration</h2>
+        <input type="email" id="regEmail" placeholder="Email" value="test@example.com">
+        <input type="password" id="regPassword" placeholder="Password" value="testpassword123">
+        <button onclick="testRegister()">Test Register</button>
+    </div>
+    
+    <div>
+        <h2>Test Login</h2>
+        <input type="email" id="loginEmail" placeholder="Email" value="test@example.com">
+        <input type="password" id="loginPassword" placeholder="Password" value="testpassword123">
+        <button onclick="testLogin()">Test Login</button>
+    </div>
+    
+    <div>
+        <h2>Manual Email Confirm</h2>
+        <input type="email" id="confirmEmail" placeholder="Email" value="test@example.com">
+        <button onclick="manualConfirm()">Manual Confirm</button>
+    </div>
+    
+    <div>
+        <h2>Check Auth Users</h2>
+        <button onclick="checkAuthUsers()">Check Auth Users</button>
+    </div>
+    
+    <div>
+        <h2>Check Profiles</h2>
+        <button onclick="checkProfiles()">Check Profiles</button>
+    </div>
+    
+    <div id="output" style="margin-top: 20px; padding: 10px; background: #f0f0f0; white-space: pre-wrap;"></div>
+
+    <script>
+        // Initialize Supabase
+        const supabaseUrl = 'https://zsqtdawrsymdfdznvuvu.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzcXRkYXdyc3ltZGZkem52dXZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY4MTk1OTksImV4cCI6MjA3MjM5NTU5OX0.zWUQkxp80keadDhJ6PG9ZYi1dtISali_-6GMKx4oo-0';
+        
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        function log(message) {
+            const output = document.getElementById('output');
+            output.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            console.log(message);
+        }
+        
+        async function testRegister() {
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            
+            log('Testing registration for: ' + email);
+            
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        emailRedirectTo: undefined
+                    }
+                });
+                
+                if (error) {
+                    log('Registration error: ' + error.message);
+                } else {
+                    log('Registration success: ' + JSON.stringify(data, null, 2));
+                }
+            } catch (err) {
+                log('Registration exception: ' + err.message);
+            }
+        }
+        
+        async function testLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            log('Testing login for: ' + email);
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) {
+                    log('Login error: ' + error.message);
+                } else {
+                    log('Login success: ' + JSON.stringify(data, null, 2));
+                }
+            } catch (err) {
+                log('Login exception: ' + err.message);
+            }
+        }
+        
+        async function manualConfirm() {
+            const email = document.getElementById('confirmEmail').value;
+            
+            log('Manually confirming email: ' + email);
+            
+            try {
+                // This requires service role key, won't work with anon key
+                log('Manual confirmation requires admin access - use SQL Editor instead');
+                log('Run this SQL: UPDATE auth.users SET email_confirmed_at = NOW() WHERE email = \'' + email + '\';');
+            } catch (err) {
+                log('Manual confirm exception: ' + err.message);
+            }
+        }
+        
+        async function checkAuthUsers() {
+            log('Checking auth users (this may not work with anon key)...');
+            
+            try {
+                // This won't work with anon key, but let's try
+                const { data, error } = await supabase.from('auth.users').select('*');
+                
+                if (error) {
+                    log('Auth users error: ' + error.message);
+                } else {
+                    log('Auth users: ' + JSON.stringify(data, null, 2));
+                }
+            } catch (err) {
+                log('Auth users exception: ' + err.message);
+            }
+        }
+        
+        async function checkProfiles() {
+            log('Checking profiles...');
+            
+            try {
+                const { data, error } = await supabase.from('profiles').select('*');
+                
+                if (error) {
+                    log('Profiles error: ' + error.message);
+                } else {
+                    log('Profiles: ' + JSON.stringify(data, null, 2));
+                }
+            } catch (err) {
+                log('Profiles exception: ' + err.message);
+            }
+        }
+        
+        // Check current session on load
+        window.onload = async function() {
+            log('Checking current session...');
+            
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                
+                if (error) {
+                    log('Session error: ' + error.message);
+                } else if (session) {
+                    log('Current session: ' + JSON.stringify(session, null, 2));
+                } else {
+                    log('No current session');
+                }
+            } catch (err) {
+                log('Session exception: ' + err.message);
+            }
+        };
+    </script>
+</body>
+</html>

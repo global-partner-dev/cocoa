@@ -1,0 +1,1781 @@
+{
+  "common": {
+    "refresh": "Actualizar"
+  },
+  "nav": {
+    "brand": "Competencia de Cacao",
+    "signIn": "Iniciar sesión",
+    "join": "Unirse a la Competencia",
+    "signOut": "Cerrar sesión",
+    "language": "Idioma"
+  },
+  "lang": {
+    "en": "Inglés",
+    "es": "Español"
+  },
+  "home": {
+    "hero": {
+      "titleLine1": "Cacao y Chocolate",
+      "titleLine2": "Competencia de Calidad",
+      "subtitle": "Celebramos la excelencia en la producción de cacao y elaboración de chocolate a través de evaluación rigurosa y reconocimiento de la industria."
+    },
+    "actions": {
+      "join": "Unirse a la Competencia",
+      "login": "Ingresar al Panel"
+    },
+    "sectionTitle": "Excelencia en Cada Grano",
+    "sectionSubtitle": "Nuestra competencia reúne a los mejores productores de cacao, chocolateros y expertos de la industria para celebrar la calidad y la innovación.",
+    "features": {
+      "quality": {
+        "title": "Excelencia en Calidad",
+        "description": "Promovemos los más altos estándares en la producción de cacao y chocolate a nivel mundial."
+      },
+      "expert": {
+        "title": "Jueces Expertos",
+        "description": "Panel internacional de profesionales certificados del chocolate y expertos de la industria."
+      },
+      "fair": {
+        "title": "Evaluación Justa",
+        "description": "Proceso de evaluación transparente y estandarizado para todos los participantes."
+      },
+      "recognition": {
+        "title": "Reconocimiento",
+        "description": "Los ganadores reciben premios prestigiosos y reconocimiento en la industria."
+      }
+    },
+    "cta": {
+      "heading": "¿Listo para Mostrar tu Calidad?",
+      "subtitle": "Únete a nuestra comunidad de profesionales del cacao y el chocolate comprometidos con la excelencia.",
+      "getStarted": "Comienza Hoy"
+    }
+  },
+  "contest": {
+    "title": "Gestión de Concursos",
+    "subtitle": "Crea y administra concursos de la competencia",
+    "loading": "Cargando...",
+    "accessRestrictedTitle": "Acceso Restringido",
+    "accessRestrictedDesc": "No tienes permiso para administrar concursos. Solo administradores y directores pueden acceder a esta función.",
+    "create": "Crear Concurso",
+    "edit": "Editar Concurso",
+    "createNew": "Crear Nuevo Concurso",
+    "updateDetails": "Actualiza los detalles del concurso.",
+    "createDetails": "Completa los detalles para crear un nuevo concurso.",
+    "fields": {
+      "name": "Nombre del Concurso",
+      "namePh": "Ingresa el nombre del concurso",
+      "description": "Descripción",
+      "descriptionPh": "Ingresa la descripción del concurso",
+      "location": "Ubicación",
+      "locationPh": "Ingresa la ubicación del concurso",
+      "startDate": "Fecha de Inicio",
+      "endDate": "Fecha de Fin",
+      "samplePrice": "Precio de Muestra ($)",
+      "evaluationPrice": "Precio de Evaluación ($)"
+    },
+    "buttons": {
+      "cancel": "Cancelar",
+      "update": "Actualizar Concurso",
+      "create": "Crear Concurso",
+      "updating": "Actualizando...",
+      "creating": "Creando...",
+      "startFinalEval": "Iniciar Evaluación Final"
+    },
+    "badges": {
+      "startedFinalEval": "Evaluación final iniciada",
+      "evalAbbrev": "Eval"
+    },
+    "toasts": {
+      "success": "Éxito",
+      "error": "Error",
+      "created": "¡Concurso creado con éxito!",
+      "updated": "¡Concurso actualizado con éxito!",
+      "deleted": "¡Concurso eliminado con éxito!",
+      "loadFailed": "Error al cargar concursos. Inténtalo de nuevo.",
+      "saveFailed": "Error al guardar el concurso. Inténtalo de nuevo.",
+      "deleteFailed": "Error al eliminar el concurso. Inténtalo de nuevo.",
+      "finalStarted": "Evaluación final iniciada",
+      "actionFailed": "Acción fallida",
+      "couldNotStartFinal": "No se pudo iniciar la evaluación final"
+    },
+    "validation": {
+      "invalidDateTitle": "Rango de Fechas No Válido",
+      "invalidDateDesc": "La fecha de fin debe ser igual o posterior a la fecha de inicio."
+    },
+    "empty": "Aún no hay concursos creados. ¡Crea tu primer concurso!"
+  },
+  "dashboard": {
+    "title": "Panel de Control",
+    "welcomeBack": "¡Bienvenido de nuevo, {{name}}!",
+    "roleMsg": {
+      "admin": "Bienvenido al Panel de Administración. Administra usuarios, concursos y supervisa toda la plataforma.",
+      "director": "Bienvenido al Panel de Director. Coordina muestras, gestiona jueces y supervisa las etapas de evaluación.",
+      "judge": "Bienvenido al Panel de Juez. Evalúa las muestras enviadas y contribuye a la valoración de calidad.",
+      "participant": "Bienvenido al Panel de Participante. Envía tus muestras y consulta tus resultados.",
+      "evaluator": "Bienvenido al Panel de Evaluador. Evalúa muestras y visualiza resultados detallados."
+    },
+    "participantDashboard": {
+      "title": "Panel de Participante",
+      "subtitle": "Rastrea tus envíos de muestras y resultados de concursos",
+      "refresh": "Actualizar",
+      "notifications": "Notificaciones",
+      "sampleDetails": {
+        "title": "Detalles de la Muestra",
+        "backToDashboard": "Volver al Panel",
+        "sampleInformation": "Información de la Muestra",
+        "shippingInformation": "Información de Envío",
+        "evaluationResults": "Resultados de Evaluación",
+        "sampleName": "Nombre de la Muestra",
+        "contest": "Concurso",
+        "submissionDate": "Fecha de Envío",
+        "externalCode": "Código Externo",
+        "status": "Estado",
+        "paymentStatus": "Estado de Pago",
+        "progress": "Progreso",
+        "complete": "completo",
+        "qrCode": "Código QR",
+        "downloadQrCode": "Descargar Código QR",
+        "sensoryEvaluation": "Evaluación Sensorial",
+        "judgeFeedback": "Comentarios del Juez",
+        "downloadPdfReport": "Descargar Reporte PDF",
+        "performanceRadar": "Radar de Rendimiento",
+        "physicalEvaluation": "Evaluación Física",
+        "humidity": "Humedad (%)",
+        "brokenGrains": "Granos Rotos",
+        "flatGrains": "Granos Planos",
+        "affectedGrains": "Granos Afectados/Insectos",
+        "wellFermented": "Bien Fermentados",
+        "lightlyFermented": "Ligeramente Fermentados",
+        "purpleBeans": "Granos Púrpura",
+        "slatyBeans": "Granos Pizarrosos",
+        "internalMoldy": "Moho Interno",
+        "overFermented": "Sobre-fermentados",
+        "notes": "Notas",
+        "noPhysicalData": "No hay datos de evaluación física disponibles.",
+        "evaluationInProgress": "Evaluación en Progreso",
+        "resultsAvailable": "Los resultados estarán disponibles una vez completada la evaluación"
+      },
+      "stats": {
+        "totalSamples": "Muestras Totales",
+        "evaluated": "Evaluadas",
+        "disqualifiedSamples": "Muestras Descalificadas",
+        "averageScore": "Puntuación Promedio"
+      },
+      "mySamples": {
+        "title": "Mis Muestras",
+        "description": "Haz clic en una muestra para ver detalles y resultados",
+        "submitted": "Enviado",
+        "score": "puntuación"
+      },
+      "openContests": {
+        "title": "Concursos Abiertos",
+        "open": "Abierto",
+        "registration": "Registro",
+        "submission": "Envío",
+        "entry": "Inscripción",
+        "sample": "Muestra",
+        "registerSample": "Registrar Muestra"
+      },
+      "recentNotifications": {
+        "title": "Notificaciones Recientes",
+        "loading": "Cargando...",
+        "noNotifications": "Sin notificaciones"
+      },
+      "status": {
+        "submitted": "Enviado",
+        "received": "Recibido",
+        "physical_evaluation": "Evaluación Física",
+        "approved": "Aprobado",
+        "assigned": "Asignado",
+        "evaluating": "Evaluando",
+        "evaluated": "Evaluado",
+        "disqualified": "Descalificado"
+      },
+      "paymentStatus": {
+        "pending": "Pendiente",
+        "paid": "Pagado",
+        "failed": "Fallido"
+      },
+      "toasts": {
+        "generatingReport": "Generando Reporte",
+        "preparingPdf": "Preparando PDF para {{sampleName}}...",
+        "reportReady": "Reporte Listo",
+        "downloadedPdf": "PDF descargado para {{sampleName}}",
+        "failedToGenerate": "Error al generar reporte",
+        "failedToRefresh": "Error al actualizar"
+      }
+    },
+    "participantResults": {
+      "title": "Panel de Resultados",
+      "subtitle": {
+        "myResults": "Tus resultados de evaluación personales",
+        "topSamples": "Top 10 muestras basadas en puntuaciones de evaluación sensorial"
+      },
+      "loading": {
+        "title": "Cargando Resultados",
+        "subtitle": "Obteniendo resultados de evaluación de la base de datos...",
+        "myResults": "Cargando Tus Resultados",
+        "myResultsSubtitle": "Obteniendo tus resultados de evaluación personales...",
+        "detailedData": "Cargando datos de evaluación detallados..."
+      },
+      "error": {
+        "title": "Error al Cargar Resultados",
+        "tryAgain": "Intentar de Nuevo"
+      },
+      "stats": {
+        "totalSamples": "Muestras Totales",
+        "resultsAvailable": "Resultados Disponibles",
+        "averageScore": "Puntuación Promedio",
+        "bestScore": "Mejor Puntuación",
+        "awardsWon": "Premios Ganados"
+      },
+      "topSamples": {
+        "title": "Top 10 Muestras",
+        "description": "Muestras con mayor puntuación basadas en evaluación sensorial - haz clic para ver detalles",
+        "noResults": {
+          "title": "No Hay Resultados Disponibles",
+          "noEvaluations": "Aún no se han evaluado muestras. Los resultados aparecerán una vez que se completen las evaluaciones sensoriales.",
+          "noMatches": "No hay resultados que coincidan con el filtro actual. Intenta seleccionar un filtro de estado diferente.",
+          "refresh": "Actualizar Resultados"
+        }
+      },
+      "topPerformers": {
+        "title": "Mejores Desempeños",
+        "description": "Muestras con mayor puntuación en la competencia",
+        "noPerformers": "Aún no hay mejores desempeños disponibles",
+        "participant": "Participante",
+        "score": "Puntuación",
+        "contest": "Concurso"
+      },
+      "performanceInsights": {
+        "title": "Perspectivas de Desempeño",
+        "improvingQuality": {
+          "title": "Mejorando la Calidad",
+          "description": "Tus puntuaciones muestran una mejora constante"
+        },
+        "strongFlavor": {
+          "title": "Fuerte en Sabor",
+          "description": "Puntuaciones de sabor consistentemente por encima del promedio"
+        },
+        "focusTexture": {
+          "title": "Enfócate en la Textura",
+          "description": "Hay margen de mejora en las puntuaciones de textura"
+        }
+      },
+      "detailedResults": {
+        "title": "Resultados Detallados",
+        "backToResults": "Volver a Resultados",
+        "overallPerformance": "Desempeño General",
+        "awardsRecognition": "Premios y Reconocimientos",
+        "performanceRadarChart": "Gráfico de Radar de Desempeño",
+        "radarDescription": "Escala 0-10 derivada de totales de evaluación sensorial",
+        "physicalEvaluation": "Evaluación Física",
+        "physicalNotes": "Notas",
+        "physicalDetails": "Detalles de Evaluación Física",
+        "evaluatedBy": "Evaluado Por",
+        "evaluatedAt": "Evaluado En",
+        "globalEvaluation": "Evaluación Global",
+        "humidity": "Humedad (%)",
+        "brokenGrains": "Granos Rotos (%)",
+        "flatGrains": "Granos Planos (%)",
+        "affectedGrains": "Granos Afectados (Insectos) (%)",
+        "wellFermented": "Granos Bien Fermentados (%)",
+        "lightlyFermented": "Granos Ligeramente Fermentados (%)",
+        "purpleBeans": "Granos Púrpura (%)",
+        "slatyBeans": "Granos Grises (%)",
+        "moldyBeans": "Granos Mohosos Internos (%)",
+        "overFermented": "Granos Sobre-fermentados (%)",
+        "undesirableAromas": "¿Aromas Indeseables?",
+        "yes": "Sí",
+        "no": "Ninguno",
+        "aromasList": "Lista de Aromas Indeseables",
+        "disqualificationReasons": "Razones de Descalificación",
+        "warnings": "Advertencias",
+        "sensoryEvaluation": "Evaluación Sensorial",
+        "overallSensory": "Sensorial General",
+        "sensoryNotes": "Notas",
+        "completeReport": "Reporte de Evaluación Completo",
+        "reportDescription": "Descarga un reporte PDF completo con todos los detalles de evaluación, gráficos y recomendaciones",
+        "downloadPdfReport": "Descargar Reporte PDF"
+      },
+      "scoreGrades": {
+        "excellent": "Excelente",
+        "veryGood": "Muy Bueno",
+        "good": "Bueno",
+        "fair": "Regular",
+        "needsImprovement": "Necesita Mejora"
+      },
+      "status": {
+        "published": "Publicado",
+        "evaluated": "Evaluado",
+        "pending_results": "Resultados Pendientes"
+      },
+      "refreshResults": "Actualizar Resultados",
+      "toasts": {
+        "noResultsAvailable": "No Hay Resultados Disponibles",
+        "noResultsDescription": "Aún no se han evaluado muestras. Los resultados aparecerán una vez que se completen las evaluaciones sensoriales.",
+        "errorLoading": "Error al Cargar Resultados",
+        "errorLoadingDetails": "Error al Cargar Detalles",
+        "generatingReport": "Generando Reporte",
+        "preparingPdf": "Preparando PDF para {{sampleName}}...",
+        "reportReady": "Reporte Listo",
+        "pdfDownloaded": "PDF descargado para {{sampleName}}.",
+        "pdfError": "Error de PDF"
+      }
+    },
+    "physicalEvaluation": {
+      "title": "Evaluación Física",
+      "subtitle": "Evaluación física integral con reglas automáticas de descalificación",
+      "refresh": "Actualizar",
+      "refreshing": "Actualizando...",
+      "loading": "Cargando muestras...",
+      "evaluationForm": {
+        "title": "Evaluación de Parámetros Físicos",
+        "description": "Evaluación física completa con reglas automáticas de descalificación aplicadas",
+        "backToList": "Volver a la Lista",
+        "sampleInfo": "Muestra: {{code}} - {{participant}}",
+        "odorChecklist": {
+          "title": "1. Lista de Verificación de Olores",
+          "description": "Selecciona los olores observados. Cualquier olor Atípico marcará \"aromas indeseables\" y causará descalificación.",
+          "typical": "Típico",
+          "atypical": "Atípico",
+          "typicalOdors": [
+            "Cacao limpio",
+            "Chocolate",
+            "Fruta madura",
+            "Floral",
+            "Picante",
+            "Caramelo / dulce",
+            "Miel / melaza",
+            "Frutas secas",
+            "Cítrico",
+            "Herbal fresco",
+            "Mantecoso / lácteo suave",
+            "Ahumado ligero"
+          ],
+          "atypicalOdors": [
+            "Fermentación excesiva",
+            "Moho / húmedo",
+            "Tierra / arcilla",
+            "Humo intenso / quemado",
+            "Rancido / oxidado",
+            "Medicinal / químico",
+            "Animal / cuero",
+            "Jabón / detergente",
+            "Nota tánica pronunciada",
+            "Sulfuroso / huevo podrido",
+            "Combustible (gasolina, diésel)",
+            "Solventes industriales (pintura, pegamento, diluyente)"
+          ]
+        },
+        "humidity": {
+          "title": "2. Humedad Porcentual (%)",
+          "description": "Rango aceptable: 3.5% - 8.0% (óptimo: 6.0% - 7.5%)",
+          "placeholder": "Ingrese el porcentaje de humedad"
+        },
+        "brokenGrains": {
+          "title": "3. Granos Rotos (%)",
+          "description": "Máximo permitido: 10%",
+          "placeholder": "Ingrese el porcentaje de granos rotos"
+        },
+        "violatedGrains": {
+          "title": "4. Granos Violados",
+          "description": "Exposición interna o daño estructural (descalificación si se detecta)",
+          "label": "Granos violados detectados"
+        },
+        "flatGrains": {
+          "title": "5. Granos Planos (%)",
+          "description": "Umbral de advertencia: 15% (penalización de calidad, no descalificante)",
+          "placeholder": "Ingrese el porcentaje de granos planos"
+        },
+        "affectedGrains": {
+          "title": "6. Granos Afectados/Insectos (cantidad)",
+          "description": "Descalificación inmediata si ≥ 1",
+          "placeholder": "Ingrese la cantidad de granos afectados"
+        },
+        "fermentation": {
+          "title": "7. Análisis de Fermentación",
+          "description": "Bien fermentados + ligeramente fermentados debe ser ≥ 60%",
+          "wellFermented": "Granos bien fermentados (%)",
+          "lightlyFermented": "Granos ligeramente fermentados (%)",
+          "placeholder": "Ingrese el porcentaje",
+          "totalFermented": "Total fermentado:"
+        },
+        "purpleBeans": {
+          "title": "8. Granos Púrpura (%) - Sin Fermentar",
+          "description": "Máximo permitido: 15%",
+          "placeholder": "Ingrese el porcentaje de granos púrpura"
+        },
+        "slatyBeans": {
+          "title": "9. Granos Grises (%)",
+          "description": "Máximo permitido: 0%",
+          "placeholder": "Ingrese el porcentaje de granos grises"
+        },
+        "moldyBeans": {
+          "title": "10. Granos Mohosos Internos (%)",
+          "description": "Máximo permitido: 0%",
+          "placeholder": "Ingrese el porcentaje de granos mohosos internos"
+        },
+        "overFermented": {
+          "title": "11. Granos Sobre-fermentados (%)",
+          "description": "Máximo permitido: 0%",
+          "placeholder": "Ingrese el porcentaje de granos sobre-fermentados"
+        },
+        "notes": {
+          "title": "Notas de Evaluación",
+          "placeholder": "Ingrese cualquier observación adicional o notas"
+        },
+        "results": {
+          "disqualified": {
+            "title": "La Muestra Será Descalificada",
+            "observedOdors": "Olores observados (no críticos):",
+            "typical": "Típico:",
+            "atypical": "Atípico:"
+          },
+          "warnings": {
+            "title": "Advertencias de Calidad"
+          },
+          "passed": {
+            "title": "La Muestra Pasa la Evaluación Física",
+            "description": "Todos los parámetros físicos cumplen con los estándares requeridos"
+          }
+        },
+        "actions": {
+          "cancel": "Cancelar",
+          "save": "Guardar Evaluación",
+          "saving": "Guardando..."
+        }
+      },
+      "summary": {
+        "pendingEvaluation": "Evaluación Pendiente",
+        "underEvaluation": "En Evaluación",
+        "approved": "Aprobado",
+        "disqualified": "Descalificado"
+      },
+      "samplesList": {
+        "title": "Muestras para Evaluación Física",
+        "description": "Haz clic en una muestra para comenzar o continuar la evaluación física",
+        "noSamples": {
+          "title": "No se encontraron muestras",
+          "description": "No hay muestras listas para evaluación física."
+        },
+        "submitted": "Enviado:",
+        "status": {
+          "received": "recibido",
+          "physical_evaluation": "evaluación física",
+          "approved": "aprobado",
+          "disqualified": "descalificado"
+        },
+        "actions": {
+          "approve": "Aprobar",
+          "notify": "Notificar"
+        },
+        "warnings": {
+          "title": "Advertencias:"
+        },
+        "disqualificationReasons": {
+          "title": "Razones de Descalificación:",
+          "noReasons": "Esta muestra ha sido descalificada. Las razones de descalificación pueden no estar disponibles en el sistema."
+        }
+      },
+      "toasts": {
+        "errorLoadingSamples": "Error al Cargar Muestras",
+        "errorLoadingDescription": "Error al cargar muestras",
+        "unexpectedError": "Ocurrió un error inesperado",
+        "samplesRefreshed": "Muestras Actualizadas",
+        "samplesRefreshedDescription": "La lista de muestras ha sido actualizada",
+        "evaluationSaved": "Evaluación Guardada",
+        "sampleDisqualified": "Muestra Descalificada",
+        "evaluationSavedDescription": "La evaluación física ha sido guardada exitosamente",
+        "sampleDisqualifiedDescription": "La muestra ha sido descalificada debido a parámetros físicos fallidos",
+        "errorSaving": "Error al Guardar Evaluación",
+        "errorSavingDescription": "Error al guardar evaluación física",
+        "sampleApproved": "Muestra Aprobada",
+        "sampleApprovedDescription": "La muestra ha sido aprobada y está lista para asignación de jueces",
+        "errorApproving": "Error al Aprobar Muestra",
+        "errorApprovingDescription": "Error al aprobar muestra",
+        "notificationSent": "Notificación Enviada",
+        "notificationSentDescription": "Notificación de descalificación enviada a {{participant}}"
+      }
+    },
+    "placeholderPage": {
+      "underDevelopment": "Esta sección está actualmente en desarrollo y estará disponible en futuras actualizaciones.",
+      "backToDashboard": "Volver al Panel"
+    },
+    "sampleAssignment": {
+      "title": "Asignación de Muestras",
+      "subtitle": "Asignar muestras aprobadas a jueces para evaluación sensorial",
+      "refresh": "Actualizar",
+      "assignmentMode": {
+        "single": "Asignación Individual",
+        "bulk": "Asignación Masiva"
+      },
+      "summary": {
+        "readyForAssignment": "Listas para Asignación",
+        "assigned": "Asignadas",
+        "underEvaluation": "En Evaluación",
+        "completed": "Completadas"
+      },
+      "samples": {
+        "title": "Muestras",
+        "description": {
+          "single": "Haz clic en una muestra para asignar jueces",
+          "bulk": "Selecciona múltiples muestras para asignación masiva"
+        },
+        "judges": "Jueces:",
+        "status": {
+          "approved": "aprobada",
+          "assigned": "asignada",
+          "evaluating": "evaluando",
+          "evaluated": "evaluada"
+        }
+      },
+      "judgeAssignment": {
+        "title": "Asignación de Jueces",
+        "description": {
+          "singleSelected": "Asignar jueces a {{sampleCode}}",
+          "singleNotSelected": "Selecciona una muestra para asignar jueces",
+          "bulkSelected": "Asignar jueces a {{count}} muestras seleccionadas",
+          "bulkNotSelected": "Selecciona muestras para asignar jueces"
+        },
+        "assignments": "asignaciones",
+        "selectedJudges": "Jueces Seleccionados: {{count}}",
+        "assignJudges": "Asignar Jueces",
+        "selected": "Seleccionados:",
+        "noSelection": {
+          "single": "Selecciona una muestra de la lista para asignar jueces",
+          "bulk": "Selecciona muestras de la lista para asignación masiva"
+        }
+      },
+      "judgeAvailability": {
+        "title": "Resumen de Disponibilidad de Jueces",
+        "description": "Carga de trabajo actual y disponibilidad de todos los jueces",
+        "available": "Disponible",
+        "full": "Completo",
+        "assignments": "Asignaciones:"
+      },
+      "toasts": {
+        "failedToLoad": "Error al cargar datos",
+        "judgesAssigned": "Jueces Asignados",
+        "judgesAssignedDescription": "{{count}} jueces asignados a la muestra {{sampleCode}}",
+        "bulkAssignmentComplete": "Asignación Masiva Completada",
+        "bulkAssignmentDescription": "{{judgeCount}} jueces asignados a {{sampleCount}} muestras",
+        "assignmentFailed": "Error en asignación",
+        "assignmentFailedDescription": "Error inesperado"
+      }
+    },
+    "sampleManagement": {
+      "title": "Gestión de Muestras",
+      "subtitle": "Recibir, registrar y gestionar envíos de muestras",
+      "refresh": "Actualizar",
+      "refreshing": "Actualizando...",
+      "summary": {
+        "totalSamples": "Muestras Totales",
+        "submitted": "Enviadas",
+        "received": "Recibidas",
+        "physicalEval": "Eval. Física",
+        "approved": "Aprobadas",
+        "disqualified": "Descalificadas"
+      },
+      "filters": {
+        "title": "Filtros",
+        "searchPlaceholder": "Buscar muestras...",
+        "internalCodePlaceholder": "Buscar por código interno...",
+        "statusPlaceholder": "Filtrar por estado",
+        "allStatus": "Todos los Estados",
+        "status": {
+          "submitted": "Enviada",
+          "received": "Recibida",
+          "evaluated": "Evaluada",
+          "approved": "Aprobada",
+          "disqualified": "Descalificada"
+        }
+      },
+      "sampleList": {
+        "title": "Lista de Muestras",
+        "description": "Gestionar recepción y cambios de estado de muestras",
+        "loading": "Cargando muestras...",
+        "noSamplesFound": "No se encontraron muestras",
+        "noSamplesSubmitted": "Aún no se han enviado muestras.",
+        "noSamplesMatch": "Ninguna muestra coincide con sus filtros actuales.",
+        "submitted": "Enviada:",
+        "received": "Recibida:",
+        "weight": "Peso:",
+        "notes": "Notas:",
+        "receive": "Recibir",
+        "delete": "Eliminar",
+        "status": {
+          "submitted": "enviada",
+          "received": "recibida",
+          "evaluated": "evaluada",
+          "approved": "aprobada",
+          "disqualified": "descalificada"
+        }
+      },
+      "toasts": {
+        "errorLoading": "Error al Cargar Muestras",
+        "errorLoadingDescription": "Error al cargar muestras",
+        "errorLoadingUnexpected": "Ocurrió un error inesperado",
+        "samplesRefreshed": "Muestras Actualizadas",
+        "samplesRefreshedDescription": "La lista de muestras ha sido actualizada",
+        "sampleReceived": "Muestra Recibida",
+        "sampleReceivedDescription": "El estado de la muestra {{externalCode}} cambió a recibida",
+        "errorUpdating": "Error al Actualizar Muestra",
+        "errorUpdatingDescription": "Error al actualizar el estado de la muestra",
+        "errorUpdatingUnexpected": "Ocurrió un error inesperado",
+        "sampleDeleted": "Muestra Eliminada",
+        "sampleDeletedDescription": "La muestra {{externalCode}} ha sido eliminada",
+        "errorDeleting": "Error al Eliminar Muestra",
+        "errorDeletingDescription": "Error al eliminar muestra",
+        "errorDeletingUnexpected": "Ocurrió un error inesperado"
+      }
+    },
+    "sampleSubmission": {
+      "title": "Ficha Técnica de Muestra",
+      "subtitle": "Complete la información técnica para evaluación de competencia",
+      "steps": {
+        "contest": "Concurso",
+        "originOwner": "Origen y Propietario",
+        "sampleInfo": "Info de Muestra",
+        "processing": "Procesamiento",
+        "payment": "Pago"
+      },
+      "contest": {
+        "title": "1. Datos de Competencia",
+        "description": "Selecciona el concurso en el que quieres participar",
+        "loading": "Cargando concursos disponibles...",
+        "noContests": "No hay Concursos Activos",
+        "noContestsDescription": "Actualmente no hay concursos activos que acepten envíos de muestras. Solo los concursos que están actualmente en ejecución (entre fechas de inicio y fin) aceptan muestras.",
+        "badge": {
+          "open": "Abierto"
+        },
+        "details": {
+          "registration": "Registro:",
+          "submission": "Envío:",
+          "entry": "Entrada:",
+          "sample": "Muestra:",
+          "total": "Total:",
+          "categories": "Categorías:",
+          "requirements": "Requisitos:"
+        }
+      },
+      "originOwner": {
+        "title": "2. Datos de Origen de Muestra y 3. Datos del Propietario",
+        "description": "Proporciona información detallada sobre el origen de la muestra y el propietario",
+        "contestName": "Nombre del Concurso",
+        "originData": "2. Datos de Origen de Muestra",
+        "ownerData": "3. Datos del Propietario",
+        "fields": {
+          "country": "País",
+          "department": "Departamento/Estado",
+          "municipality": "Municipio",
+          "district": "Distrito",
+          "farmName": "Nombre de la Finca",
+          "cocoaAreaHectares": "Área de Cacao en la Finca (hectáreas)",
+          "ownerFullName": "Nombre Completo",
+          "identificationDocument": "Documento de Identificación",
+          "phoneNumber": "Número de Teléfono",
+          "email": "Correo Electrónico",
+          "homeAddress": "Dirección de Residencia",
+          "belongsToCooperative": "¿Perteneces a una cooperativa o grupo asociativo?",
+          "cooperativeName": "¿Cuál?"
+        },
+        "placeholders": {
+          "country": "ej., Ecuador",
+          "department": "ej., Manabí",
+          "municipality": "ej., Portoviejo",
+          "district": "ej., Distrito Rural",
+          "farmName": "ej., Finca El Cacao",
+          "cocoaAreaHectares": "ej., 5.5",
+          "ownerFullName": "ej., Juan Carlos Pérez",
+          "identificationDocument": "ej., 1234567890",
+          "phoneNumber": "ej., +593 99 123 4567",
+          "email": "ej., juan.perez@email.com",
+          "homeAddress": "ej., Calle Principal 123, Ciudad, País",
+          "cooperativeName": "ej., Cooperativa Cacaotera del Sur"
+        }
+      },
+      "sampleInfo": {
+        "title": "4. Información de Muestra",
+        "description": "Información detallada sobre tu muestra de cacao",
+        "fields": {
+          "quantity": "Cantidad (3kg)",
+          "geneticMaterial": "Material Genético",
+          "cropAge": "Edad del Cultivo (años)",
+          "sampleSourceHectares": "Número de hectáreas de cultivo de donde proviene la muestra",
+          "moistureContent": "Contenido de humedad de la muestra (%)",
+          "fermentationPercentage": "Porcentaje de fermentación de la muestra (%)"
+        },
+        "placeholders": {
+          "quantity": "3",
+          "geneticMaterial": "Seleccionar material genético",
+          "cropAge": "ej., 15",
+          "sampleSourceHectares": "ej., 2.5",
+          "moistureContent": "ej., 7.5",
+          "fermentationPercentage": "ej., 85.0"
+        },
+        "hints": {
+          "quantity": "Se requiere exactamente 3kg para evaluación de competencia",
+          "moistureContent": "El contenido óptimo de humedad está entre 6-8%",
+          "fermentationPercentage": "Una buena fermentación típicamente está por encima del 75%"
+        }
+      },
+      "processing": {
+        "title": "5. Información de Procesamiento",
+        "description": "Detalles sobre los procesos de fermentación y secado",
+        "fields": {
+          "fermenterType": "Tipo de Fermentador",
+          "fermentationTime": "Tiempo de Fermentación (horas)",
+          "dryingType": "Tipo de Secado",
+          "dryingTime": "Tiempo de Secado (horas)"
+        },
+        "placeholders": {
+          "fermenterType": "Seleccionar tipo de fermentador",
+          "fermentationTime": "ej., 120",
+          "dryingType": "Seleccionar tipo de secado",
+          "dryingTime": "ej., 168"
+        },
+        "hints": {
+          "fermentationTime": "El tiempo típico de fermentación es 96-144 horas (4-6 días)",
+          "dryingTime": "El tiempo típico de secado es 120-240 horas (5-10 días)"
+        }
+      },
+      "payment": {
+        "title": "Información de Pago",
+        "description": "Completa el pago para finalizar tu envío de muestra",
+        "summary": {
+          "title": "Resumen de Pago",
+          "entryFee": "Tarifa de Entrada al Concurso:",
+          "sampleFee": "Tarifa de Procesamiento de Muestra:",
+          "total": "Monto Total:"
+        },
+        "method": "Método de Pago",
+        "methods": {
+          "creditCard": "Tarjeta de Crédito",
+          "nequi": "Nequi",
+          "paypal": "PayPal"
+        },
+        "cardFields": {
+          "cardNumber": "Número de Tarjeta",
+          "cardName": "Nombre del Titular",
+          "expiry": "Fecha de Vencimiento",
+          "cvv": "CVV"
+        },
+        "cardPlaceholders": {
+          "cardNumber": "1234 5678 9012 3456",
+          "cardName": "Juan Pérez",
+          "expiry": "MM/AA",
+          "cvv": "123"
+        },
+        "terms": "Acepto los términos y condiciones del concurso, entiendo el proceso de evaluación y confirmo que toda la información proporcionada es precisa.",
+        "submit": "Pagar ${{amount}} y Enviar",
+        "processing": "Procesando...",
+        "paypalHint": "haz clic aquí para enviar"
+      },
+      "success": {
+        "title": "¡Envío Exitoso!",
+        "subtitle": "Tu muestra ha sido registrada y está lista para envío",
+        "complete": "Registro de Muestra Completado",
+        "details": {
+          "title": "Detalles del Envío",
+          "contest": "Concurso:",
+          "owner": "Propietario:",
+          "farm": "Finca:",
+          "trackingCode": "Código de Seguimiento:"
+        },
+        "nextSteps": {
+          "title": "Próximos Pasos",
+          "registered": "✓ Muestra registrada en base de datos",
+          "qrGenerated": "✓ Código QR generado y listo para descarga",
+          "package": "• Empaca tu muestra según las pautas",
+          "attach": "• Adjunta el código QR a tu paquete de muestra",
+          "ship": "• Envía a las instalaciones del concurso",
+          "payment": "• El pago se procesará por separado"
+        },
+        "downloadQR": "Descargar Código QR",
+        "submitAnother": "Enviar Otra Muestra",
+        "qrNotAvailable": "Código QR No Disponible",
+        "qrNotAvailableDescription": "El código QR se está generando. Por favor intenta de nuevo en un momento."
+      },
+      "buttons": {
+        "back": "Atrás",
+        "continue": "Continuar"
+      },
+      "toasts": {
+        "error": "Error",
+        "errorDescription": "Error al cargar concursos disponibles. Por favor intenta de nuevo.",
+        "submissionError": "Error de Envío",
+        "submissionErrorDescription": "Por favor completa todos los campos requeridos y acepta los términos",
+        "paymentNotAvailable": "Método de pago no disponible",
+        "paymentNotAvailableDescription": "Por favor selecciona PayPal para continuar.",
+        "submissionSuccess": "¡Muestra Enviada Exitosamente!",
+        "submissionSuccessDescription": "Tu muestra ha sido registrada con código de seguimiento: {{trackingCode}}",
+        "submissionFailed": "Envío Fallido",
+        "submissionFailedDescription": "Hubo un error al enviar tu muestra. Por favor intenta de nuevo."
+      }
+    },
+    "sensoryEvaluation": {
+      "title": "Formulario de Evaluación Sensorial",
+      "flavorRadar": {
+        "title": "Radar de Sabores",
+        "description": "Escala 0–10. {{status}}",
+        "status": {
+          "preview": "Vista previa se actualiza mientras ajustas las puntuaciones.",
+          "submitted": "Generado a partir de las puntuaciones enviadas."
+        },
+        "referenceImage": "La imagen de referencia se puede mostrar aquí.",
+        "overallQuality": "Calidad General:"
+      },
+      "metaInformation": {
+        "title": "Información Meta",
+        "fields": {
+          "date": "Fecha",
+          "time": "Hora",
+          "evaluatorName": "Nombre del Evaluador",
+          "sampleCode": "Código de Muestra",
+          "sampleNotes": "Información de Muestra (notas)"
+        }
+      },
+      "intensityScale": {
+        "title": "Escala de Intensidad",
+        "description": "Ingresa la intensidad de cada atributo (0–10). Los valores con estrella son calculados.",
+        "evaluationType": "Tipo de Evaluación",
+        "types": {
+          "cocoaMass": "Masa de Cacao",
+          "chocolate": "Chocolate"
+        },
+        "attributes": {
+          "cacao": "Cacao",
+          "acidityTotal": "Acidez (Total)",
+          "freshFruitTotal": "Fruta Fresca (Total)",
+          "brownFruitTotal": "Fruta Parda (Total)",
+          "vegetalTotal": "Vegetal (Total)",
+          "floralTotal": "Floral (Total)",
+          "woodTotal": "Madera (Total)",
+          "spiceTotal": "Especias (Total)",
+          "nutTotal": "Nuez (Total)",
+          "caramelPanela": "Caramelo/Panela",
+          "bitterness": "Amargor",
+          "astringency": "Astringencia",
+          "roastDegree": "Grado de Tostado",
+          "defectsTotal": "Defectos (Total)"
+        },
+        "subAttributes": {
+          "acidity": "Acidez",
+          "fruity": "Afrutado",
+          "acetic": "Acético",
+          "lactic": "Láctico",
+          "mineralButyric": "Mineral/Butírico",
+          "freshFruit": "Fruta Fresca",
+          "berries": "Bayas",
+          "citrus": "Cítrico",
+          "yellowPulp": "Pulpa Amarilla",
+          "dark": "Oscuro",
+          "tropical": "Tropical",
+          "brownFruit": "Fruta Parda",
+          "dry": "Seco",
+          "brown": "Pardo",
+          "overripe": "Sobre maduro",
+          "vegetal": "Vegetal",
+          "grassHerb": "Hierba/Pasto",
+          "earthy": "Terroso",
+          "floral": "Floral",
+          "orangeBlossom": "Flor de Azahar",
+          "flowers": "Flores",
+          "wood": "Madera",
+          "light": "Claro",
+          "woodDark": "Oscuro",
+          "resin": "Resina",
+          "spice": "Especias",
+          "spices": "Especias",
+          "tobacco": "Tabaco",
+          "umami": "Condimentado/Umami",
+          "nut": "Nuez",
+          "kernel": "Almendra",
+          "skin": "Cáscara"
+        },
+        "directAttributes": {
+          "sweetness": "Dulzura",
+          "sweetnessNote": "Dulzura (solo chocolate)",
+          "textureNotes": "Notas de Textura"
+        }
+      },
+      "defects": {
+        "title": "Sabores Fuera de Lugar / Defectos (Total = suma)",
+        "labels": {
+          "dirty": "Sucio/Polvoriento",
+          "animal": "Cárnico/Animal/Cuero",
+          "rotten": "Podrido/Estiércol",
+          "smoke": "Humo",
+          "humid": "Humedad",
+          "moldy": "Moho",
+          "overfermented": "Sobre fermentado / Fruta podrida",
+          "other": "Otros"
+        },
+        "note": "Nota: El total de defectos es una suma, no un promedio."
+      },
+      "freeText": {
+        "title": "Texto Libre",
+        "fields": {
+          "flavorComments": "Comentarios de Sabor",
+          "producerRecommendations": "Recomendaciones para el Productor",
+          "additionalPositive": "Cualidades Positivas Adicionales"
+        }
+      },
+      "finalVerdict": {
+        "title": "Veredicto Final",
+        "buttons": {
+          "approved": "Aprobado",
+          "disqualified": "Descalificado"
+        },
+        "overall": "General:",
+        "disqualificationReasons": "Razones de Descalificación",
+        "reasons": {
+          "humidity": "Humedad > 8.5%",
+          "mold": "Moho Interno > 3%",
+          "other": "Otro"
+        },
+        "otherReasonPlaceholder": "Especificar otra razón"
+      },
+      "actions": {
+        "cancel": "Cancelar",
+        "completeEvaluation": "Completar Evaluación"
+      }
+    },
+    "sidebar": {
+      "title": "Competencia de Cacao",
+      "menuItems": {
+        "dashboard": "Panel de Control",
+        "userManagement": "Gestión de Usuarios",
+        "contestManagement": "Gestión de Concursos",
+        "sampleManagement": "Gestión de Muestras",
+        "physicalEvaluation": "Evaluación Física",
+        "judgeAssignment": "Asignación de Jueces",
+        "evaluationSupervision": "Supervisión de Evaluación",
+        "initialResults": "Resultados Iniciales",
+        "finalResults": "Resultados Finales",
+        "financeManagement": "Gestión Financiera",
+        "notifications": "Notificaciones",
+        "sampleSubmission": "Envío de Muestras",
+        "myProfile": "Mi Perfil"
+      },
+      "userInfo": {
+        "signOut": "Cerrar Sesión"
+      }
+    },
+    "userManagement": {
+      "title": "Gestión de Usuarios",
+      "description": "Gestionar todos los usuarios en la plataforma de competencia",
+      "loading": "Cargando usuarios...",
+      "refresh": "Actualizar",
+      "filter": {
+        "byRole": "Filtrar por rol",
+        "allRoles": "Todos los Roles",
+        "directors": "Directores",
+        "judges": "Jueces",
+        "participants": "Participantes",
+        "evaluators": "Evaluadores"
+      },
+      "userInfo": {
+        "joined": "Se unió",
+        "phone": "Teléfono",
+        "active": "Activo",
+        "inactive": "Inactivo",
+        "docs": "docs"
+      },
+      "actions": {
+        "documents": "Documentos",
+        "activate": "Activar",
+        "deactivate": "Desactivar",
+        "delete": "Eliminar"
+      },
+      "noUsers": "No se encontraron usuarios para el filtro seleccionado.",
+      "deleteDialog": {
+        "title": "Confirmar Eliminación",
+        "description": "¿Estás seguro de que quieres eliminar al usuario {{userName}}? Esta acción no se puede deshacer y eliminará permanentemente:",
+        "items": {
+          "userAccount": "Cuenta de usuario y perfil",
+          "associatedData": "Todos los datos asociados",
+          "uploadedDocuments": "{{count}} documento(s) cargado(s)"
+        },
+        "cancel": "Cancelar",
+        "deleteUser": "Eliminar Usuario"
+      },
+      "documentsDialog": {
+        "title": "Documentos para {{userName}}",
+        "description": "Ver y descargar documentos del evaluador",
+        "uploaded": "Cargado",
+        "download": "Descargar",
+        "noDocuments": "No hay documentos cargados",
+        "close": "Cerrar"
+      },
+      "toasts": {
+        "errors": {
+          "loadUsers": "Error al cargar usuarios",
+          "updateStatus": "Error al actualizar estado del usuario",
+          "deleteUser": "Error al eliminar usuario",
+          "downloadDocument": "Error al descargar documento",
+          "getDownloadUrl": "Error al obtener URL de descarga"
+        },
+        "success": {
+          "userActivated": "Usuario activado exitosamente",
+          "userDeactivated": "Usuario desactivado exitosamente",
+          "userDeleted": "Usuario eliminado exitosamente",
+          "documentDownload": "Descarga de documento iniciada"
+        }
+      }
+    },
+    "payments": {
+      "paypalButton": {
+        "loading": "Cargando PayPal…",
+        "defaultDescription": "Pago de competencia de cacao",
+        "errors": {
+          "loadPayPal": "Error al cargar PayPal",
+          "paymentCaptureFailed": "Error en la captura del pago",
+          "payPalError": "Error de PayPal",
+          "notEligible": "PayPal no es elegible para este pago. Verifica la moneda/monto o prueba un navegador diferente.",
+          "renderFailed": "PayPal no pudo renderizarse"
+        }
+      },
+      "paypalButtonsMount": {
+        "missingClientId": "Falta VITE_PAYPAL_CLIENT_ID",
+        "toasts": {
+          "submissionFailed": "Error en el envío después del pago",
+          "payPalError": "Error de PayPal",
+          "paymentCancelled": "Pago cancelado",
+          "paymentCancelledDescription": "Puedes intentar de nuevo en cualquier momento.",
+          "unexpectedError": "Error inesperado"
+        }
+      }
+    },
+    "stats": {
+      "totalUsers": "Usuarios Totales",
+      "totalParticipants": "Participantes Totales",
+      "totalJudges": "Jueces Totales",
+      "totalEvaluators": "Evaluadores Totales",
+      "activeContests": "Concursos Activos",
+      "samplesSubmitted": "Muestras Enviadas",
+      "samplesApproved": "Muestras Aprobadas",
+      "samplesEvaluated": "Muestras Evaluadas"
+    },
+    "notifications": {
+      "title": "Notificaciones Recientes",
+      "description": "Mantente al día con las últimas actividades",
+      "loading": "Cargando...",
+      "empty": "Sin notificaciones"
+    },
+    "quickActions": {
+      "title": "Acciones Rápidas",
+      "description": "Tareas comunes y atajos",
+      "admin": {
+        "manageUsers": "Gestionar Usuarios",
+        "manageUsersDesc": "Agregar, editar o eliminar cuentas de usuario",
+        "createContest": "Crear Concurso",
+        "createContestDesc": "Configura una nueva competencia"
+      },
+      "director": {
+        "sampleManagement": "Gestión de Muestras",
+        "sampleManagementDesc": "Recibe, registra y administra muestras",
+        "physicalEvaluation": "Evaluación Física",
+        "physicalEvaluationDesc": "Evalúa parámetros físicos",
+        "judgeAssignment": "Asignación de Jueces",
+        "judgeAssignmentDesc": "Asigna muestras a jueces",
+        "evaluationSupervision": "Supervisión de Evaluación",
+        "evaluationSupervisionDesc": "Monitorea el progreso de evaluación"
+      },
+      "participant": {
+        "submitSample": "Enviar Muestra",
+        "submitSampleDesc": "Sube tu participación",
+        "viewResults": "Ver Resultados",
+        "viewResultsDesc": "Consulta tu posición en la competencia"
+      },
+      "reviewer": {
+        "sampleEvaluation": "Evaluación de Muestras",
+        "sampleEvaluationDesc": "Revisa y puntúa envíos",
+        "evaluationHistory": "Historial de Evaluación",
+        "evaluationHistoryDesc": "Ver evaluaciones anteriores"
+      }
+    }
+  },
+  "judgeDashboard": {
+    "header": {
+      "title": "Panel del Juez",
+      "subtitle": "Gestiona tus muestras asignadas y evaluaciones",
+      "notifications": "Notificaciones"
+    },
+    "sensory": {
+      "title": "Evaluación Sensorial",
+      "sampleLabel": "Muestra: {{code}}",
+      "backToDashboard": "Volver al Panel",
+      "sampleInfoTitle": "Información de la Muestra",
+      "internalCode": "Código Interno",
+      "contest": "Concurso",
+      "assignedDate": "Fecha de Asignación",
+      "deadline": "Fecha Límite",
+      "status": "Estado",
+      "progress": "Progreso",
+      "formTitle": "Evaluación Sensorial",
+      "formDesc": "Completa el formulario y envía. Se muestra una vista previa de gráfico radial arriba.",
+      "loading": "Cargando datos de evaluación..."
+    },
+    "toasts": {
+      "savedTitle": "Evaluación guardada",
+      "savedDesc": "Muestra {{code}} evaluada con calidad general {{score}}/10",
+      "saveFailedTitle": "No se pudo guardar la evaluación",
+      "unknownError": "Error desconocido"
+    },
+    "stats": {
+      "totalAssigned": "Total Asignadas",
+      "pending": "Pendientes",
+      "inProgress": "En Progreso",
+      "completed": "Completadas"
+    },
+    "assigned": {
+      "title": "Muestras Asignadas",
+      "description": "Haz clic en una muestra para iniciar o continuar la evaluación",
+      "dueInDays": "Vence en {{days}} días"
+    },
+    "sidebar": {
+      "activeContests": "Concursos Activos",
+      "deadline": "Fecha límite",
+      "recentNotifications": "Notificaciones Recientes"
+    }
+  },
+  "myProfile": {
+    "header": { "title": "Mi Perfil" },
+    "form": {
+      "email": "Email",
+      "role": "Rol",
+      "fullName": "Nombre Completo",
+      "fullNamePh": "Tu nombre completo",
+      "phone": "Teléfono",
+      "phonePh": "+1234567890"
+    },
+    "actions": {
+      "saveChanges": "Guardar Cambios"
+    },
+    "password": {
+      "title": "Cambiar Contraseña",
+      "current": "Contraseña Actual",
+      "currentPh": "Ingresa tu contraseña actual",
+      "new": "Nueva Contraseña",
+      "newPh": "Al menos 8 caracteres",
+      "confirm": "Confirmar Nueva Contraseña",
+      "update": "Actualizar Contraseña",
+      "updating": "Actualizando...",
+      "demoUnavailable": "No disponible en Demo",
+      "validation": {
+        "min": "Al menos 8 caracteres",
+        "lower": "Al menos una letra minúscula",
+        "upper": "Al menos una letra mayúscula",
+        "number": "Al menos un número"
+      }
+    },
+    "toasts": {
+      "profileUpdatedTitle": "Perfil actualizado",
+      "profileUpdatedDesc": "Tu información personal ha sido guardada.",
+      "updateFailedTitle": "Actualización fallida",
+      "missingFieldsTitle": "Campos faltantes",
+      "missingFieldsDesc": "Completa todos los campos de contraseña.",
+      "passwordsNoMatchTitle": "Las contraseñas no coinciden",
+      "passwordsNoMatchDesc": "Confirma tu nueva contraseña.",
+      "weakPasswordTitle": "Contraseña débil",
+      "currentPasswordIncorrectTitle": "Contraseña actual incorrecta",
+      "passwordUpdatedTitle": "Contraseña actualizada",
+      "passwordUpdatedDesc": "Tu contraseña ha sido cambiada.",
+      "passwordUpdateFailedTitle": "No se pudo cambiar la contraseña",
+      "demoUnavailableTitle": "No disponible para cuentas de demostración",
+      "demoUnavailableDesc": "No se puede cambiar la contraseña para usuarios demo."
+    }
+  },
+  "finalResults": {
+    "header": {
+      "title": "Resultados Finales",
+      "subtitle": "Ranking agregado de puntajes de evaluadores finales",
+      "refresh": "Actualizar"
+    },
+    "topRanking": {
+      "title": "Ranking Superior",
+      "description": "Promedio de evaluaciones finales por muestra",
+      "empty": "No se encontraron evaluaciones finales."
+    },
+    "row": {
+      "rank": "Puesto",
+      "avg": "Prom:",
+      "evaluations": "Evaluaciones:",
+      "contestFallback": "Concurso"
+    },
+    "actions": {
+      "view": "Ver",
+      "less": "Menos",
+      "pdf": "PDF"
+    },
+    "details": {
+      "radarTitle": "Radar de Desempeño (Sensorial)",
+      "radarDesc": "Derivado de totales de evaluación sensorial (0–10)",
+      "summaryTitle": "Resumen",
+      "summaryDesc": "Concurso y participante",
+      "contest": "Concurso",
+      "participant": "Participante",
+      "submission": "Envío",
+      "evaluation": "Evaluación",
+      "overall": "General",
+      "awards": "Premios",
+      "summary": "Resumen",
+      "physicalTitle": "Evaluación Física",
+      "physicalDesc": "Última evaluación física registrada",
+      "loadingPhysical": "Cargando detalles físicos...",
+      "noPhysical": "No se encontró evaluación física.",
+      "loadingSensory": "Cargando detalles sensoriales...",
+      "noSensory": "No se encontró evaluación sensorial."
+    },
+    "physical": {
+      "undesirableAromas": {
+        "title": "Aromas indeseables",
+        "has": "Tiene aromas indeseables",
+        "list": "Lista"
+      },
+      "humidity": {
+        "title": "Humedad",
+        "percentage": "Porcentaje de humedad"
+      },
+      "grains": {
+        "title": "Granos",
+        "broken": "Granos rotos",
+        "violated": "Granos violados",
+        "flat": "Granos planos",
+        "affectedInsects": "Granos afectados (insectos)",
+        "hasAffected": "Tiene granos afectados"
+      },
+      "fermentation": {
+        "title": "Análisis de fermentación",
+        "wellFermented": "Granos bien fermentados",
+        "lightlyFermented": "Granos ligeramente fermentados",
+        "purple": "Granos morados",
+        "slaty": "Granos pizarrosos",
+        "internalMoldy": "Granos con moho interno",
+        "overFermented": "Granos sobrefermentados"
+      },
+      "meta": {
+        "title": "Metadatos de evaluación",
+        "evaluatedBy": "Evaluado por",
+        "evaluatedAt": "Evaluado en",
+        "globalEvaluation": "Evaluación global",
+        "disqualificationReasons": "Motivos de descalificación",
+        "warnings": "Advertencias"
+      }
+    },
+    "sensory": {
+      "cacao": "Cacao",
+      "acidityTotal": "Acidez (Total)",
+      "freshFruitTotal": "Fruta fresca (Total)",
+      "brownFruitTotal": "Fruta madura (Total)",
+      "vegetalTotal": "Vegetal (Total)",
+      "floralTotal": "Floral (Total)",
+      "woodTotal": "Madera (Total)",
+      "spiceTotal": "Especias (Total)",
+      "nutTotal": "Nuez (Total)",
+      "caramelPanela": "Caramelo/Panela",
+      "bitterness": "Amargor",
+      "astringency": "Astringencia",
+      "roastDegree": "Grado de tueste",
+      "defectsTotal": "Defectos (Total)"
+    },
+    "common": {
+      "yes": "Sí",
+      "no": "No",
+      "none": "Ninguno"
+    },
+    "toasts": {
+      "loadFailedTitle": "No se pudieron cargar los resultados finales",
+      "detailsFailedTitle": "No se pudieron cargar los detalles",
+      "unknownError": "Error desconocido",
+      "reportGenerating": "Generando reporte",
+      "reportReady": "Reporte listo",
+      "reportError": "Error de PDF"
+    },
+    "report": {
+      "generating": "Preparando PDF para {{name}}...",
+      "ready": "PDF descargado para {{name}}."
+    }
+  },
+  "judgeContests": {
+    "header": {
+      "title": "Participación en Concursos",
+      "subtitle": "Gestiona tus asignaciones y revisa tu historial de juzgamientos"
+    },
+    "toasts": {
+      "acceptedTitle": "Concurso aceptado",
+      "acceptedDesc": "Has aceptado la asignación. Pronto recibirás las muestras asignadas.",
+      "declinedTitle": "Concurso rechazado",
+      "declinedDesc": "La asignación fue rechazada. El organizador será notificado."
+    },
+    "details": {
+      "title": "Detalles del Concurso",
+      "back": "Volver a Concursos",
+      "infoTitle": "Información del Concurso",
+      "timelineTitle": "Cronograma y Progreso",
+      "fields": {
+        "contestName": "Nombre del Concurso",
+        "description": "Descripción",
+        "type": "Tipo",
+        "yourRole": "Tu Rol",
+        "status": "Estado",
+        "assignmentDate": "Fecha de Asignación",
+        "contestPeriod": "Periodo del Concurso",
+        "evaluationDeadline": "Fecha límite de Evaluación",
+        "sampleProgress": "Progreso de Muestras",
+        "averageScore": "Puntaje Promedio"
+      },
+      "roleLabel": {
+        "panel_lead": "Líder de Panel",
+        "judge": "Juez"
+      },
+      "daysLeft": "({{days}} días restantes)",
+      "samplesProgress": "{{completed}} de {{assigned}} completadas",
+      "panelTitleLead": "Gestión del Panel",
+      "panelTitleJudge": "Información del Panel",
+      "panelMembers": "Miembros del Panel",
+      "judgeBadge": "Juez",
+      "guidelinesTitle": "Guías de Evaluación",
+      "guidelines": {
+        "anonymous": "Proceso de evaluación anónimo",
+        "standard": "Sistema de puntuación estándar COEX",
+        "notes": "Se requieren notas detalladas",
+        "deadline": "Cumplimiento estricto de plazos"
+      },
+      "actions": {
+        "accept": "Aceptar Asignación",
+        "decline": "Rechazar Asignación"
+      }
+    },
+    "list": {
+      "stats": {
+        "totalContests": "Concursos Totales",
+        "active": "Activos",
+        "completed": "Completados",
+        "samplesEvaluated": "Muestras Evaluadas",
+        "avgScore": "Puntaje Promedio",
+        "onTimeRate": "Puntualidad"
+      },
+      "assignmentsTitle": "Asignaciones de Concurso",
+      "assignmentsDesc": "Tus participaciones actuales y pasadas",
+      "roleShort": {
+        "panel_lead": "Líder de Panel",
+        "judge": "Juez"
+      },
+      "dueInDays": "Vence en {{days}} días",
+      "samplesLabel": "{{completed}}/{{assigned}} muestras",
+      "avgScoreShort": "promedio"
+    },
+    "status": {
+      "upcoming": "próximo",
+      "active": "activo",
+      "completed": "completado"
+    },
+    "types": {
+      "international": "internacional",
+      "regional": "regional",
+      "specialty": "especialidad"
+    },
+    "roles": {
+      "panel_lead": "Líder de Panel",
+      "judge": "Juez"
+    }
+  },
+  "finance": {
+    "header": {
+      "title": "Gestión Financiera",
+      "subtitle": "Resumen de ganancias y pagos",
+      "refresh": "Actualizar"
+    },
+    "summary": {
+      "total": "Ganancia total",
+      "month": "Ganancia del mes",
+      "week": "Ganancia de la semana",
+      "today": "Ganancia de hoy"
+    },
+    "chart": {
+      "title": "Ganancias (Últimos 30 días)",
+      "description": "Totales diarios de transacciones pagadas"
+    },
+    "table": {
+      "title": "Pagos",
+      "description": "Pagos recientes de participantes y evaluadores",
+      "when": "Fecha",
+      "who": "Quién",
+      "role": "Rol",
+      "amount": "Monto",
+      "status": "Estado",
+      "source": "Origen"
+    }
+  },
+  "evaluatorDashboard": {
+    "header": {
+      "title": "Panel del Evaluador",
+      "subtitle": "Top 10 muestras y flujo de pago para evaluar",
+      "refresh": "Actualizar",
+      "notifications": "Notificaciones"
+    },
+    "payment": {
+      "title": "Información de Pago",
+      "description": "Completa el pago para finalizar el acceso a la evaluación.",
+      "summaryTitle": "Resumen de Pago",
+      "evaluationFee": "Tarifa de Evaluación",
+      "totalAmount": "Monto Total",
+      "methodLabel": "Método de Pago",
+      "methods": {
+        "card": "Tarjeta de Crédito",
+        "nequi": "Nequi",
+        "paypal": "PayPal"
+      },
+      "comingSoon": {
+        "card": "Los pagos con tarjeta de crédito estarán disponibles pronto.",
+        "nequi": "Los pagos con Nequi estarán disponibles pronto. Selecciona PayPal para continuar hoy."
+      },
+      "agreeTerms": "Acepto los términos y condiciones del concurso, entiendo el proceso de evaluación y confirmo que toda la información proporcionada es precisa.",
+      "total": "Total",
+      "back": "Volver",
+      "paySubmit": "Pagar ${{amount}} y Enviar",
+      "enablePayPalHint": "Acepta los términos para habilitar PayPal",
+      "clickToEvaluate": "Haz clic aquí para evaluar"
+    },
+    "sensory": {
+      "title": "Evaluación Sensorial",
+      "sampleLabel": "Muestra: {{code}}",
+      "backToDashboard": "Volver al Panel",
+      "formTitle": "Evaluación Sensorial",
+      "formDesc": "Completa el formulario y envía. Se muestra una vista previa de gráfico radial arriba.",
+      "currentEvaluator": "Evaluador Actual",
+      "saveSuccessTitle": "Evaluación Final Guardada",
+      "saveSuccessDesc": "Calidad general {{score}}/10",
+      "saveFailedTitle": "Error al Guardar",
+      "saveFailedDesc": "Error desconocido",
+      "missingContestRef": "Falta referencia del concurso",
+      "sampleInfoTitle": "Información de la Muestra",
+      "internalCode": "Código Interno:",
+      "contest": "Concurso:",
+      "status": "Estado:",
+      "statusTop": "Top",
+      "overallScore": "Puntaje General:"
+    },
+    "overview": {
+      "topSamples": "Muestras Top",
+      "paidItems": "Ítems Pagados",
+      "unreadNotices": "Avisos sin Leer",
+      "maxSlots": "Cupos Máximos"
+    },
+    "top10": {
+      "title": "Top 10 Muestras",
+      "description": "Ordenadas por puntaje sensorial promedio",
+      "loading": "Cargando...",
+      "empty": "No hay muestras disponibles.",
+      "rank": "Puesto #",
+      "overall": "General:",
+      "payEvaluate": "Pagar y Evaluar",
+      "paid": "Pagado",
+      "evaluated": "evaluado",
+      "evaluate": "Evaluar"
+    },
+    "notifications": {
+      "title": "Notificaciones Recientes",
+      "description": "Tus últimas actualizaciones",
+      "loading": "Cargando...",
+      "empty": "Sin notificaciones",
+      "read": "Leída",
+      "unread": "No leída",
+      "delete": "Eliminar"
+    },
+    "toasts": {
+      "failedLoadTop10": "Error al cargar el Top 10",
+      "unknownError": "Error desconocido",
+      "paymentSuccessTitle": "Pago exitoso",
+      "paymentSuccessDesc": "Ahora puedes evaluar esta muestra.",
+      "paymentFailedTitle": "Pago fallido",
+      "paymentFailedDesc": "No se pudo registrar el pago",
+      "paymentSetupFailedTitle": "Error al preparar el pago",
+      "paymentSetupFailedDesc": "No se pudo preparar el pago",
+      "paymentRequiredTitle": "Pago requerido",
+      "paymentRequiredDesc": "Por favor paga para evaluar este ítem."
+    }
+  },
+  "evaluationSupervision": {
+    "title": "Supervisión de Evaluación",
+    "subtitle": "Monitorea el progreso de la evaluación",
+    "loadingErrorTitle": "No se pudo cargar la supervisión de evaluación",
+    "retry": "Reintentar",
+    "details": {
+      "title": "Detalles de la Evaluación",
+      "back": "Volver a la vista general",
+      "sampleInfo": "Información de la Muestra",
+      "internalCode": "Código Interno",
+      "participant": "Participante",
+      "contest": "Concurso",
+      "deadline": "Fecha límite",
+      "status": "Estado",
+      "progress": "Progreso",
+      "averageScore": "Puntaje Promedio"
+    },
+    "judges": {
+      "title": "Evaluaciones de Jueces",
+      "description": "Evaluaciones individuales de los jueces asignados",
+      "score": "Puntaje",
+      "evaluatedOn": "Evaluado: {{date}}"
+    },
+    "quickStats": {
+      "title": "Estadísticas de Evaluación",
+      "judgesAssigned": "Jueces Asignados:",
+      "completed": "Completadas:",
+      "inProgress": "En Progreso:",
+      "pending": "Pendientes:"
+    },
+    "filters": {
+      "all": "Todas las Evaluaciones",
+      "assigned": "Asignadas",
+      "evaluated": "Completadas"
+    },
+    "overview": {
+      "totalSamples": "Muestras Totales",
+      "assigned": "Asignadas",
+      "inProgress": "En Progreso",
+      "completed": "Completadas"
+    },
+    "actions": {
+      "refresh": "Actualizar"
+    },
+    "toasts": {
+      "errorTitle": "Error",
+      "loadFailed": "No se pudo cargar la información de supervisión.",
+      "refreshedTitle": "Actualizado",
+      "refreshedDesc": "Datos de supervisión actualizados.",
+      "refreshFailedTitle": "Actualización fallida",
+      "refreshFailedDesc": "No se pudo recargar la información."
+    },
+    "status": {
+      "sample": {
+        "assigned": "Asignada",
+        "evaluating": "En Progreso",
+        "evaluated": "Completada"
+      },
+      "judge": {
+        "pending": "Pendiente",
+        "in_progress": "En Progreso",
+        "completed": "Completado"
+      }
+    },
+    "tabs": {
+      "evaluations": "Evaluaciones de Muestras",
+      "judges": "Rendimiento de Jueces"
+    },
+    "evaluations": {
+      "title": "Evaluaciones de Muestras",
+      "description": "Haz clic en una muestra para ver el progreso detallado de la evaluación",
+      "score10": "Puntaje (0–10)",
+      "judgesProgress": "{{completed}}/{{total}} jueces",
+      "due": "Vence: {{date}}",
+      "empty": "No hay evaluaciones que coincidan con el filtro actual."
+    },
+    "judgesTab": {
+      "title": "Rendimiento de Jueces",
+      "description": "Monitorea la carga de trabajo y la eficiencia de evaluación de los jueces",
+      "assignments": "Asignaciones:",
+      "avgScore": "Puntaje Promedio:",
+      "efficiencySuffix": "de eficiencia",
+      "empty": "No hay jueces con asignaciones todavía."
+    }
+  },
+  "notificationsPage": {
+    "title": "Notificaciones",
+    "description": "Mantente al día con la actividad de concursos y muestras.",
+    "markAllRead": "Marcar todo como leído",
+    "stats": {
+      "unread": "No leídas",
+      "pending": "Elementos pendientes",
+      "urgent": "Urgentes",
+      "highPriority": "Alta prioridad",
+      "actionRequired": "Requiere acción",
+      "requiresAttention": "Requiere atención"
+    },
+    "filters": {
+      "title": "Filtros",
+      "description": "Tipo y prioridad",
+      "type": "Tipo",
+      "priority": "Prioridad",
+      "all": "Todas"
+    },
+    "typeOptions": {
+      "all": "Todas",
+      "user_registered": "Usuario Registrado",
+      "sample_added": "Muestra Agregada",
+      "sample_received": "Muestra Recibida",
+      "sample_disqualified": "Muestra Descalificada",
+      "sample_approved": "Muestra Aprobada",
+      "sample_assigned_to_judge": "Asignada a Juez",
+      "judge_evaluated_sample": "Juez Evaluó",
+      "evaluator_evaluated_sample": "Evaluador Evaluó",
+      "contest_created": "Concurso Creado",
+      "contest_completed": "Concurso Completado",
+      "contest_final_stage": "Etapa Final",
+      "final_ranking_top3": "Top 3 Final"
+    },
+    "priority": {
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "priorityOptions": {
+      "all": "Todas",
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "inbox": {
+      "title": "Bandeja de entrada",
+      "description": "Tus notificaciones",
+      "loading": "Cargando...",
+      "empty": "Sin notificaciones"
+    },
+    "buttons": {
+      "markRead": "Marcar como leída",
+      "markUnread": "Marcar como no leída",
+      "delete": "Eliminar"
+    },
+    "detail": {
+      "title": "Detalles de la notificación",
+      "back": "Volver a notificaciones",
+      "message": "Mensaje",
+      "details": "Detalles",
+      "expires": "Expira",
+      "disqualificationReasons": "Motivos de descalificación:"
+    },
+    "toasts": {
+      "deletedTitle": "Notificación eliminada",
+      "deletedDesc": "La notificación ha sido eliminada.",
+      "allMarkedTitle": "Todas marcadas como leídas",
+      "allMarkedDesc": "Todas las notificaciones fueron marcadas como leídas."
+    },
+    "time": {
+      "justNow": "Ahora mismo",
+      "hoursAgo": "h hace {{count}}",
+      "yesterday": "Ayer"
+    },
+    "types": {}
+  },
+  "pages": {
+    "index": {
+      "title": "Bienvenido a tu Aplicación en Blanco",
+      "subtitle": "¡Comienza a construir tu increíble proyecto aquí!"
+    },
+    "notFound": {
+      "title": "404",
+      "subtitle": "¡Ups! Página no encontrada",
+      "returnHome": "Volver al Inicio"
+    },
+    "qrVerification": {
+      "title": "Verificación de Muestra",
+      "subtitle": "Sistema oficial de verificación de muestras de cacao",
+      "verifying": "Verificando muestra...",
+      "sampleNotFound": "Muestra No Encontrada",
+      "invalidTrackingCode": "El código de seguimiento que escaneaste no es válido o la muestra no existe.",
+      "trackingCode": "Código de Seguimiento",
+      "sampleInformation": "Información de la Muestra",
+      "submissionDate": "Fecha de Envío",
+      "contest": "Concurso",
+      "contestId": "ID del Concurso",
+      "owner": "Propietario",
+      "farm": "Finca",
+      "country": "País",
+      "quantity": "Cantidad",
+      "variety": "Variedad",
+      "verificationStatus": "Estado de Verificación",
+      "verifiedSample": "Muestra Verificada",
+      "verifiedDescription": "Este código QR es auténtico y corresponde a un envío de muestra válido en nuestro sistema.",
+      "note": "Nota:",
+      "noteDescription": "Esta verificación confirma la autenticidad de la muestra y su registro en el sistema de competencia de cacao. Para resultados detallados de evaluación, contacta a los organizadores de la competencia.",
+      "status": {
+        "submitted": "Enviado",
+        "received": "Recibido",
+        "approved": "Aprobado",
+        "evaluated": "Evaluado",
+        "disqualified": "Descalificado"
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Bienvenido de Vuelta",
+      "subtitle": "Inicia sesión en tu cuenta de la Competencia de Calidad de Cacao y Chocolate",
+      "email": "Email",
+      "emailPlaceholder": "Ingresa tu email",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Ingresa tu contraseña",
+      "signIn": "Iniciar Sesión",
+      "signingIn": "Iniciando Sesión...",
+      "noAccount": "¿No tienes una cuenta?",
+      "registerNow": "Regístrate ahora",
+      "toasts": {
+        "successTitle": "Éxito",
+        "successDesc": "¡Bienvenido de vuelta!",
+        "failedTitle": "Inicio de Sesión Fallido",
+        "failedDesc": "Credenciales inválidas o cuenta aún no aprobada por el administrador. Por favor verifica tu email y contraseña, o contacta soporte si tu cuenta está pendiente de aprobación.",
+        "errorTitle": "Error",
+        "errorDesc": "Ocurrió un error inesperado. Por favor intenta de nuevo."
+      }
+    },
+    "register": {
+      "title": "Únete a la Competencia",
+      "subtitle": "Crea tu cuenta para participar en la Competencia de Calidad de Cacao y Chocolate",
+      "fullName": "Nombre Completo",
+      "email": "Email",
+      "emailPlaceholder": "Ingresa tu email",
+      "phone": "Número de Teléfono",
+      "role": "Rol",
+      "rolePlaceholder": "Selecciona tu rol",
+      "roles": {
+        "admin": "Administrador",
+        "director": "Director",
+        "judge": "Juez",
+        "participant": "Participante",
+        "evaluator": "Evaluador"
+      },
+      "evaluatorCredentials": "Credenciales de Evaluador",
+      "evaluatorCredentialsDesc": "Por favor sube tus certificaciones, calificaciones o documentos relevantes (PDF, JPEG, PNG - Máx 5MB cada uno)",
+      "clickToUpload": "Haz clic para subir",
+      "dragAndDrop": "o arrastra y suelta",
+      "fileTypes": "PDF, JPEG, PNG (MÁX. 5MB)",
+      "uploadedDocuments": "Documentos Subidos:",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Ingresa una contraseña segura",
+      "confirmPassword": "Confirmar Contraseña",
+      "createAccount": "Crear Cuenta",
+      "creatingAccount": "Creando Cuenta...",
+      "hasAccount": "¿Ya tienes una cuenta?",
+      "signIn": "Iniciar sesión",
+      "toasts": {
+        "invalidFileTypeTitle": "Tipo de Archivo Inválido",
+        "invalidFileTypeDesc": "Por favor sube solo archivos PDF, JPEG o PNG.",
+        "fileTooLargeTitle": "Archivo Muy Grande",
+        "fileTooLargeDesc": "Por favor sube archivos menores a 5MB.",
+        "documentsUploadedTitle": "Documentos Subidos",
+        "documentsUploadedDesc": "{{count}} documento(s) subido(s) exitosamente.",
+        "documentRemovedTitle": "Documento Eliminado",
+        "documentRemovedDesc": "El documento ha sido eliminado de la lista de subida.",
+        "passwordsNoMatchTitle": "Error",
+        "passwordsNoMatchDesc": "Las contraseñas no coinciden",
+        "selectRoleTitle": "Error",
+        "selectRoleDesc": "Por favor selecciona un rol",
+        "documentsRequiredTitle": "Documentos Requeridos",
+        "documentsRequiredDesc": "Por favor sube tus credenciales y certificaciones para el registro de evaluador.",
+        "registrationCompleteTitle": "Registro Completado",
+        "registrationCompleteDesc": "¡Registro exitoso!",
+        "registrationCompleteApprovalDesc": "¡Registro exitoso! Tu cuenta será revisada por un administrador. Serás notificado una vez aprobado y podrás iniciar sesión.",
+        "registrationCompleteEvaluatorDesc": "¡Registro exitoso! Tu cuenta y documentos serán revisados por un administrador. Serás notificado una vez aprobado y podrás iniciar sesión.",
+        "registrationFailedTitle": "Registro Fallido",
+        "registrationFailedDesc": "El registro falló. Por favor verifica tu información e intenta de nuevo.",
+        "errorTitle": "Error",
+        "errorDesc": "Ocurrió un error inesperado. Por favor intenta de nuevo."
+      }
+    }
+  }
+}

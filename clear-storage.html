@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Clear Browser Storage</title>
+    </head>
+    <body>
+        <h1>Clear Browser Storage</h1>
+        <button onclick="clearAllStorage()">Clear All Storage</button>
+        <div id="result"></div>
+        <script>
+        function clearAllStorage() {
+            try {
+                // Clear localStorage
+                localStorage.clear();
+                console.log('localStorage cleared');
+                
+                // Clear sessionStorage
+                sessionStorage.clear();
+                console.log('sessionStorage cleared');
+                
+                // Clear IndexedDB (Supabase uses this)
+                if ('indexedDB' in window) {
+                    indexedDB.databases().then(databases => {
+                        databases.forEach(db => {
+                            if (db.name) {
+                                indexedDB.deleteDatabase(db.name);
+                                console.log('Deleted IndexedDB:', db.name);
+                            }
+                        });
+                    });
+                }
+                
+                document.getElementById('result').innerHTML = 
+                    '<p style="color: green;">✅ All storage cleared! Please close this tab and refresh your app.</p>';
+                    
+            } catch (error) {
+                console.error('Error clearing storage:', error);
+                document.getElementById('result').innerHTML = 
+                    '<p style="color: red;">❌ Error clearing storage: ' + error.message + '</p>';
+            }
+        }
+        </script>
+    </body>
+</html>
