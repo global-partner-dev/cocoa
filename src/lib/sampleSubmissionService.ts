@@ -64,8 +64,8 @@ const transformToSampleSubmissionContest = (contest: ContestDisplay): SampleSubm
     description: contest.description,
     registrationDeadline: contest.startDate, // Use start date as registration deadline
     submissionDeadline: contest.endDate, // Use end date as submission deadline
-    entryFee: Math.floor(contest.samplePrice * 0.6), // 60% of sample price as entry fee
-    sampleFee: Math.floor(contest.samplePrice * 0.4), // 40% of sample price as sample fee
+    entryFee: 0, // No entry fee required
+    sampleFee: 0, // No sample fee required
     status: mapStatus(contest.status),
     categories: generateCategories(contest.name),
     requirements: generateRequirements()

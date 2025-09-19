@@ -47,10 +47,6 @@ export interface Sample {
   // Additional Information
   variety?: string;
   
-  // Payment Information
-  payment_method?: 'credit_card' | 'bank_transfer' | 'paypal';
-  payment_status: 'pending' | 'completed' | 'failed' | 'refunded';
-  payment_reference?: string;
   
   // Sample Status
   status: SampleStatus;
@@ -101,8 +97,6 @@ export interface SampleSubmissionData {
   // Additional Information
   variety?: string;
   
-  // Payment Information
-  paymentMethod: 'credit_card' | 'bank_transfer' | 'paypal';
   
   // Terms Agreement
   agreedToTerms: boolean;
@@ -282,9 +276,6 @@ export class SamplesService {
         // Additional Information
         variety: submissionData.variety || null,
         
-        // Payment Information
-        payment_method: submissionData.paymentMethod,
-        payment_status: 'pending' as const,
         
         // Sample Status
         status: 'submitted' as const,
@@ -327,9 +318,6 @@ export class SamplesService {
         throw updateError;
       }
 
-      // IMPORTANT: Real payment is performed client-side via PayPal buttons.
-      // This service no longer auto-records a payment here.
-      // The Edge Function `paypal-capture` will mark payment and update sample status after capture.
 
       return updatedSample;
     } catch (error) {

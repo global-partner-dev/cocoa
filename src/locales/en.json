@@ -69,7 +69,6 @@
       "locationPh": "Enter contest location",
       "startDate": "Start Date",
       "endDate": "End Date",
-      "samplePrice": "Sample Price ($)",
       "evaluationPrice": "Evaluation Price ($)"
     },
     "buttons": {
@@ -129,7 +128,6 @@
         "submissionDate": "Submission Date",
         "externalCode": "External Code",
         "status": "Status",
-        "paymentStatus": "Payment Status",
         "progress": "Progress",
         "complete": "complete",
         "qrCode": "QR Code",
@@ -189,11 +187,6 @@
         "evaluating": "Evaluating",
         "evaluated": "Evaluated",
         "disqualified": "Disqualified"
-      },
-      "paymentStatus": {
-        "pending": "Pending",
-        "paid": "Paid",
-        "failed": "Failed"
       },
       "toasts": {
         "generatingReport": "Generating Report",
@@ -636,8 +629,7 @@
         "contest": "Contest",
         "originOwner": "Origin & Owner",
         "sampleInfo": "Sample Info",
-        "processing": "Processing",
-        "payment": "Payment"
+        "processing": "Processing"
       },
       "contest": {
         "title": "1. Competition Data",
@@ -767,7 +759,7 @@
           "cvv": "123"
         },
         "terms": "I agree to the contest terms and conditions, understand the evaluation process, and confirm that all provided information is accurate.",
-        "submit": "Pay ${{amount}} & Submit",
+        "submit": "Submit",
         "processing": "Processing...",
         "paypalHint": "click here to submit"
       },
@@ -798,7 +790,8 @@
       },
       "buttons": {
         "back": "Back",
-        "continue": "Continue"
+        "continue": "Continue",
+        "submit": "Submit"
       },
       "toasts": {
         "error": "Error",

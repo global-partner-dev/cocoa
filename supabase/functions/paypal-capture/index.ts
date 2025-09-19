@@ -75,7 +75,7 @@ serve(async (req) => {
     const userId = userData.user.id;
 
     const payload = await req.json();
-    const role = payload?.role as 'participant' | 'evaluator';
+    const role = payload?.role as 'evaluator';
     const sampleId = payload?.sampleId as string;
     const amountCents = Number(payload?.amountCents);
     const currency = (payload?.currency || 'USD').toUpperCase();
@@ -97,24 +97,14 @@ serve(async (req) => {
       .single();
     if (sampleErr || !sampleRow?.contest_id) return json(400, { error: 'Invalid sample' });
 
-    let expectedCents = 0;
-    if (role === 'participant') {
-      const { data: contest, error: contestErr } = await admin
-        .from('contests')
-        .select('sample_price')
-        .eq('id', sampleRow.contest_id)
-        .single();
-      if (contestErr) return json(400, { error: 'Contest lookup failed' });
-      expectedCents = Math.round(Number(contest?.sample_price ?? 0) * 100);
-    } else {
-      const { data: contest, error: contestErr } = await admin
-        .from('contests')
-        .select('evaluation_price')
-        .eq('id', sampleRow.contest_id)
-        .single();
-      if (contestErr) return json(400, { error: 'Contest lookup failed' });
-      expectedCents = Math.round(Number(contest?.evaluation_price ?? 0) * 100);
-    }
+    // Only handle evaluator payments now
+    const { data: contest, error: contestErr } = await admin
+      .from('contests')
+      .select('evaluation_price')
+      .eq('id', sampleRow.contest_id)
+      .single();
+    if (contestErr) return json(400, { error: 'Contest lookup failed' });
+    const expectedCents = Math.round(Number(contest?.evaluation_price ?? 0) * 100);
 
     if (!expectedCents || isNaN(expectedCents)) return json(400, { error: 'Invalid expected price' });
 
@@ -160,14 +150,6 @@ serve(async (req) => {
     });
     if (insertErr) return json(500, { error: 'DB insert failed' });
 
-    // For participant payments, mark sample as paid
-    if (role === 'participant') {
-      const { error: updErr } = await admin
-        .from('samples')
-        .update({ payment_status: 'completed' })
-        .eq('id', sampleId);
-      if (updErr) return json(500, { error: 'Failed to update sample status' });
-    }
 
     return json(200, { ok: true });
   } catch (e: any) {

@@ -17,18 +17,12 @@ import {
   MapPin,
   Leaf,
   Award,
-  CreditCard,
-  Download,
   Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SampleSubmissionService, type SampleSubmissionContest } from "@/lib/sampleSubmissionService";
 import { SamplesService, type SampleSubmissionData } from "@/lib/samplesService";
 import type { Sample } from "@/lib/samplesService";
-import PayPalButtonsMount from '@/components/payments/PayPalButtonsMount';
-import visa from "@/assets/visa.png";
-import nequi from "@/assets/nequi.png";
-import paypal from "@/assets/paypal.png";
 import { useTranslation } from "react-i18next";
 
 // Use the SampleSubmissionContest type from the service
@@ -74,7 +68,6 @@ interface SampleSubmission {
   
   // Additional fields
   variety: string;
-  paymentMethod: 'credit_card' | 'nequi' | 'paypal';
   agreedToTerms: boolean;
 }
 
@@ -180,7 +173,6 @@ const SampleSubmission = () => {
     
     // Additional fields
     variety: '',
-    paymentMethod: 'credit_card',
     agreedToTerms: false
   });
   const [currentStep, setCurrentStep] = useState(1);
@@ -219,10 +211,6 @@ const SampleSubmission = () => {
     setCurrentStep(2);
   };
 
-  const calculateTotalFee = () => {
-    if (!selectedContest) return 0;
-    return selectedContest.entryFee + selectedContest.sampleFee;
-  };
 
   const handleSubmit = async (): Promise<Sample | undefined> => {
     if (!selectedContest || !submission.agreedToTerms) {
@@ -232,16 +220,6 @@ const SampleSubmission = () => {
         variant: "destructive"
       });
       return undefined;
-    }
-
-    // Block submission for disabled payment methods
-    if (submission.paymentMethod === 'credit_card' || submission.paymentMethod === 'nequi') {
-      toast({
-        title: t('dashboard.sampleSubmission.toasts.paymentNotAvailable'),
-        description: t('dashboard.sampleSubmission.toasts.paymentNotAvailableDescription'),
-        variant: "destructive",
-      });
-      return;
     }
 
     setIsSubmitting(true);
@@ -285,9 +263,6 @@ const SampleSubmission = () => {
         // Additional Information
         variety: submission.variety || undefined,
         
-        // Payment Information
-        paymentMethod: submission.paymentMethod,
-        
         // Terms Agreement
         agreedToTerms: submission.agreedToTerms
       };
@@ -330,8 +305,7 @@ const SampleSubmission = () => {
       { number: 1, title: t('dashboard.sampleSubmission.steps.contest') },
       { number: 2, title: t('dashboard.sampleSubmission.steps.originOwner') },
       { number: 3, title: t('dashboard.sampleSubmission.steps.sampleInfo') },
-      { number: 4, title: t('dashboard.sampleSubmission.steps.processing') },
-      { number: 5, title: t('dashboard.sampleSubmission.steps.payment') }
+      { number: 4, title: t('dashboard.sampleSubmission.steps.processing') }
     ];
 
     return (
@@ -393,7 +367,6 @@ const SampleSubmission = () => {
                   <div>{t('dashboard.sampleSubmission.success.nextSteps.package')}</div>
                   <div>{t('dashboard.sampleSubmission.success.nextSteps.attach')}</div>
                   <div>{t('dashboard.sampleSubmission.success.nextSteps.ship')}</div>
-                  <div>{t('dashboard.sampleSubmission.success.nextSteps.payment')}</div>
                 </div>
               </div>
             </div>
@@ -462,7 +435,6 @@ const SampleSubmission = () => {
                   
                   // Additional fields
                   variety: '',
-                  paymentMethod: 'credit_card',
                   agreedToTerms: false
                 });
               }}
@@ -535,19 +507,6 @@ const SampleSubmission = () => {
                           </div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
-                          <div className="flex items-center space-x-2">
-                            <DollarSign className="w-4 h-4 text-green-600 flex-shrink-0" />
-                            <span className="text-xs sm:text-sm font-medium">{t('dashboard.sampleSubmission.contest.details.entry')} ${contest.entryFee}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <DollarSign className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                            <span className="text-xs sm:text-sm font-medium">{t('dashboard.sampleSubmission.contest.details.sample')} ${contest.sampleFee}</span>
-                          </div>
-                          <div className="text-xs sm:text-sm font-semibold text-[hsl(var(--chocolate-dark))]">
-                            {t('dashboard.sampleSubmission.contest.details.total')} ${contest.entryFee + contest.sampleFee}
-                          </div>
-                        </div>
 
                         <div className="space-y-2">
                           <h4 className="font-medium text-xs sm:text-sm">{t('dashboard.sampleSubmission.contest.details.categories')}</h4>
@@ -869,13 +828,13 @@ const SampleSubmission = () => {
 
               <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
                 <Button variant="outline" onClick={() => setCurrentStep(2)} className="w-full sm:w-auto">
-                  <span className="text-xs sm:text-sm">Back</span>
+                  <span className="text-xs sm:text-sm">{t('dashboard.sampleSubmission.buttons.back')}</span>
                 </Button>
                 <Button 
                   onClick={() => setCurrentStep(4)}
                   className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto"
                 >
-                  <span className="text-xs sm:text-sm">Continue</span>
+                  <span className="text-xs sm:text-sm">{t('dashboard.sampleSubmission.buttons.continue')}</span>
                 </Button>
               </div>
             </CardContent>
@@ -961,104 +920,7 @@ const SampleSubmission = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
-                <Button variant="outline" onClick={() => setCurrentStep(3)} className="w-full sm:w-auto">
-                  <span className="text-xs sm:text-sm">Back</span>
-                </Button>
-                <Button 
-                  onClick={() => setCurrentStep(5)}
-                  className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto"
-                >
-                  <span className="text-xs sm:text-sm">Continue</span>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Step 5: Payment */}
-      {currentStep === 5 && selectedContest && (
-        <div className="space-y-6">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base sm:text-lg">{t('dashboard.sampleSubmission.payment.title')}</CardTitle>
-              <CardDescription className="text-xs sm:text-sm">{t('dashboard.sampleSubmission.payment.description')}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4 sm:space-y-6">
-              <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
-                <h4 className="font-medium mb-3 text-sm sm:text-base">{t('dashboard.sampleSubmission.payment.summary.title')}</h4>
-                <div className="space-y-2 text-xs sm:text-sm">
-                  <div className="flex justify-between">
-                    <span>{t('dashboard.sampleSubmission.payment.summary.entryFee')}</span>
-                    <span>${selectedContest.entryFee}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{t('dashboard.sampleSubmission.payment.summary.sampleFee')}</span>
-                    <span>${selectedContest.sampleFee}</span>
-                  </div>
-                  <div className="border-t pt-2 flex justify-between font-medium">
-                    <span>{t('dashboard.sampleSubmission.payment.summary.total')}</span>
-                    <span>${calculateTotalFee()}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <Label className="text-xs sm:text-sm">{t('dashboard.sampleSubmission.payment.method')}</Label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-2">
-                  {[
-                    { value: 'credit_card', label: t('dashboard.sampleSubmission.payment.methods.creditCard'), icon: CreditCard, img: visa },
-                    { value: 'nequi', label: t('dashboard.sampleSubmission.payment.methods.nequi'), icon: DollarSign, img: nequi },
-                    { value: 'paypal', label: t('dashboard.sampleSubmission.payment.methods.paypal'), icon: DollarSign, img: paypal }
-                  ].map(({ value, label, icon: Icon, img }) => (
-                    <div
-                      key={value}
-                      className={`p-3 sm:p-4 border rounded-lg cursor-pointer transition-colors ${
-                        submission.paymentMethod === value 
-                          ? 'border-[hsl(var(--chocolate-medium))] bg-[hsl(var(--chocolate-cream))]' 
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                      onClick={() => setSubmission(prev => ({ ...prev, paymentMethod: value as 'credit_card' | 'nequi' | 'paypal' }))}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2 sm:space-x-3">
-                          <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                          <span className="font-medium text-xs sm:text-sm">{label}</span>
-                        </div>
-                        <img src={img} alt={`${label} logo`} className="h-5 sm:h-6 w-auto object-contain" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {submission.paymentMethod === 'credit_card' && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="cardNumber" className="text-xs sm:text-sm">Card Number</Label>
-                      <Input id="cardNumber" placeholder="1234 5678 9012 3456" className="text-xs sm:text-sm" />
-                    </div>
-                    <div>
-                      <Label htmlFor="cardName" className="text-xs sm:text-sm">Cardholder Name</Label>
-                      <Input id="cardName" placeholder="John Doe" className="text-xs sm:text-sm" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="expiry" className="text-xs sm:text-sm">Expiry Date</Label>
-                      <Input id="expiry" placeholder="MM/YY" className="text-xs sm:text-sm" />
-                    </div>
-                    <div>
-                      <Label htmlFor="cvv" className="text-xs sm:text-sm">CVV</Label>
-                      <Input id="cvv" placeholder="123" className="text-xs sm:text-sm" />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex items-start space-x-2">
+              <div className="flex items-start space-x-2 mb-4">
                 <Checkbox
                   id="terms"
                   checked={submission.agreedToTerms}
@@ -1069,53 +931,25 @@ const SampleSubmission = () => {
                 </Label>
               </div>
 
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <Button variant="outline" onClick={() => setCurrentStep(4)} className="w-full sm:w-auto order-2 sm:order-1">
+              <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+                <Button variant="outline" onClick={() => setCurrentStep(3)} className="w-full sm:w-auto">
                   <span className="text-xs sm:text-sm">{t('dashboard.sampleSubmission.buttons.back')}</span>
                 </Button>
-                {submission.paymentMethod === 'paypal' ? (
-                  <div className="flex flex-col sm:flex-row items-center gap-3 order-1 sm:order-2">
-                    <div className="text-xs sm:text-sm text-muted-foreground">Total ${calculateTotalFee()}</div>
-                    {/* Lazy PayPal mount: pay then submit */}
-                    {/* @ts-ignore */}
-                    <PayPalButtonsMount
-                      amount={String(calculateTotalFee())}
-                      disabled={!submission.agreedToTerms || isSubmitting}
-                      onApproved={async ({ orderId, captureId }) => {
-                        setIsSubmitting(true);
-                        try {
-                          // 1) Submit the sample (DB, QR, etc.) and capture the returned sample
-                          const created = await handleSubmit();
-                          const sampleId = created?.id;
-                          if (!sampleId) throw new Error('Missing sample reference after submission');
-                          // 2) Record payment securely via edge function
-                          const { FinanceService } = await import('@/lib/financeService');
-                          const cents = Math.round(Number(calculateTotalFee()) * 100);
-                          const res = await FinanceService.recordParticipantPayment(sampleId, cents, 'USD', { orderId, captureId });
-                          if (!res.success) throw new Error(res.error || 'Payment capture record failed');
-                        } finally {
-                          setIsSubmitting(false);
-                        }
-                      }}
-                    />
-                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs">{t('dashboard.sampleSubmission.payment.paypalHint')}</Badge>
-                  </div>
-                ) : (
                   <Button 
                     onClick={handleSubmit}
                     disabled={!submission.agreedToTerms || isSubmitting}
-                    className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto order-1 sm:order-2"
+                  className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto"
                   >
                     <span className="text-xs sm:text-sm">
-                      {isSubmitting ? t('dashboard.sampleSubmission.payment.processing') : t('dashboard.sampleSubmission.payment.submit', { amount: calculateTotalFee() })}
+                    {isSubmitting ? t('dashboard.sampleSubmission.payment.processing') : t('dashboard.sampleSubmission.buttons.submit')}
                     </span>
                   </Button>
-                )}
               </div>
             </CardContent>
           </Card>
         </div>
       )}
+
     </div>
   );
 };

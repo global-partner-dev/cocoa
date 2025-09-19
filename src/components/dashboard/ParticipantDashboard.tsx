@@ -412,14 +412,6 @@ const ParticipantDashboard = () => {
                 </div>
               </div>
               <div>
-                <label className="text-xs sm:text-sm font-medium text-muted-foreground">{t('dashboard.participantDashboard.sampleDetails.paymentStatus')}</label>
-                <div className="flex items-center space-x-2 mt-1">
-                  <Badge className={`${getPaymentStatusColor(selectedSample.paymentStatus)} text-xs`}>
-                    {t(`dashboard.participantDashboard.paymentStatus.${selectedSample.paymentStatus}`)}
-                  </Badge>
-                </div>
-              </div>
-              <div>
                 <label className="text-xs sm:text-sm font-medium text-muted-foreground">{t('dashboard.participantDashboard.sampleDetails.progress')}</label>
                 <Progress value={getStatusProgress(selectedSample.status)} className="mt-2" />
                 <p className="text-xs text-muted-foreground mt-1">
@@ -707,11 +699,6 @@ const ParticipantDashboard = () => {
                             <Badge className={`${getStatusColor(sample.status)} text-xs`}>
                               {t(`dashboard.participantDashboard.status.${sample.status}`)}
                             </Badge>
-                            <div className="mt-1">
-                              <Badge className={`${getPaymentStatusColor(sample.paymentStatus)} text-xs`}>
-                                {t(`dashboard.participantDashboard.paymentStatus.${sample.paymentStatus}`)}
-                              </Badge>
-                            </div>
                           </div>
                           <div className="w-16 sm:w-20 flex-shrink-0">
                             <Progress value={getStatusProgress(sample.status)} className="h-2" />

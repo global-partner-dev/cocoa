@@ -69,7 +69,6 @@
       "locationPh": "Ingresa la ubicación del concurso",
       "startDate": "Fecha de Inicio",
       "endDate": "Fecha de Fin",
-      "samplePrice": "Precio de Muestra ($)",
       "evaluationPrice": "Precio de Evaluación ($)"
     },
     "buttons": {
@@ -129,7 +128,6 @@
         "submissionDate": "Fecha de Envío",
         "externalCode": "Código Externo",
         "status": "Estado",
-        "paymentStatus": "Estado de Pago",
         "progress": "Progreso",
         "complete": "completo",
         "qrCode": "Código QR",
@@ -189,11 +187,6 @@
         "evaluating": "Evaluando",
         "evaluated": "Evaluado",
         "disqualified": "Descalificado"
-      },
-      "paymentStatus": {
-        "pending": "Pendiente",
-        "paid": "Pagado",
-        "failed": "Fallido"
       },
       "toasts": {
         "generatingReport": "Generando Reporte",
@@ -636,8 +629,7 @@
         "contest": "Concurso",
         "originOwner": "Origen y Propietario",
         "sampleInfo": "Info de Muestra",
-        "processing": "Procesamiento",
-        "payment": "Pago"
+        "processing": "Procesamiento"
       },
       "contest": {
         "title": "1. Datos de Competencia",
@@ -767,7 +759,7 @@
           "cvv": "123"
         },
         "terms": "Acepto los términos y condiciones del concurso, entiendo el proceso de evaluación y confirmo que toda la información proporcionada es precisa.",
-        "submit": "Pagar ${{amount}} y Enviar",
+        "submit": "Enviar",
         "processing": "Procesando...",
         "paypalHint": "haz clic aquí para enviar"
       },
@@ -798,7 +790,8 @@
       },
       "buttons": {
         "back": "Atrás",
-        "continue": "Continuar"
+        "continue": "Continuar",
+        "submit": "Entregar"
       },
       "toasts": {
         "error": "Error",

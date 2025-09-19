@@ -212,46 +212,4 @@ export class FinanceService {
     }
   }
 
-  /** Record a participant payment after PayPal capture */
-  static async recordParticipantPayment(sampleId: string, amountCents: number, currency = 'USD', paypal: { orderId: string; captureId?: string }) {
-    try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) throw new Error('Not authenticated');
-
-      const { data, error } = await supabase.functions.invoke('paypal-capture', {
-        body: {
-          role: 'participant',
-          sampleId,
-          amountCents,
-          currency,
-          orderId: paypal.orderId,
-          captureId: paypal.captureId,
-        },
-      });
-      if (error) throw new Error(error.message || 'Capture failed');
-      if ((data as any)?.error) throw new Error((data as any).error);
-      return { success: true } as const;
-    } catch (e: any) {
-      return { success: false, error: e?.message || 'Failed to record participant payment' } as const;
-    }
-  }
-
-  /** Compute participant fee (entry + sample) in cents for a contest */
-  static async getParticipantFeeCentsForContest(contestId: string) {
-    try {
-      const { data, error } = await supabase
-        .from('contests')
-        .select('sample_price')
-        .eq('id', contestId)
-        .single();
-      if (error) throw error;
-      const samplePrice = Number((data as any)?.sample_price ?? 0);
-      if (isNaN(samplePrice)) throw new Error('Sample price not set');
-      const entryFee = Math.floor(samplePrice * 0.6 * 100); // mirror UI split
-      const sampleFee = Math.floor(samplePrice * 0.4 * 100);
-      return { success: true, data: entryFee + sampleFee } as const;
-    } catch (e: any) {
-      return { success: false, error: e?.message || 'Failed to compute participant fee' } as const;
-    }
-  }
 }
