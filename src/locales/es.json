@@ -69,7 +69,8 @@
       "locationPh": "Ingresa la ubicación del concurso",
       "startDate": "Fecha de Inicio",
       "endDate": "Fecha de Fin",
-      "evaluationPrice": "Precio de Evaluación ($)"
+      "evaluationPrice": "Precio de Evaluación ($)",
+      "samplePrice": "Precio de Muestra ($)"
     },
     "buttons": {
       "cancel": "Cancelar",

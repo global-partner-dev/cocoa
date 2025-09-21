@@ -69,7 +69,8 @@
       "locationPh": "Enter contest location",
       "startDate": "Start Date",
       "endDate": "End Date",
-      "evaluationPrice": "Evaluation Price ($)"
+      "evaluationPrice": "Evaluation Price ($)",
+      "samplePrice": "Sample Price ($)"
     },
     "buttons": {
       "cancel": "Cancel",
