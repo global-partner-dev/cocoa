@@ -114,8 +114,11 @@ const ParticipantDashboard = () => {
       // 1) Fetch user samples from DB
       const samplesFromDb = await (await import("@/lib/samplesService")).SamplesService.getUserSamples();
 
-      // 2) Map to UI shape; mark all as paid (DB always paid per business rule)
-      const baseSamples: SubmittedSample[] = (samplesFromDb as any[]).map((s: any) => ({
+      // 2) Filter out draft samples - only show submitted and processed samples
+      const submittedSamples = (samplesFromDb as any[]).filter((s: any) => s.status !== 'draft');
+
+      // 3) Map to UI shape; mark all as paid (DB always paid per business rule)
+      const baseSamples: SubmittedSample[] = submittedSamples.map((s: any) => ({
         id: s.id,
         sampleName: s.farm_name || `Sample ${s.tracking_code}`,
         contestName: s.contests?.name || 'Unknown Contest',
