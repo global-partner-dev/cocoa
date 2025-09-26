@@ -756,7 +756,7 @@ const SampleSubmission = () => {
         <div className="space-y-6">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base sm:text-lg">3. Origin & Owner (Bean)</CardTitle>
+              <CardTitle className="text-base sm:text-lg">3. Origin & Owner (Cocoa Liquor/Mass)</CardTitle>
               <CardDescription className="text-xs sm:text-sm">Provide origin details and owner information</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 sm:space-y-6">
