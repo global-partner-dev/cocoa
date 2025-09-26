@@ -72,13 +72,6 @@ const ParticipantResults = () => {
       setResults(topSamplesResponse.data || []);
       setStats(statsResponse.data || null);
 
-      if (topSamplesResponse.data && topSamplesResponse.data.length === 0) {
-        toast({
-          title: t('dashboard.participantResults.toasts.noResultsAvailable'),
-          description: t('dashboard.participantResults.toasts.noResultsDescription'),
-          variant: "default",
-        });
-      }
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load results';
