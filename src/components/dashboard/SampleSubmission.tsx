@@ -14,7 +14,11 @@ import {
   CheckCircle,
   AlertTriangle,
   Calendar,
-  Loader2
+  Loader2,
+  Upload,
+  FileText,
+  X,
+  Paperclip
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SampleSubmissionService, type SampleSubmissionContest } from "@/lib/sampleSubmissionService";
@@ -129,6 +133,9 @@ interface SampleSubmission {
   liquorProcessingMethod: string; // Artisanal, Industrial, Mixed
   liquorCocoaOriginCountry: string; // origin of cocoa used
   liquorCocoaVariety: string;
+
+  // Attached Documentation
+  attachedDocuments: File[];
 
   agreedToTerms: boolean;
 }
@@ -300,6 +307,9 @@ const SampleSubmission = () => {
     liquorCocoaOriginCountry: '',
     liquorCocoaVariety: '',
 
+    // Attached Documentation
+    attachedDocuments: [],
+
     agreedToTerms: false
   });
   const [currentStep, setCurrentStep] = useState(1);
@@ -327,6 +337,66 @@ const SampleSubmission = () => {
 
     loadContests();
   }, [toast]);
+
+  // File upload helper functions
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const handleDocumentUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const validFiles = files.filter(file => {
+      const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      
+      if (!validTypes.includes(file.type)) {
+        toast({
+          title: 'Invalid file type',
+          description: 'Please upload PDF, JPG, or PNG files only.',
+          variant: "destructive",
+        });
+        return false;
+      }
+      
+      if (file.size > maxSize) {
+        toast({
+          title: 'File too large',
+          description: 'Please upload files smaller than 10MB.',
+          variant: "destructive",
+        });
+        return false;
+      }
+      
+      return true;
+    });
+    
+    setSubmission(prev => ({
+      ...prev,
+      attachedDocuments: [...prev.attachedDocuments, ...validFiles]
+    }));
+    
+    if (validFiles.length > 0) {
+      toast({
+        title: 'Documents uploaded',
+        description: `${validFiles.length} document(s) uploaded successfully.`,
+      });
+    }
+  };
+
+  const removeDocument = (index: number) => {
+    setSubmission(prev => ({
+      ...prev,
+      attachedDocuments: prev.attachedDocuments.filter((_, i) => i !== index)
+    }));
+    toast({
+      title: 'Document removed',
+      description: 'Document has been removed from your submission.',
+    });
+  };
 
   const handleContestSelect = (contest: Contest) => {
     setSelectedContest(contest);
@@ -453,10 +523,12 @@ const SampleSubmission = () => {
   };
 
   const handleSubmit = async (): Promise<Sample | undefined> => {
-    if (!selectedContest || !submission.agreedToTerms) {
+    // Validate form
+    const validation = validateForm();
+    if (!validation.isValid) {
       toast({
-        title: 'Cannot submit',
-        description: 'Please select a contest and agree to the terms.',
+        title: 'Form validation failed',
+        description: validation.errors[0], // Show first error
         variant: "destructive"
       });
       return undefined;
@@ -485,6 +557,7 @@ const SampleSubmission = () => {
       }));
 
       setCurrentStep(7); // Success step (after adding product type step)
+      clearDraft(); // Clear saved draft on successful submission
       return submittedSample;
     } catch (error) {
       console.error('Error submitting sample:', error);
@@ -493,6 +566,94 @@ const SampleSubmission = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleSaveAsDraft = () => {
+    // Save current form data to localStorage
+    const draftData = {
+      ...submission,
+      attachedDocuments: [] // Don't save files in localStorage
+    };
+    localStorage.setItem('sampleSubmissionDraft', JSON.stringify(draftData));
+    
+    toast({
+      title: 'Draft saved',
+      description: 'Your submission has been saved as a draft.',
+    });
+  };
+
+  // Load draft on component mount
+  const loadDraft = () => {
+    const savedDraft = localStorage.getItem('sampleSubmissionDraft');
+    if (savedDraft) {
+      try {
+        const draftData = JSON.parse(savedDraft);
+        setSubmission(prev => ({
+          ...prev,
+          ...draftData,
+          attachedDocuments: [] // Reset files
+        }));
+        toast({
+          title: 'Draft loaded',
+          description: 'Your previous draft has been loaded.',
+        });
+      } catch (error) {
+        console.error('Error loading draft:', error);
+      }
+    }
+  };
+
+  const clearDraft = () => {
+    localStorage.removeItem('sampleSubmissionDraft');
+  };
+
+  // Form validation function
+  const validateForm = (): { isValid: boolean; errors: string[] } => {
+    const errors: string[] = [];
+
+    // Common validations
+    if (!submission.contestId) {
+      errors.push('Please select a contest');
+    }
+
+    if (!submission.agreedToTerms) {
+      errors.push('Please accept the terms and conditions');
+    }
+
+    // Product type specific validations
+    if (submission.productType === 'bean') {
+      if (!submission.country) errors.push('Country is required');
+      if (!submission.farmName) errors.push('Farm name is required');
+      if (!submission.ownerFullName) errors.push('Owner full name is required');
+      if (!submission.lotNumber) errors.push('Lot number is required');
+    } else if (submission.productType === 'chocolate') {
+      if (!submission.chocolateName) errors.push('Chocolate name is required');
+      if (!submission.chocolateBrand) errors.push('Brand/Manufacturer is required');
+      if (!submission.chocolateBatch) errors.push('Batch/Reference is required');
+      if (!submission.chocolateProductionDate) errors.push('Production date is required');
+      if (!submission.chocolateManufacturerCountry) errors.push('Manufacturer country is required');
+      if (!submission.chocolateCocoaOriginCountry) errors.push('Cocoa origin country is required');
+      if (!submission.chocolateCocoaVariety) errors.push('Cocoa variety is required');
+      if (!submission.chocolateType) errors.push('Chocolate type is required');
+      if (submission.chocolateCocoaPercentage <= 0) errors.push('Cocoa percentage must be greater than 0');
+      if (submission.chocolateSweeteners.length === 0) errors.push('At least one sweetener must be selected');
+      if (submission.chocolateLecithin.length === 0) errors.push('Lecithin selection is required');
+    } else if (submission.productType === 'liquor') {
+      if (!submission.lotNumber) errors.push('Lot number is required');
+      if (!submission.liquorName) errors.push('Liquor name is required');
+      if (!submission.liquorBrand) errors.push('Brand/Processor is required');
+      if (!submission.liquorBatch) errors.push('Batch/Reference is required');
+      if (!submission.liquorProcessingDate) errors.push('Processing date is required');
+      if (!submission.liquorCountryProcessing) errors.push('Country of processing is required');
+      if (submission.lecithinPercentage < 0) errors.push('Lecithin percentage cannot be negative');
+      if (!submission.liquorProcessingMethod) errors.push('Processing method is required');
+      if (!submission.liquorCocoaOriginCountry) errors.push('Cocoa origin country is required');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
   };
 
   const renderStepIndicator = () => {
@@ -530,24 +691,139 @@ const SampleSubmission = () => {
 
   // Terms & submit block reused for all product types
   const TermsAndSubmit = () => (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base sm:text-lg">Agree & Submit</CardTitle>
-        <CardDescription className="text-xs sm:text-sm">Confirm and finalize your submission</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-start space-x-2">
-          <Checkbox id="agree" checked={submission.agreedToTerms} onCheckedChange={(c)=> setSubmission(p=>({...p, agreedToTerms: !!c}))} />
-          <Label htmlFor="agree" className="text-xs sm:text-sm">I agree to the contest terms and conditions *</Label>
-        </div>
-        <div className="flex justify-end">
-          <Button onClick={handleSubmit} disabled={isSubmitting || !submission.agreedToTerms} className="w-full sm:w-auto bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))]">
-            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Submit Sample
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      {/* Attached Documentation Section */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+            <Paperclip className="w-4 h-4" />
+            Attached Documentation (Optional)
+          </CardTitle>
+          <CardDescription className="text-xs sm:text-sm">
+            Upload supporting documents such as health certificates, product photos, laboratory analysis, or other relevant files
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* File Upload Button */}
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[hsl(var(--chocolate-medium))] transition-colors">
+            <label htmlFor="document-upload" className="cursor-pointer">
+              <div className="flex flex-col items-center space-y-2">
+                <Upload className="w-8 h-8 text-gray-400" />
+                <div className="text-sm">
+                  <span className="font-medium text-[hsl(var(--chocolate-medium))]">Click to upload</span>
+                  <span className="text-gray-500"> or drag and drop</span>
+                </div>
+                <div className="text-xs text-gray-500">
+                  PDF, JPG, PNG up to 10MB each
+                </div>
+              </div>
+              <input
+                id="document-upload"
+                type="file"
+                className="hidden"
+                multiple
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={handleDocumentUpload}
+              />
+            </label>
+          </div>
+
+          {/* Uploaded Documents List */}
+          {submission.attachedDocuments.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Uploaded Documents ({submission.attachedDocuments.length})</Label>
+              {submission.attachedDocuments.map((file, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
+                >
+                  <div className="flex items-center space-x-3">
+                    <FileText className="w-4 h-4 text-[hsl(var(--chocolate-medium))]" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{file.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {formatFileSize(file.size)}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeDocument(index)}
+                    className="h-8 w-8 p-0 hover:bg-red-100"
+                  >
+                    <X className="w-4 h-4 text-red-500" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Document Type Hints */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-gray-600">
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span>Health certificates</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>Product photos</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+              <span>Laboratory analysis</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+              <span>Other documents</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Terms and Conditions */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base sm:text-lg">Terms and Conditions</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">Please review and accept the terms to proceed</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-start space-x-3">
+            <Checkbox 
+              id="agree" 
+              checked={submission.agreedToTerms} 
+              onCheckedChange={(c)=> setSubmission(p=>({...p, agreedToTerms: !!c}))} 
+            />
+            <Label htmlFor="agree" className="text-xs sm:text-sm leading-relaxed">
+              I accept the terms of the contest and the use of my data for evaluation purposes. 
+              I understand that my submission will be reviewed by qualified judges and that 
+              the results will be used for competition ranking and awards. *
+            </Label>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            <Button 
+              variant="outline" 
+              onClick={handleSaveAsDraft}
+              className="w-full sm:w-auto"
+              disabled={isSubmitting}
+            >
+              Save as Draft
+            </Button>
+            <Button 
+              onClick={handleSubmit} 
+              disabled={isSubmitting || !submission.agreedToTerms} 
+              className="w-full sm:w-auto bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))]"
+            >
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Submit Registration
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 
   // UI RENDERING
@@ -634,6 +910,20 @@ const SampleSubmission = () => {
       <div className="text-center">
         <h2 className="text-xl sm:text-2xl font-bold text-[hsl(var(--chocolate-dark))]">Sample Submission</h2>
         <p className="text-muted-foreground text-sm sm:text-base">Submit your product for the competition</p>
+        
+        {/* Load Draft Button */}
+        {localStorage.getItem('sampleSubmissionDraft') && currentStep === 1 && (
+          <div className="mt-4">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={loadDraft}
+              className="text-xs"
+            >
+              Load Previous Draft
+            </Button>
+          </div>
+        )}
       </div>
 
       {renderStepIndicator()}
