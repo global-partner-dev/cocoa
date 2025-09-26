@@ -45,6 +45,15 @@ interface SubmittedSample {
   labelGenerated: boolean;
 }
 
+interface DraftSample {
+  id: string;
+  sampleName: string;
+  contestName: string;
+  lastModified: string;
+  productType: 'bean' | 'chocolate' | 'liquor';
+  completionPercentage: number;
+}
+
 interface Contest {
   id: string;
   name: string;
@@ -73,6 +82,7 @@ const ParticipantDashboard = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [samples, setSamples] = useState<SubmittedSample[]>([]);
+  const [drafts, setDrafts] = useState<DraftSample[]>([]);
   const [contests, setContests] = useState<Contest[]>([]);
   // Recent notifications from DB (latest 5)
   const { data: recentNotifications = [], isLoading: notificationsLoading } = useQuery({
@@ -145,7 +155,26 @@ const ParticipantDashboard = () => {
 
       setSamples(baseSamples);
 
-      // 4) Fetch available contests for participants
+      // 4) Fetch draft samples
+      const draftSamples = await (await import("@/lib/samplesService")).SamplesService.getUserDrafts();
+      const mappedDrafts: DraftSample[] = draftSamples.map((draft: any) => {
+        // Calculate completion percentage based on filled fields
+        const requiredFields = ['farm_name', 'country', 'owner_full_name'];
+        const filledFields = requiredFields.filter(field => draft[field] && draft[field].trim() !== '');
+        const completionPercentage = Math.round((filledFields.length / requiredFields.length) * 100);
+
+        return {
+          id: draft.id,
+          sampleName: draft.farm_name || `Draft ${draft.id.slice(0, 8)}`,
+          contestName: draft.contests?.name || 'Unknown Contest',
+          lastModified: new Date(draft.updated_at || draft.created_at).toLocaleDateString(),
+          productType: draft.product_type || 'bean',
+          completionPercentage
+        };
+      });
+      setDrafts(mappedDrafts);
+
+      // 5) Fetch available contests for participants
       const sampleSubmissionService = await import("@/lib/sampleSubmissionService");
       const availableContests = await sampleSubmissionService.SampleSubmissionService.getAvailableContests();
       const mappedContests: Contest[] = availableContests.map(c => ({
@@ -722,6 +751,62 @@ const ParticipantDashboard = () => {
               </div>
             </CardContent>
           </Card>
+        {/* Draft Samples */}
+        {drafts.length > 0 && (
+          <div className="xl:col-span-2" style={{ marginTop: '1rem' }}>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base sm:text-lg">Draft Samples</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">Continue working on your unsubmitted samples</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 sm:space-y-4">
+                  {drafts.map((draft) => (
+                    <div
+                      key={draft.id}
+                      className="p-3 sm:p-4 border rounded-lg hover:shadow-[var(--shadow-chocolate)] transition-[var(--transition-smooth)] cursor-pointer border-dashed border-orange-300 bg-orange-50/50"
+                      onClick={() => navigate(`/dashboard/submission?draftId=${draft.id}`)}
+                    >
+                      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 lg:gap-4">
+                        <div className="flex items-start space-x-3 flex-1 min-w-0">
+                          <div className="flex-shrink-0 mt-1">
+                            <FileText className="w-4 h-4 text-orange-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-[hsl(var(--chocolate-dark))] text-sm sm:text-base">
+                              {draft.sampleName}
+                            </h3>
+                            <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                              {draft.contestName} • {draft.productType}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Last modified: {draft.lastModified}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between lg:justify-end space-x-3 lg:flex-shrink-0">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                            <div className="text-left lg:text-right">
+                              <Badge className="bg-orange-100 text-orange-800 text-xs">
+                                Draft
+                              </Badge>
+                            </div>
+                            <div className="w-16 sm:w-20 flex-shrink-0">
+                              <Progress value={draft.completionPercentage} className="h-2" />
+                              <p className="text-xs text-muted-foreground text-center mt-1">
+                                {draft.completionPercentage}%
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
         </div>
 
         {/* Sidebar */}

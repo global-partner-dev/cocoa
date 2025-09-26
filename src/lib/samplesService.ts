@@ -2,7 +2,7 @@ import { supabase } from './supabase';
 import QRCode from 'qrcode';
 
 // Sample status type
-export type SampleStatus = 'submitted' | 'received' | 'disqualified' | 'approved' | 'evaluated';
+export type SampleStatus = 'draft' | 'submitted' | 'received' | 'disqualified' | 'approved' | 'evaluated';
 
 // Sample interface matching the database schema
 export interface Sample {
@@ -533,5 +533,320 @@ export class SamplesService {
       console.error('Error getting sample by tracking code:', error);
       throw error;
     }
+  }
+
+  // Draft-related methods
+
+  // Save sample as draft
+  static async saveDraft(submissionData: SampleSubmissionData): Promise<Sample> {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('User not authenticated');
+      }
+
+      // Prepare the sample data for draft
+      const sampleData: any = {
+        contest_id: submissionData.contestId,
+        user_id: user.id,
+        product_type: submissionData.productType,
+        status: 'draft',
+        agreed_to_terms: submissionData.agreedToTerms || false,
+        tracking_code: null, // Will be generated when submitted
+        qr_code_data: null, // Will be generated when submitted
+        
+        // Common fields
+        lot_number: submissionData.lotNumber || null,
+        harvest_date: submissionData.harvestDate || null,
+      };
+
+      // Add product-specific data
+      if (submissionData.productType === 'bean') {
+        Object.assign(sampleData, {
+          country: submissionData.country,
+          department: submissionData.department,
+          municipality: submissionData.municipality,
+          district: submissionData.district,
+          farm_name: submissionData.farmName,
+          cocoa_area_hectares: submissionData.cocoaAreaHectares,
+          owner_full_name: submissionData.ownerFullName,
+          identification_document: submissionData.identificationDocument,
+          phone_number: submissionData.phoneNumber,
+          email: submissionData.email,
+          home_address: submissionData.homeAddress,
+          belongs_to_cooperative: submissionData.belongsToCooperative,
+          cooperative_name: submissionData.cooperativeName,
+          quantity: submissionData.quantity,
+          genetic_material: submissionData.geneticMaterial,
+          crop_age: submissionData.cropAge,
+          sample_source_hectares: submissionData.sampleSourceHectares,
+          moisture_content: submissionData.moistureContent,
+          fermentation_percentage: submissionData.fermentationPercentage,
+          fermenter_type: submissionData.fermenterType,
+          fermentation_time: submissionData.fermentationTime,
+          drying_type: submissionData.dryingType,
+          drying_time: submissionData.dryingTime,
+          variety: submissionData.variety,
+          growing_altitude_masl: submissionData.growingAltitudeMasl,
+          bean_certifications: submissionData.beanCertifications ? {
+            organic: !!submissionData.beanCertifications.organic,
+            fairtrade: !!submissionData.beanCertifications.fairtrade,
+            direct_trade: !!submissionData.beanCertifications.directTrade,
+            none: !!submissionData.beanCertifications.none,
+            other: !!submissionData.beanCertifications.other,
+            other_text: submissionData.beanCertifications.otherText || null,
+          } : null,
+        });
+      } else if (submissionData.productType === 'chocolate') {
+        // Store chocolate data as JSON (constraints are relaxed for drafts)
+        sampleData.chocolate_details = submissionData.chocolate || null;
+      } else if (submissionData.productType === 'liquor') {
+        // Store liquor data as JSON (constraints are relaxed for drafts)
+        sampleData.liquor_details = submissionData.liquor || null;
+      }
+
+      const { data: sample, error } = await supabase
+        .from('samples')
+        .insert(sampleData)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error saving draft:', error);
+        throw error;
+      }
+
+      return sample;
+    } catch (error) {
+      console.error('Error in saveDraft:', error);
+      throw error;
+    }
+  }
+
+  // Update existing draft
+  static async updateDraft(sampleId: string, submissionData: SampleSubmissionData): Promise<Sample> {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('User not authenticated');
+      }
+
+      // Prepare the update data
+      const updateData: any = {
+        contest_id: submissionData.contestId,
+        product_type: submissionData.productType,
+        agreed_to_terms: submissionData.agreedToTerms || false,
+        lot_number: submissionData.lotNumber || null,
+        harvest_date: submissionData.harvestDate || null,
+      };
+
+      // Add product-specific data
+      if (submissionData.productType === 'bean') {
+        Object.assign(updateData, {
+          country: submissionData.country,
+          department: submissionData.department,
+          municipality: submissionData.municipality,
+          district: submissionData.district,
+          farm_name: submissionData.farmName,
+          cocoa_area_hectares: submissionData.cocoaAreaHectares,
+          owner_full_name: submissionData.ownerFullName,
+          identification_document: submissionData.identificationDocument,
+          phone_number: submissionData.phoneNumber,
+          email: submissionData.email,
+          home_address: submissionData.homeAddress,
+          belongs_to_cooperative: submissionData.belongsToCooperative,
+          cooperative_name: submissionData.cooperativeName,
+          quantity: submissionData.quantity,
+          genetic_material: submissionData.geneticMaterial,
+          crop_age: submissionData.cropAge,
+          sample_source_hectares: submissionData.sampleSourceHectares,
+          moisture_content: submissionData.moistureContent,
+          fermentation_percentage: submissionData.fermentationPercentage,
+          fermenter_type: submissionData.fermenterType,
+          fermentation_time: submissionData.fermentationTime,
+          drying_type: submissionData.dryingType,
+          drying_time: submissionData.dryingTime,
+          variety: submissionData.variety,
+          growing_altitude_masl: submissionData.growingAltitudeMasl,
+          bean_certifications: submissionData.beanCertifications ? {
+            organic: !!submissionData.beanCertifications.organic,
+            fairtrade: !!submissionData.beanCertifications.fairtrade,
+            direct_trade: !!submissionData.beanCertifications.directTrade,
+            none: !!submissionData.beanCertifications.none,
+            other: !!submissionData.beanCertifications.other,
+            other_text: submissionData.beanCertifications.otherText || null,
+          } : null,
+        });
+      } else if (submissionData.productType === 'chocolate') {
+        // Store chocolate data as JSON (constraints are relaxed for drafts)
+        updateData.chocolate_details = submissionData.chocolate || null;
+      } else if (submissionData.productType === 'liquor') {
+        // Store liquor data as JSON (constraints are relaxed for drafts)
+        updateData.liquor_details = submissionData.liquor || null;
+      }
+
+      const { data: sample, error } = await supabase
+        .from('samples')
+        .update(updateData)
+        .eq('id', sampleId)
+        .eq('user_id', user.id) // Ensure user owns the draft
+        .eq('status', 'draft') // Only update drafts
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating draft:', error);
+        throw error;
+      }
+
+      return sample;
+    } catch (error) {
+      console.error('Error in updateDraft:', error);
+      throw error;
+    }
+  }
+
+  // Get user's draft samples
+  static async getUserDrafts(): Promise<Sample[]> {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('User not authenticated');
+      }
+
+      const { data: drafts, error } = await supabase
+        .from('samples')
+        .select(`
+          *,
+          contests:contest_id (
+            name,
+            location,
+            start_date,
+            end_date
+          )
+        `)
+        .eq('user_id', user.id)
+        .eq('status', 'draft')
+        .order('updated_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching user drafts:', error);
+        throw error;
+      }
+
+      return drafts || [];
+    } catch (error) {
+      console.error('Error in getUserDrafts:', error);
+      throw error;
+    }
+  }
+
+  // Submit a draft (convert to submitted status)
+  static async submitDraft(sampleId: string): Promise<Sample> {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('User not authenticated');
+      }
+
+      // Get the draft first to validate it
+      const draft = await this.getSampleById(sampleId);
+      if (!draft || draft.status !== 'draft' || draft.user_id !== user.id) {
+        throw new Error('Draft not found or not accessible');
+      }
+
+      // Generate tracking code and QR code
+      const trackingCode = await this.generateTrackingCode();
+      const qrCodeData = JSON.stringify({
+        trackingCode,
+        sampleId: draft.id,
+        contestId: draft.contest_id,
+        submissionDate: new Date().toISOString()
+      });
+
+      // Generate QR code image
+      const qrCodeDataUrl = await QRCode.toDataURL(qrCodeData);
+      const qrCodeBuffer = Buffer.from(qrCodeDataUrl.split(',')[1], 'base64');
+      
+      // Upload QR code to storage
+      const qrCodeFileName = `${trackingCode}.png`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('qr-codes')
+        .upload(qrCodeFileName, qrCodeBuffer, {
+          contentType: 'image/png',
+          upsert: true
+        });
+
+      if (uploadError) {
+        console.error('Error uploading QR code:', uploadError);
+        throw uploadError;
+      }
+
+      // Get public URL for the QR code
+      const { data: { publicUrl } } = supabase.storage
+        .from('qr-codes')
+        .getPublicUrl(qrCodeFileName);
+
+      // Update the draft to submitted status
+      const { data: submittedSample, error } = await supabase
+        .from('samples')
+        .update({
+          status: 'submitted',
+          tracking_code: trackingCode,
+          qr_code_data: qrCodeData,
+          qr_code_url: publicUrl,
+          agreed_to_terms: true // Must be true for submission
+        })
+        .eq('id', sampleId)
+        .eq('user_id', user.id)
+        .eq('status', 'draft')
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error submitting draft:', error);
+        throw error;
+      }
+
+      return submittedSample;
+    } catch (error) {
+      console.error('Error in submitDraft:', error);
+      throw error;
+    }
+  }
+
+  // Delete a draft
+  static async deleteDraft(sampleId: string): Promise<void> {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('User not authenticated');
+      }
+
+      const { error } = await supabase
+        .from('samples')
+        .delete()
+        .eq('id', sampleId)
+        .eq('user_id', user.id)
+        .eq('status', 'draft');
+
+      if (error) {
+        console.error('Error deleting draft:', error);
+        throw error;
+      }
+    } catch (error) {
+      console.error('Error in deleteDraft:', error);
+      throw error;
+    }
+  }
+
+  // Helper method to generate tracking code
+  private static async generateTrackingCode(): Promise<string> {
+    const { data, error } = await supabase.rpc('generate_tracking_code');
+    if (error) {
+      console.error('Error generating tracking code:', error);
+      throw error;
+    }
+    return data;
   }
 }

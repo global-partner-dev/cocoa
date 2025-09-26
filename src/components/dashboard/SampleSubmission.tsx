@@ -25,6 +25,7 @@ import { SampleSubmissionService, type SampleSubmissionContest } from "@/lib/sam
 import { SamplesService, type SampleSubmissionData } from "@/lib/samplesService";
 import type { Sample } from "@/lib/samplesService";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 
 // Use the SampleSubmissionContest type from the service
 type Contest = SampleSubmissionContest;
@@ -206,8 +207,16 @@ const competitionCategories = {
   ]
 } as const;
 
-const SampleSubmission = () => {
+interface SampleSubmissionProps {
+  draftId?: string; // Optional draft ID to load on mount
+}
+
+const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const urlDraftId = searchParams.get('draftId');
+  const effectiveDraftId = draftId || urlDraftId;
+  
   const [contests, setContests] = useState<Contest[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedContest, setSelectedContest] = useState<Contest | null>(null);
@@ -337,6 +346,13 @@ const SampleSubmission = () => {
 
     loadContests();
   }, [toast]);
+
+  // Load draft if draftId is provided
+  useEffect(() => {
+    if (effectiveDraftId && contests.length > 0) {
+      loadDraftFromDatabase(effectiveDraftId);
+    }
+  }, [effectiveDraftId, contests]);
 
   // File upload helper functions
   const formatFileSize = (bytes: number): string => {
@@ -543,7 +559,16 @@ const SampleSubmission = () => {
     setIsSubmitting(true);
 
     try {
-      const submittedSample = await SamplesService.submitSample(submissionData);
+      let submittedSample: Sample;
+      
+      if (submission.id) {
+        // If we have an existing draft, submit it
+        submittedSample = await SamplesService.submitDraft(submission.id);
+      } else {
+        // Create new submission
+        submittedSample = await SamplesService.submitSample(submissionData);
+      }
+      
       toast({
         title: 'Sample submitted',
         description: `Tracking code: ${submittedSample.tracking_code}`,
@@ -568,21 +593,193 @@ const SampleSubmission = () => {
     }
   };
 
-  const handleSaveAsDraft = () => {
-    // Save current form data to localStorage
-    const draftData = {
-      ...submission,
-      attachedDocuments: [] // Don't save files in localStorage
-    };
-    localStorage.setItem('sampleSubmissionDraft', JSON.stringify(draftData));
-    
-    toast({
-      title: 'Draft saved',
-      description: 'Your submission has been saved as a draft.',
-    });
+  const handleSaveAsDraft = async () => {
+    try {
+      setIsSubmitting(true);
+      
+      const submissionData = buildSubmissionData();
+      if (!submissionData) {
+        toast({ 
+          title: 'Cannot save draft', 
+          description: 'Please select a contest first.', 
+          variant: 'destructive' 
+        });
+        return;
+      }
+
+      // Check if we're updating an existing draft or creating a new one
+      if (submission.id) {
+        // Update existing draft
+        await SamplesService.updateDraft(submission.id, submissionData);
+        toast({
+          title: 'Draft updated',
+          description: 'Your submission draft has been updated.',
+        });
+      } else {
+        // Create new draft
+        const draft = await SamplesService.saveDraft(submissionData);
+        setSubmission(prev => ({ ...prev, id: draft.id }));
+        toast({
+          title: 'Draft saved',
+          description: 'Your submission has been saved as a draft.',
+        });
+      }
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      toast({
+        title: 'Error saving draft',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  // Load draft on component mount
+  // Load a specific draft from database
+  const loadDraftFromDatabase = async (draftId: string) => {
+    try {
+      setLoading(true);
+      const draft = await SamplesService.getSampleById(draftId);
+      
+      if (!draft || draft.status !== 'draft') {
+        toast({
+          title: 'Draft not found',
+          description: 'The requested draft could not be loaded.',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      // Convert database draft to form state
+      const draftSubmission: SampleSubmission = {
+        id: draft.id,
+        contestId: draft.contest_id,
+        contestName: (draft as any).contests?.name || '',
+        productType: draft.product_type || 'bean',
+        
+        // Common fields
+        lotNumber: draft.lot_number || '',
+        harvestDate: draft.harvest_date || '',
+        
+        // Bean fields
+        country: draft.country || '',
+        department: draft.department || '',
+        municipality: draft.municipality || '',
+        district: draft.district || '',
+        farmName: draft.farm_name || '',
+        cocoaAreaHectares: draft.cocoa_area_hectares || 0,
+        ownerFullName: draft.owner_full_name || '',
+        identificationDocument: draft.identification_document || '',
+        phoneNumber: draft.phone_number || '',
+        email: draft.email || '',
+        homeAddress: draft.home_address || '',
+        belongsToCooperative: draft.belongs_to_cooperative || false,
+        cooperativeName: draft.cooperative_name || '',
+        quantity: draft.quantity || 3,
+        geneticMaterial: draft.genetic_material || '',
+        cropAge: draft.crop_age || 0,
+        sampleSourceHectares: draft.sample_source_hectares || 0,
+        moistureContent: draft.moisture_content || 0,
+        fermentationPercentage: draft.fermentation_percentage || 0,
+        growingAltitudeMasl: draft.growing_altitude_masl || 0,
+        fermenterType: draft.fermenter_type || '',
+        fermentationTime: draft.fermentation_time || 0,
+        dryingType: draft.drying_type || '',
+        dryingTime: draft.drying_time || 0,
+        variety: draft.variety || '',
+        beanCertifications: draft.bean_certifications || {
+          organic: false,
+          fairtrade: false,
+          directTrade: false,
+          none: false,
+          other: false,
+          otherText: ''
+        },
+        
+        // Chocolate fields (from JSON data)
+        chocolateName: (draft as any).chocolate_data?.name || '',
+        chocolateBrand: (draft as any).chocolate_data?.brand || '',
+        chocolateBatch: (draft as any).chocolate_data?.batch || '',
+        chocolateProductionDate: (draft as any).chocolate_data?.productionDate || '',
+        chocolateManufacturerCountry: (draft as any).chocolate_data?.manufacturerCountry || '',
+        chocolateCocoaOriginCountry: (draft as any).chocolate_data?.cocoaOriginCountry || '',
+        chocolateRegion: (draft as any).chocolate_data?.region || '',
+        chocolateMunicipality: (draft as any).chocolate_data?.municipality || '',
+        chocolateFarmName: (draft as any).chocolate_data?.farmName || '',
+        chocolateCocoaVariety: (draft as any).chocolate_data?.cocoaVariety || '',
+        chocolateFermentationMethod: (draft as any).chocolate_data?.fermentationMethod || '',
+        chocolateDryingMethod: (draft as any).chocolate_data?.dryingMethod || '',
+        chocolateType: (draft as any).chocolate_data?.type || '',
+        chocolateCocoaPercentage: (draft as any).chocolate_data?.cocoaPercentage || 0,
+        chocolateCocoaButterPercentage: (draft as any).chocolate_data?.cocoaButterPercentage || 0,
+        chocolateSweeteners: (draft as any).chocolate_data?.sweeteners || [],
+        chocolateSweetenerOther: (draft as any).chocolate_data?.sweetenerOther || '',
+        chocolateLecithin: (draft as any).chocolate_data?.lecithin || [],
+        chocolateNaturalFlavors: (draft as any).chocolate_data?.naturalFlavors || [],
+        chocolateNaturalFlavorsOther: (draft as any).chocolate_data?.naturalFlavorsOther || '',
+        chocolateAllergens: (draft as any).chocolate_data?.allergens || [],
+        chocolateCertifications: (draft as any).chocolate_data?.certifications || [],
+        chocolateCertificationsOther: (draft as any).chocolate_data?.certificationsOther || '',
+        conchingTimeHours: (draft as any).chocolate_data?.conchingTimeHours || 0,
+        conchingTemperatureCelsius: (draft as any).chocolate_data?.conchingTemperatureCelsius || 0,
+        temperingMethod: (draft as any).chocolate_data?.temperingMethod || '',
+        finalGranulationMicrons: (draft as any).chocolate_data?.finalGranulationMicrons || 0,
+        competitionCategory: (draft as any).chocolate_data?.competitionCategory || '',
+        
+        // Liquor fields (from JSON data)
+        liquorName: (draft as any).liquor_data?.name || '',
+        liquorBrand: (draft as any).liquor_data?.brand || '',
+        liquorBatch: (draft as any).liquor_data?.batch || '',
+        liquorProcessingDate: (draft as any).liquor_data?.processingDate || '',
+        liquorCountryProcessing: (draft as any).liquor_data?.countryProcessing || '',
+        lecithinPercentage: (draft as any).liquor_data?.lecithinPercentage || 0,
+        liquorCocoaButterPercentage: (draft as any).liquor_data?.cocoaButterPercentage || 0,
+        grindingTemperatureCelsius: (draft as any).liquor_data?.grindingTemperatureCelsius || 0,
+        grindingTimeHours: (draft as any).liquor_data?.grindingTimeHours || 0,
+        liquorProcessingMethod: (draft as any).liquor_data?.processingMethod || '',
+        liquorCocoaOriginCountry: (draft as any).liquor_data?.cocoaOriginCountry || '',
+        liquorCocoaVariety: (draft as any).liquor_data?.cocoaVariety || '',
+        
+        // Files and terms
+        attachedDocuments: [], // Files are not stored in database drafts
+        agreedToTerms: draft.agreed_to_terms
+      };
+
+      setSubmission(draftSubmission);
+      
+      // Find and set the selected contest
+      const contest = contests.find(c => c.id === draft.contest_id);
+      if (contest) {
+        setSelectedContest(contest);
+      }
+      
+      // Set current step to the appropriate step based on data completeness
+      if (draft.product_type && draft.contest_id) {
+        setCurrentStep(3); // Go to Origin & Owner step
+      } else if (draft.contest_id) {
+        setCurrentStep(2); // Go to Contest step
+      } else {
+        setCurrentStep(1); // Stay on Product Type step
+      }
+
+      toast({
+        title: 'Draft loaded',
+        description: 'Your draft has been loaded successfully.',
+      });
+    } catch (error) {
+      console.error('Error loading draft:', error);
+      toast({
+        title: 'Error loading draft',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Legacy localStorage draft loading (for backward compatibility)
   const loadDraft = () => {
     const savedDraft = localStorage.getItem('sampleSubmissionDraft');
     if (savedDraft) {
