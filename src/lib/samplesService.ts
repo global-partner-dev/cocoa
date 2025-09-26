@@ -367,9 +367,9 @@ export class SamplesService {
           } : null,
         });
       } else if (submissionData.productType === 'chocolate') {
-        sampleData.chocolate_details = submissionData.chocolate ? JSON.stringify(submissionData.chocolate) : null;
+        sampleData.chocolate_details = submissionData.chocolate || null;
       } else if (submissionData.productType === 'liquor') {
-        sampleData.liquor_details = submissionData.liquor ? JSON.stringify(submissionData.liquor) : null;
+        sampleData.liquor_details = submissionData.liquor || null;
         sampleData.lot_number = submissionData.lotNumber || null;
         sampleData.harvest_date = submissionData.harvestDate || null;
       }

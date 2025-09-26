@@ -975,9 +975,9 @@ const SampleSubmission = () => {
                 </div>
 
                 <div className="flex justify-between">
-                  <Button variant="outline" onClick={() => setCurrentStep(2)} className="w-full sm:w-auto">Back</Button>
-                  <Button onClick={() => setCurrentStep(4)} className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto">Continue</Button>
-                </div>
+                <Button variant="outline" onClick={() => setCurrentStep(2)} className="w-full sm:w-auto">Back</Button>
+                <Button disabled onClick={() => setCurrentStep(4)} className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto">Continue</Button>
+              </div>
               </CardContent>
             </Card>
           )}
@@ -1273,7 +1273,7 @@ const SampleSubmission = () => {
 
               <div className="flex justify-between">
                 <Button variant="outline" onClick={() => setCurrentStep(2)} className="w-full sm:w-auto">Back</Button>
-                <Button onClick={() => setCurrentStep(4)} className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto">Continue</Button>
+                <Button disabled onClick={() => setCurrentStep(4)} className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto">Continue</Button>
               </div>
             </CardContent>
           </Card>
@@ -1364,7 +1364,7 @@ const SampleSubmission = () => {
 
               <div className="flex justify-between">
                 <Button variant="outline" onClick={() => setCurrentStep(2)} className="w-full sm:w-auto">Back</Button>
-                <Button onClick={() => setCurrentStep(4)} className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto">Continue</Button>
+                <Button disabled onClick={() => setCurrentStep(4)} className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto">Continue</Button>
               </div>
             </CardContent>
           </Card>
