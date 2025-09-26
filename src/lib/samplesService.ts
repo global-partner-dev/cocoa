@@ -13,40 +13,57 @@ export interface Sample {
   qr_code_data: string;
   qr_code_url?: string;
   
-  // Sample Origin Data
-  country: string;
+  // Product type
+  product_type?: 'bean' | 'liquor' | 'chocolate';
+
+  // Sample Origin Data (bean)
+  country?: string;
   department?: string;
   municipality?: string;
   district?: string;
-  farm_name: string;
+  farm_name?: string;
   cocoa_area_hectares?: number;
   
-  // Sample Owner Data
-  owner_full_name: string;
+  // Sample Owner Data (bean)
+  owner_full_name?: string;
   identification_document?: string;
   phone_number?: string;
   email?: string;
   home_address?: string;
-  belongs_to_cooperative: boolean;
+  belongs_to_cooperative?: boolean;
   cooperative_name?: string;
   
-  // Sample Information
-  quantity: number;
+  // Sample Information (bean)
+  quantity?: number;
   genetic_material?: string;
   crop_age?: number;
   sample_source_hectares?: number;
   moisture_content?: number;
   fermentation_percentage?: number;
   
-  // Processing Information
+  // Processing Information (bean)
   fermenter_type?: string;
   fermentation_time?: number;
   drying_type?: string;
   drying_time?: number;
   
-  // Additional Information
+  // Additional Information (bean)
   variety?: string;
-  
+  lot_number?: string;
+  harvest_date?: string; // ISO
+  growing_altitude_masl?: number;
+  bean_certifications?: {
+    organic?: boolean;
+    fairtrade?: boolean;
+    direct_trade?: boolean;
+    none?: boolean;
+    other?: boolean;
+    other_text?: string;
+  } | null;
+
+  // Chocolate & Liquor details stored as JSON
+  chocolate_details?: any | null;
+  liquor_details?: any | null;
   
   // Sample Status
   status: SampleStatus;
@@ -62,41 +79,100 @@ export interface Sample {
 // Sample submission data (what we receive from the form)
 export interface SampleSubmissionData {
   contestId: string;
-  
-  // Sample Origin Data
-  country: string;
+  productType: 'bean' | 'liquor' | 'chocolate';
+
+  // Bean Origin Data
+  country?: string;
   department?: string;
   municipality?: string;
   district?: string;
-  farmName: string;
+  farmName?: string;
   cocoaAreaHectares?: number;
   
-  // Sample Owner Data
-  ownerFullName: string;
+  // Bean Owner Data
+  ownerFullName?: string;
   identificationDocument?: string;
   phoneNumber?: string;
   email?: string;
   homeAddress?: string;
-  belongsToCooperative: boolean;
+  belongsToCooperative?: boolean;
   cooperativeName?: string;
   
-  // Sample Information
-  quantity: number;
+  // Bean Sample Information
+  quantity?: number;
   geneticMaterial?: string;
   cropAge?: number;
   sampleSourceHectares?: number;
   moistureContent?: number;
   fermentationPercentage?: number;
   
-  // Processing Information
+  // Bean Processing Information
   fermenterType?: string;
   fermentationTime?: number;
   dryingType?: string;
   dryingTime?: number;
   
-  // Additional Information
+  // Additional Information (bean)
   variety?: string;
-  
+  lotNumber?: string;
+  harvestDate?: string; // YYYY-MM-DD
+  growingAltitudeMasl?: number;
+  beanCertifications?: {
+    organic?: boolean;
+    fairtrade?: boolean;
+    directTrade?: boolean;
+    none?: boolean;
+    other?: boolean;
+    otherText?: string;
+  };
+
+  // Chocolate details
+  chocolate?: {
+    name: string;
+    brand: string;
+    batch: string;
+    productionDate?: string;
+    manufacturerCountry: string;
+    cocoaOriginCountry: string;
+    region?: string;
+    municipality?: string;
+    farmName?: string;
+    cocoaVariety: string;
+    fermentationMethod: string;
+    dryingMethod: string;
+    type: string;
+    cocoaPercentage: number;
+    cocoaButterPercentage?: number;
+    sweeteners: string[];
+    sweetenerOther?: string;
+    lecithin: string[];
+    naturalFlavors: string[];
+    naturalFlavorsOther?: string;
+    allergens: string[];
+    certifications: string[];
+    certificationsOther?: string;
+    conchingTimeHours?: number;
+    conchingTemperatureCelsius?: number;
+    temperingMethod: string;
+    finalGranulationMicrons?: number;
+    competitionCategory: string;
+  };
+
+  // Liquor details
+  liquor?: {
+    name: string;
+    brand: string;
+    batch: string;
+    processingDate?: string;
+    countryProcessing: string;
+    lecithinPercentage: number;
+    cocoaButterPercentage?: number;
+    grindingTemperatureCelsius?: number;
+    grindingTimeHours?: number;
+    processingMethod: string; // Artisanal, Industrial, Mixed
+    cocoaOriginCountry: string;
+    cocoaVariety?: string;
+  };
   
   // Terms Agreement
   agreedToTerms: boolean;
@@ -236,53 +312,67 @@ export class SamplesService {
 
 
       // Prepare sample data for database
-      const sampleData = {
+      const isBean = submissionData.productType === 'bean';
+      const sampleData: any = {
         contest_id: submissionData.contestId,
         user_id: user.id,
         tracking_code: trackingCode,
         qr_code_data: '', // Will be updated after QR code generation
-        
-        // Sample Origin Data
-        country: submissionData.country,
-        department: submissionData.department || null,
-        municipality: submissionData.municipality || null,
-        district: submissionData.district || null,
-        farm_name: submissionData.farmName,
-        cocoa_area_hectares: submissionData.cocoaAreaHectares || null,
-        
-        // Sample Owner Data
-        owner_full_name: submissionData.ownerFullName,
-        identification_document: submissionData.identificationDocument || null,
-        phone_number: submissionData.phoneNumber || null,
-        email: submissionData.email || null,
-        home_address: submissionData.homeAddress || null,
-        belongs_to_cooperative: submissionData.belongsToCooperative,
-        cooperative_name: submissionData.cooperativeName || null,
-        
-        // Sample Information
-        quantity: submissionData.quantity,
-        genetic_material: submissionData.geneticMaterial || null,
-        crop_age: submissionData.cropAge || null,
-        sample_source_hectares: submissionData.sampleSourceHectares || null,
-        moisture_content: submissionData.moistureContent || null,
-        fermentation_percentage: submissionData.fermentationPercentage || null,
-        
-        // Processing Information
-        fermenter_type: submissionData.fermenterType || null,
-        fermentation_time: submissionData.fermentationTime || null,
-        drying_type: submissionData.dryingType || null,
-        drying_time: submissionData.dryingTime || null,
-        
-        // Additional Information
-        variety: submissionData.variety || null,
-        
-        
-        // Sample Status
+        product_type: submissionData.productType,
         status: 'submitted' as const,
-        
-        // Terms Agreement
         agreed_to_terms: submissionData.agreedToTerms
       };
+
+      if (isBean) {
+        Object.assign(sampleData, {
+          // Sample Origin Data
+          country: submissionData.country,
+          department: submissionData.department || null,
+          municipality: submissionData.municipality || null,
+          district: submissionData.district || null,
+          farm_name: submissionData.farmName,
+          cocoa_area_hectares: submissionData.cocoaAreaHectares || null,
+          // Sample Owner Data
+          owner_full_name: submissionData.ownerFullName,
+          identification_document: submissionData.identificationDocument || null,
+          phone_number: submissionData.phoneNumber || null,
+          email: submissionData.email || null,
+          home_address: submissionData.homeAddress || null,
+          belongs_to_cooperative: submissionData.belongsToCooperative ?? false,
+          cooperative_name: submissionData.cooperativeName || null,
+          // Sample Information
+          quantity: submissionData.quantity ?? 3,
+          genetic_material: submissionData.geneticMaterial || null,
+          crop_age: submissionData.cropAge || null,
+          sample_source_hectares: submissionData.sampleSourceHectares || null,
+          moisture_content: submissionData.moistureContent || null,
+          fermentation_percentage: submissionData.fermentationPercentage || null,
+          // Processing Information
+          fermenter_type: submissionData.fermenterType || null,
+          fermentation_time: submissionData.fermentationTime || null,
+          drying_type: submissionData.dryingType || null,
+          drying_time: submissionData.dryingTime || null,
+          // Additional Information
+          variety: submissionData.variety || null,
+          lot_number: submissionData.lotNumber || null,
+          harvest_date: submissionData.harvestDate || null,
+          growing_altitude_masl: submissionData.growingAltitudeMasl || null,
+          bean_certifications: submissionData.beanCertifications ? {
+            organic: !!submissionData.beanCertifications.organic,
+            fairtrade: !!submissionData.beanCertifications.fairtrade,
+            direct_trade: !!submissionData.beanCertifications.directTrade,
+            none: !!submissionData.beanCertifications.none,
+            other: !!submissionData.beanCertifications.other,
+            other_text: submissionData.beanCertifications.otherText || null,
+          } : null,
+        });
+      } else if (submissionData.productType === 'chocolate') {
+        sampleData.chocolate_details = submissionData.chocolate ? JSON.stringify(submissionData.chocolate) : null;
+      } else if (submissionData.productType === 'liquor') {
+        sampleData.liquor_details = submissionData.liquor ? JSON.stringify(submissionData.liquor) : null;
+        sampleData.lot_number = submissionData.lotNumber || null;
+        sampleData.harvest_date = submissionData.harvestDate || null;
+      }
 
       // Insert sample into database
       const { data: sample, error: insertError } = await supabase
