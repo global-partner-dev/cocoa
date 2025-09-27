@@ -180,7 +180,7 @@ export class ResultsService {
           nut_total,
           roast_degree,
           defects_total,
-          samples (
+          sample (
             id,
             tracking_code,
             status,
@@ -210,7 +210,7 @@ export class ResultsService {
 
       // Use the same transformation logic as getTopSamplesByScore
       const transformedResults: SampleResult[] = results.map((result, index) => {
-        const sample = result.samples as any;
+        const sample = result.sample as any;
         const contest = sample.contests as any;
         const participant = sample.profiles as any;
         
@@ -313,7 +313,7 @@ export class ResultsService {
           nut_total,
           roast_degree,
           defects_total,
-          samples!inner (
+          sample!inner (
             id,
             tracking_code,
             status,
@@ -328,7 +328,7 @@ export class ResultsService {
             )
           )
         `)
-        .eq('samples.user_id', userId)
+        .eq('sample.user_id', userId)
         .eq('verdict', 'Approved')
         .not('overall_quality', 'is', null)
         .order('overall_quality', { ascending: false });
@@ -345,7 +345,7 @@ export class ResultsService {
 
       // Transform the results using the same logic as other methods
       const transformedResults: SampleResult[] = results.map((result, index) => {
-        const sample = result.samples as any;
+        const sample = result.sample as any;
         const contest = sample.contests as any;
         const participant = sample.profiles as any;
         

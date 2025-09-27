@@ -225,10 +225,12 @@ DO $$
 BEGIN
     -- Check if the constraint exists and includes 'evaluated'
     IF NOT EXISTS (
-        SELECT 1 FROM information_schema.check_constraints 
-        WHERE constraint_name LIKE '%status%' 
-        AND check_clause LIKE '%evaluated%'
-        AND table_name = 'samples'
+        SELECT 1 FROM information_schema.table_constraints tc
+        JOIN information_schema.check_constraints cc ON tc.constraint_schema = cc.constraint_schema AND tc.constraint_name = cc.constraint_name
+        WHERE tc.constraint_type = 'CHECK'
+        AND tc.table_name = 'samples'
+        AND tc.constraint_name LIKE '%status%'
+        AND cc.check_clause LIKE '%evaluated%'
     ) THEN
         -- Drop existing constraint and recreate with 'evaluated' status
         ALTER TABLE public.samples DROP CONSTRAINT IF EXISTS samples_status_check;

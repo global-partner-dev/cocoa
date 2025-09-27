@@ -543,3 +543,122 @@ LEFT JOIN public.chocolate ch ON ch.sample_id = s.id;
 
 -- Grant permissions on the view
 GRANT SELECT ON public.samples TO anon, authenticated;
+
+-- Migration to update foreign keys in evaluation tables to reference the new sample table
+-- This fixes the issue where sensory_evaluations and physical_evaluations reference the old samples table/view
+
+-- Update sensory_evaluations foreign key to reference sample instead of samples
+DO $$
+BEGIN
+    -- Drop existing foreign key constraint if it exists
+    IF EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE constraint_name = 'sensory_evaluations_sample_id_fkey'
+        AND table_name = 'sensory_evaluations'
+    ) THEN
+        ALTER TABLE public.sensory_evaluations DROP CONSTRAINT sensory_evaluations_sample_id_fkey;
+    END IF;
+
+    -- Add new foreign key constraint to sample table
+    ALTER TABLE public.sensory_evaluations
+    ADD CONSTRAINT sensory_evaluations_sample_id_fkey
+    FOREIGN KEY (sample_id) REFERENCES public.sample(id) ON DELETE CASCADE;
+END $$;
+
+-- Update physical_evaluations foreign key to reference sample instead of samples
+DO $$
+BEGIN
+    -- Drop existing foreign key constraint if it exists
+    IF EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE constraint_name = 'physical_evaluations_sample_id_fkey'
+        AND table_name = 'physical_evaluations'
+    ) THEN
+        ALTER TABLE public.physical_evaluations DROP CONSTRAINT physical_evaluations_sample_id_fkey;
+    END IF;
+
+    -- Add new foreign key constraint to sample table
+    ALTER TABLE public.physical_evaluations
+    ADD CONSTRAINT physical_evaluations_sample_id_fkey
+    FOREIGN KEY (sample_id) REFERENCES public.sample(id) ON DELETE CASCADE;
+END $$;
+
+-- Update triggers and functions that reference samples to use sample
+-- Update sensory evaluation trigger function
+CREATE OR REPLACE FUNCTION update_sample_status_on_sensory_evaluation()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Update sample status to 'evaluated' when sensory evaluation is saved
+    UPDATE public.sample
+    SET status = 'evaluated', updated_at = NOW()
+    WHERE id = NEW.sample_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Update physical evaluation trigger function
+CREATE OR REPLACE FUNCTION update_sample_status_on_physical_evaluation()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Update the sample status based on the evaluation result
+    UPDATE public.sample
+    SET
+        status = CASE
+            WHEN NEW.global_evaluation = 'disqualified' THEN 'disqualified'
+            ELSE 'physical_evaluation'
+        END,
+        updated_at = TIMEZONE('utc'::text, NOW())
+    WHERE id = NEW.sample_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Update RLS policies that reference samples to use sample
+-- Update sensory_evaluations policies
+DROP POLICY IF EXISTS "Participants can view evaluations of their samples" ON public.sensory_evaluations;
+CREATE POLICY "Participants can view evaluations of their samples" ON public.sensory_evaluations
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM public.sample s
+            JOIN public.profiles p ON p.id = auth.uid()
+            WHERE s.id = sample_id
+            AND s.user_id = auth.uid()
+            AND p.role = 'participant'
+        )
+    );
+
+-- Update physical_evaluations policies
+DROP POLICY IF EXISTS "Participants can view their own sample evaluations" ON public.physical_evaluations;
+CREATE POLICY "Participants can view their own sample evaluations" ON public.physical_evaluations
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM public.sample s
+            JOIN public.profiles p ON p.id = auth.uid()
+            WHERE s.id = sample_id
+            AND s.user_id = auth.uid()
+            AND p.role = 'participant'
+            AND s.status IN ('disqualified', 'approved', 'evaluated')
+        )
+    );
+
+-- Update sample status constraint to include the new statuses
+DO $$
+BEGIN
+    -- Check if the constraint exists and includes all required statuses
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints tc
+        JOIN information_schema.check_constraints cc ON tc.constraint_schema = cc.constraint_schema AND tc.constraint_name = cc.constraint_name
+        WHERE tc.constraint_type = 'CHECK'
+        AND tc.table_name = 'sample'
+        AND tc.constraint_name LIKE '%status%'
+        AND cc.check_clause LIKE '%physical_evaluation%'
+        AND cc.check_clause LIKE '%evaluated%'
+    ) THEN
+        -- Drop existing constraint and recreate with all statuses
+        ALTER TABLE public.sample DROP CONSTRAINT IF EXISTS sample_status_check;
+        ALTER TABLE public.sample ADD CONSTRAINT sample_status_check
+            CHECK (status IN ('draft', 'submitted', 'received', 'disqualified', 'approved', 'physical_evaluation', 'evaluated'));
+    END IF;
+END $$;
