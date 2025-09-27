@@ -1212,14 +1212,6 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
                                 <span className="text-xs sm:text-sm">Submission: {contest.submissionDeadline}</span>
                               </div>
                             </div>
-                            <div className="space-y-2">
-                              <h4 className="font-medium text-xs sm:text-sm">Categories</h4>
-                              <div className="flex flex-wrap gap-2">
-                                {contest.categories.map((category) => (
-                                  <Badge key={category} variant="secondary" className="text-xs">{category}</Badge>
-                                ))}
-                              </div>
-                            </div>
                           </div>
                         </div>
                       </div>
@@ -1353,10 +1345,6 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
                       <Label>Growing altitude (m.a.s.l.)</Label>
                       <Input type="number" min="0" value={submission.growingAltitudeMasl} onChange={(e)=>setSubmission(p=>({...p, growingAltitudeMasl: parseInt(e.target.value)||0}))} />
                     </div>
-                    <div>
-                      <Label>Variety</Label>
-                      <Input value={submission.variety} onChange={(e)=>setSubmission(p=>({...p, variety:e.target.value}))} />
-                    </div>
                   </div>
                 </div>
 
@@ -1369,7 +1357,7 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
                       <Input type="number" min="0" step="0.1" value={submission.quantity} onChange={(e)=>setSubmission(p=>({...p, quantity: parseFloat(e.target.value)||0}))} />
                     </div>
                     <div>
-                      <Label>Genetic Material</Label>
+                      <Label>Variety or Genetic Material</Label>
                       <Select value={submission.geneticMaterial} onValueChange={(v)=>setSubmission(p=>({...p, geneticMaterial:v}))}>
                         <SelectTrigger><SelectValue placeholder="Select"/></SelectTrigger>
                         <SelectContent>
