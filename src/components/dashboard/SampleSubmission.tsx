@@ -1392,12 +1392,11 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
                     </div>
                     <div>
                       <Label>Variety or Genetic Material</Label>
-                      <Select value={submission.geneticMaterial} onValueChange={(v)=>setSubmission(p=>({...p, geneticMaterial:v}))}>
-                        <SelectTrigger><SelectValue placeholder="Select"/></SelectTrigger>
-                        <SelectContent>
-                          {geneticMaterials.map(o=> <SelectItem key={o} value={o}>{o}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <Input
+                        value={submission.geneticMaterial}
+                        onChange={(e)=>setSubmission(p=>({...p, geneticMaterial: e.target.value}))}
+                        placeholder="Enter variety or genetic material"
+                      />
                     </div>
                     <div>
                       <Label>Crop Age (years)</Label>
@@ -1484,7 +1483,7 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
                 </div>
 
                 <div className="flex justify-between">
-                <Button variant="outline" onClick={() => setCurrentStep(2)} className="w-full sm:w-auto">Back</Button>
+                <Button variant="outline" onClick={() => setCurrentStep(3)} className="w-full sm:w-auto">Back</Button>
                 <Button disabled onClick={() => setCurrentStep(4)} className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto">Continue</Button>
               </div>
               </CardContent>
@@ -1569,7 +1568,7 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
                     <Input value={submission.chocolateFarmName} onChange={(e)=>setSubmission(p=>({...p,chocolateFarmName:e.target.value}))} placeholder="La Pica" />
                   </div>
                   <div>
-                    <Label>Cocoa Variety *</Label>
+                    <Label>Variety or Genetic Material *</Label>
                     <Input value={submission.chocolateCocoaVariety} onChange={(e)=>setSubmission(p=>({...p,chocolateCocoaVariety:e.target.value}))} />
                   </div>
                   <div>
@@ -1803,7 +1802,7 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
               </div>
 
               <div className="flex justify-between">
-                <Button variant="outline" onClick={() => setCurrentStep(2)} className="w-full sm:w-auto">Back</Button>
+                <Button variant="outline" onClick={() => setCurrentStep(3)} className="w-full sm:w-auto">Back</Button>
                 <Button disabled onClick={() => setCurrentStep(4)} className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto">Continue</Button>
               </div>
             </CardContent>
@@ -1916,7 +1915,7 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
               </div>
 
               <div className="flex justify-between">
-                <Button variant="outline" onClick={() => setCurrentStep(2)} className="w-full sm:w-auto">Back</Button>
+                <Button variant="outline" onClick={() => setCurrentStep(3)} className="w-full sm:w-auto">Back</Button>
                 <Button disabled onClick={() => setCurrentStep(4)} className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto">Continue</Button>
               </div>
             </CardContent>
