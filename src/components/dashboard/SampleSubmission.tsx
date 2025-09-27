@@ -184,6 +184,29 @@ const chocolateFlavorOptions = ['Vanilla', 'Cinnamon', 'None', 'Other'];
 const chocolateAllergenOptions = ['Gluten', 'Lactose', 'Nuts', 'Soy', 'None'];
 const commonCertifications = ['Organic', 'Fairtrade', 'Direct Trade', 'Rainforest Alliance', 'None', 'Other'];
 
+const countries = [
+  'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria',
+  'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',
+  'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cambodia',
+  'Cameroon', 'Canada', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica',
+  'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Democratic Republic of the Congo', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador',
+  'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji', 'Finland', 'France',
+  'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau',
+  'Guyana', 'Haiti', 'Honduras', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland',
+  'Israel', 'Italy', 'Ivory Coast', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Kuwait',
+  'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg',
+  'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico',
+  'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru',
+  'Nepal', 'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Korea', 'North Macedonia', 'Norway', 'Oman',
+  'Pakistan', 'Palau', 'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal',
+  'Qatar', 'Romania', 'Russia', 'Rwanda', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Sao Tome and Principe',
+  'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia',
+  'South Africa', 'South Korea', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'Sweden', 'Switzerland', 'Syria',
+  'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey',
+  'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Vanuatu',
+  'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
+];
+
 const buildCategoryId = (group: string, label: string) =>
   `${group}-${label}`
     .toLowerCase()
@@ -1251,7 +1274,18 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div>
                     <Label htmlFor="country" className="text-xs sm:text-sm">Country *</Label>
-                    <Input id="country" value={submission.country} onChange={(e) => setSubmission(prev => ({ ...prev, country: e.target.value }))} placeholder="e.g., Colombia" className="text-xs sm:text-sm" />
+                    <Select value={submission.country} onValueChange={(value) => setSubmission(prev => ({ ...prev, country: value }))}>
+                      <SelectTrigger className="text-xs sm:text-sm">
+                        <SelectValue placeholder="Select a country" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {countries.map((country) => (
+                          <SelectItem key={country} value={country}>
+                            {country}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label htmlFor="department" className="text-xs sm:text-sm">Department</Label>
@@ -1487,11 +1521,33 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
                   </div>
                   <div>
                     <Label>Manufacturer's Country *</Label>
-                    <Input value={submission.chocolateManufacturerCountry} onChange={(e)=>setSubmission(p=>({...p,chocolateManufacturerCountry:e.target.value}))} placeholder="Country" />
+                    <Select value={submission.chocolateManufacturerCountry} onValueChange={(value) => setSubmission(p => ({ ...p, chocolateManufacturerCountry: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a country" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {countries.map((country) => (
+                          <SelectItem key={country} value={country}>
+                            {country}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label>Cocoa Country of Origin *</Label>
-                    <Input value={submission.chocolateCocoaOriginCountry} onChange={(e)=>setSubmission(p=>({...p,chocolateCocoaOriginCountry:e.target.value}))} placeholder="Country" />
+                    <Select value={submission.chocolateCocoaOriginCountry} onValueChange={(value) => setSubmission(p => ({ ...p, chocolateCocoaOriginCountry: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a country" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {countries.map((country) => (
+                          <SelectItem key={country} value={country}>
+                            {country}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
@@ -1792,7 +1848,18 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
                   </div>
                   <div>
                     <Label>Country of Processing *</Label>
-                    <Input value={submission.liquorCountryProcessing} onChange={(e)=>setSubmission(p=>({...p, liquorCountryProcessing:e.target.value}))} />
+                    <Select value={submission.liquorCountryProcessing} onValueChange={(value) => setSubmission(p => ({ ...p, liquorCountryProcessing: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a country" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {countries.map((country) => (
+                          <SelectItem key={country} value={country}>
+                            {country}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
@@ -1828,7 +1895,18 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
                   </div>
                   <div>
                     <Label>Cocoa Origin Country *</Label>
-                    <Input value={submission.liquorCocoaOriginCountry} onChange={(e)=>setSubmission(p=>({...p, liquorCocoaOriginCountry:e.target.value}))} />
+                    <Select value={submission.liquorCocoaOriginCountry} onValueChange={(value) => setSubmission(p => ({ ...p, liquorCocoaOriginCountry: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a country" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {countries.map((country) => (
+                          <SelectItem key={country} value={country}>
+                            {country}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label>Cocoa Variety</Label>
