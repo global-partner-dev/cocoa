@@ -4,7 +4,7 @@ import QRCode from 'qrcode';
 // Sample status type
 export type SampleStatus = 'draft' | 'submitted' | 'received' | 'disqualified' | 'approved' | 'evaluated';
 
-// Sample interface matching the database schema
+// Sample interface matching the new database schema
 export interface Sample {
   id: string;
   contest_id: string;
@@ -12,9 +12,9 @@ export interface Sample {
   tracking_code: string;
   qr_code_data: string;
   qr_code_url?: string;
-  
+
   // Product type
-  product_type?: 'bean' | 'liquor' | 'chocolate';
+  product_type: 'bean' | 'liquor' | 'chocolate';
 
   // Sample Origin Data (bean)
   country?: string;
@@ -23,7 +23,7 @@ export interface Sample {
   district?: string;
   farm_name?: string;
   cocoa_area_hectares?: number;
-  
+
   // Sample Owner Data (bean)
   owner_full_name?: string;
   identification_document?: string;
@@ -32,7 +32,7 @@ export interface Sample {
   home_address?: string;
   belongs_to_cooperative?: boolean;
   cooperative_name?: string;
-  
+
   // Sample Information (bean)
   quantity?: number;
   genetic_material?: string;
@@ -40,13 +40,13 @@ export interface Sample {
   sample_source_hectares?: number;
   moisture_content?: number;
   fermentation_percentage?: number;
-  
+
   // Processing Information (bean)
   fermenter_type?: string;
   fermentation_time?: number;
   drying_type?: string;
   drying_time?: number;
-  
+
   // Additional Information (bean)
   variety?: string;
   lot_number?: string;
@@ -64,13 +64,18 @@ export interface Sample {
   // Chocolate & Liquor details stored as JSON
   chocolate_details?: any | null;
   liquor_details?: any | null;
-  
+
   // Sample Status
   status: SampleStatus;
-  
+
+  // Payment Information
+  payment_method?: string;
+  payment_status?: string;
+  payment_reference?: string;
+
   // Terms Agreement
   agreed_to_terms: boolean;
-  
+
   // Timestamps
   created_at: string;
   updated_at: string;
@@ -290,7 +295,7 @@ export class SamplesService {
         .select('name')
         .eq('id', user.id)
         .single();
-      
+
       if (profileError) {
         throw new Error('Failed to get user profile');
       }
@@ -301,7 +306,7 @@ export class SamplesService {
         .select('name')
         .eq('id', submissionData.contestId)
         .single();
-      
+
       if (contestError) {
         throw new Error('Failed to get contest information');
       }
@@ -309,22 +314,34 @@ export class SamplesService {
       // Generate tracking code
       const trackingCode = await this.generateTrackingCode();
 
-
-
-      // Prepare sample data for database
-      const isBean = submissionData.productType === 'bean';
-      const sampleData: any = {
+      // Insert into main sample table
+      const sampleData = {
         contest_id: submissionData.contestId,
         user_id: user.id,
         tracking_code: trackingCode,
         qr_code_data: '', // Will be updated after QR code generation
-        product_type: submissionData.productType,
         status: 'submitted' as const,
         agreed_to_terms: submissionData.agreedToTerms
       };
 
-      if (isBean) {
-        Object.assign(sampleData, {
+      const { data: sample, error: sampleInsertError } = await supabase
+        .from('sample')
+        .insert(sampleData)
+        .select()
+        .single();
+
+      if (sampleInsertError) {
+        console.error('Error inserting sample:', sampleInsertError);
+        throw sampleInsertError;
+      }
+
+      // Insert into product-specific table
+      let productSpecificData: any = { sample_id: sample.id };
+      let productTable: string;
+
+      if (submissionData.productType === 'bean') {
+        productTable = 'cocoa_bean';
+        Object.assign(productSpecificData, {
           // Sample Origin Data
           country: submissionData.country,
           department: submissionData.department || null,
@@ -367,34 +384,84 @@ export class SamplesService {
           } : null,
         });
       } else if (submissionData.productType === 'chocolate') {
-        sampleData.chocolate_details = submissionData.chocolate || null;
+        productTable = 'chocolate';
+        if (submissionData.chocolate) {
+          Object.assign(productSpecificData, {
+            name: submissionData.chocolate.name,
+            brand: submissionData.chocolate.brand,
+            batch: submissionData.chocolate.batch,
+            production_date: submissionData.chocolate.productionDate || null,
+            manufacturer_country: submissionData.chocolate.manufacturerCountry,
+            cocoa_origin_country: submissionData.chocolate.cocoaOriginCountry,
+            region: submissionData.chocolate.region || null,
+            municipality: submissionData.chocolate.municipality || null,
+            farm_name: submissionData.chocolate.farmName || null,
+            cocoa_variety: submissionData.chocolate.cocoaVariety,
+            fermentation_method: submissionData.chocolate.fermentationMethod,
+            drying_method: submissionData.chocolate.dryingMethod,
+            type: submissionData.chocolate.type,
+            cocoa_percentage: submissionData.chocolate.cocoaPercentage,
+            cocoa_butter_percentage: submissionData.chocolate.cocoaButterPercentage || null,
+            sweeteners: submissionData.chocolate.sweeteners || null,
+            sweetener_other: submissionData.chocolate.sweetenerOther || null,
+            lecithin: submissionData.chocolate.lecithin || null,
+            natural_flavors: submissionData.chocolate.naturalFlavors || null,
+            natural_flavors_other: submissionData.chocolate.naturalFlavorsOther || null,
+            allergens: submissionData.chocolate.allergens || null,
+            certifications: submissionData.chocolate.certifications || null,
+            certifications_other: submissionData.chocolate.certificationsOther || null,
+            conching_time_hours: submissionData.chocolate.conchingTimeHours || null,
+            conching_temperature_celsius: submissionData.chocolate.conchingTemperatureCelsius || null,
+            tempering_method: submissionData.chocolate.temperingMethod,
+            final_granulation_microns: submissionData.chocolate.finalGranulationMicrons || null,
+            competition_category: submissionData.chocolate.competitionCategory || null,
+            lot_number: submissionData.lotNumber || null,
+          });
+        }
       } else if (submissionData.productType === 'liquor') {
-        sampleData.liquor_details = submissionData.liquor || null;
-        sampleData.lot_number = submissionData.lotNumber || null;
-        sampleData.harvest_date = submissionData.harvestDate || null;
+        productTable = 'cocoa_liquor';
+        if (submissionData.liquor) {
+          Object.assign(productSpecificData, {
+            name: submissionData.liquor.name,
+            brand: submissionData.liquor.brand,
+            batch: submissionData.liquor.batch,
+            processing_date: submissionData.liquor.processingDate || null,
+            country_processing: submissionData.liquor.countryProcessing,
+            lecithin_percentage: submissionData.liquor.lecithinPercentage,
+            cocoa_butter_percentage: submissionData.liquor.cocoaButterPercentage || null,
+            grinding_temperature_celsius: submissionData.liquor.grindingTemperatureCelsius || null,
+            grinding_time_hours: submissionData.liquor.grindingTimeHours || null,
+            processing_method: submissionData.liquor.processingMethod,
+            cocoa_origin_country: submissionData.liquor.cocoaOriginCountry,
+            cocoa_variety: submissionData.liquor.cocoaVariety || null,
+            lot_number: submissionData.lotNumber || null,
+            harvest_date: submissionData.harvestDate || null,
+          });
+        }
+      } else {
+        throw new Error('Invalid product type');
       }
 
-      // Insert sample into database
-      const { data: sample, error: insertError } = await supabase
-        .from('samples')
-        .insert(sampleData)
-        .select()
-        .single();
+      const { error: productInsertError } = await supabase
+        .from(productTable)
+        .insert(productSpecificData);
 
-      if (insertError) {
-        console.error('Error inserting sample:', insertError);
-        throw insertError;
+      if (productInsertError) {
+        console.error('Error inserting product-specific data:', productInsertError);
+        // Rollback sample insert if product insert fails
+        await supabase.from('sample').delete().eq('id', sample.id);
+        throw productInsertError;
       }
 
       // Generate QR code data
       const qrData = this.generateQRCodeData(sample, contest.name, profile.name);
-      
+
       // Generate and upload QR code
       const qrCodeUrl = await this.generateAndUploadQRCode(qrData);
 
       // Update sample with QR code information
       const { data: updatedSample, error: updateError } = await supabase
-        .from('samples')
+        .from('sample')
         .update({
           qr_code_data: JSON.stringify(qrData),
           qr_code_url: qrCodeUrl
@@ -408,8 +475,13 @@ export class SamplesService {
         throw updateError;
       }
 
+      // Fetch the complete sample data with product type
+      const completeSample = await this.getSampleById(updatedSample.id);
+      if (!completeSample) {
+        throw new Error('Failed to retrieve complete sample data');
+      }
 
-      return updatedSample;
+      return completeSample;
     } catch (error) {
       console.error('Error in submitSample:', error);
       throw error;
@@ -545,24 +617,34 @@ export class SamplesService {
         throw new Error('User not authenticated');
       }
 
-      // Prepare the sample data for draft
-      const sampleData: any = {
+      // Insert into main sample table for draft
+      const sampleData = {
         contest_id: submissionData.contestId,
         user_id: user.id,
-        product_type: submissionData.productType,
         status: 'draft',
         agreed_to_terms: submissionData.agreedToTerms || false,
         tracking_code: null, // Will be generated when submitted
         qr_code_data: null, // Will be generated when submitted
-        
-        // Common fields
-        lot_number: submissionData.lotNumber || null,
-        harvest_date: submissionData.harvestDate || null,
       };
 
-      // Add product-specific data
+      const { data: sample, error: sampleInsertError } = await supabase
+        .from('sample')
+        .insert(sampleData)
+        .select()
+        .single();
+
+      if (sampleInsertError) {
+        console.error('Error inserting draft sample:', sampleInsertError);
+        throw sampleInsertError;
+      }
+
+      // Insert into product-specific table
+      let productSpecificData: any = { sample_id: sample.id };
+      let productTable: string;
+
       if (submissionData.productType === 'bean') {
-        Object.assign(sampleData, {
+        productTable = 'cocoa_bean';
+        Object.assign(productSpecificData, {
           country: submissionData.country,
           department: submissionData.department,
           municipality: submissionData.municipality,
@@ -587,6 +669,8 @@ export class SamplesService {
           drying_type: submissionData.dryingType,
           drying_time: submissionData.dryingTime,
           variety: submissionData.variety,
+          lot_number: submissionData.lotNumber,
+          harvest_date: submissionData.harvestDate,
           growing_altitude_masl: submissionData.growingAltitudeMasl,
           bean_certifications: submissionData.beanCertifications ? {
             organic: !!submissionData.beanCertifications.organic,
@@ -598,25 +682,82 @@ export class SamplesService {
           } : null,
         });
       } else if (submissionData.productType === 'chocolate') {
-        // Store chocolate data as JSON (constraints are relaxed for drafts)
-        sampleData.chocolate_details = submissionData.chocolate || null;
+        productTable = 'chocolate';
+        if (submissionData.chocolate) {
+          Object.assign(productSpecificData, {
+            name: submissionData.chocolate.name,
+            brand: submissionData.chocolate.brand,
+            batch: submissionData.chocolate.batch,
+            production_date: submissionData.chocolate.productionDate || null,
+            manufacturer_country: submissionData.chocolate.manufacturerCountry,
+            cocoa_origin_country: submissionData.chocolate.cocoaOriginCountry,
+            region: submissionData.chocolate.region || null,
+            municipality: submissionData.chocolate.municipality || null,
+            farm_name: submissionData.chocolate.farmName || null,
+            cocoa_variety: submissionData.chocolate.cocoaVariety,
+            fermentation_method: submissionData.chocolate.fermentationMethod,
+            drying_method: submissionData.chocolate.dryingMethod,
+            type: submissionData.chocolate.type,
+            cocoa_percentage: submissionData.chocolate.cocoaPercentage,
+            cocoa_butter_percentage: submissionData.chocolate.cocoaButterPercentage || null,
+            sweeteners: submissionData.chocolate.sweeteners || null,
+            sweetener_other: submissionData.chocolate.sweetenerOther || null,
+            lecithin: submissionData.chocolate.lecithin || null,
+            natural_flavors: submissionData.chocolate.naturalFlavors || null,
+            natural_flavors_other: submissionData.chocolate.naturalFlavorsOther || null,
+            allergens: submissionData.chocolate.allergens || null,
+            certifications: submissionData.chocolate.certifications || null,
+            certifications_other: submissionData.chocolate.certificationsOther || null,
+            conching_time_hours: submissionData.chocolate.conchingTimeHours || null,
+            conching_temperature_celsius: submissionData.chocolate.conchingTemperatureCelsius || null,
+            tempering_method: submissionData.chocolate.temperingMethod,
+            final_granulation_microns: submissionData.chocolate.finalGranulationMicrons || null,
+            competition_category: submissionData.chocolate.competitionCategory || null,
+            lot_number: submissionData.lotNumber || null,
+          });
+        }
       } else if (submissionData.productType === 'liquor') {
-        // Store liquor data as JSON (constraints are relaxed for drafts)
-        sampleData.liquor_details = submissionData.liquor || null;
+        productTable = 'cocoa_liquor';
+        if (submissionData.liquor) {
+          Object.assign(productSpecificData, {
+            name: submissionData.liquor.name,
+            brand: submissionData.liquor.brand,
+            batch: submissionData.liquor.batch,
+            processing_date: submissionData.liquor.processingDate || null,
+            country_processing: submissionData.liquor.countryProcessing,
+            lecithin_percentage: submissionData.liquor.lecithinPercentage,
+            cocoa_butter_percentage: submissionData.liquor.cocoaButterPercentage || null,
+            grinding_temperature_celsius: submissionData.liquor.grindingTemperatureCelsius || null,
+            grinding_time_hours: submissionData.liquor.grindingTimeHours || null,
+            processing_method: submissionData.liquor.processingMethod,
+            cocoa_origin_country: submissionData.liquor.cocoaOriginCountry,
+            cocoa_variety: submissionData.liquor.cocoaVariety || null,
+            lot_number: submissionData.lotNumber || null,
+            harvest_date: submissionData.harvestDate || null,
+          });
+        }
+      } else {
+        throw new Error('Invalid product type');
       }
 
-      const { data: sample, error } = await supabase
-        .from('samples')
-        .insert(sampleData)
-        .select()
-        .single();
+      const { error: productInsertError } = await supabase
+        .from(productTable)
+        .insert(productSpecificData);
 
-      if (error) {
-        console.error('Error saving draft:', error);
-        throw error;
+      if (productInsertError) {
+        console.error('Error inserting product-specific draft data:', productInsertError);
+        // Rollback sample insert if product insert fails
+        await supabase.from('sample').delete().eq('id', sample.id);
+        throw productInsertError;
       }
 
-      return sample;
+      // Fetch the complete draft data
+      const completeDraft = await this.getSampleById(sample.id);
+      if (!completeDraft) {
+        throw new Error('Failed to retrieve complete draft data');
+      }
+
+      return completeDraft;
     } catch (error) {
       console.error('Error in saveDraft:', error);
       throw error;
@@ -631,18 +772,31 @@ export class SamplesService {
         throw new Error('User not authenticated');
       }
 
-      // Prepare the update data
-      const updateData: any = {
+      // Update the main sample table
+      const sampleUpdateData = {
         contest_id: submissionData.contestId,
-        product_type: submissionData.productType,
         agreed_to_terms: submissionData.agreedToTerms || false,
-        lot_number: submissionData.lotNumber || null,
-        harvest_date: submissionData.harvestDate || null,
       };
 
-      // Add product-specific data
+      const { error: sampleUpdateError } = await supabase
+        .from('sample')
+        .update(sampleUpdateData)
+        .eq('id', sampleId)
+        .eq('user_id', user.id)
+        .eq('status', 'draft');
+
+      if (sampleUpdateError) {
+        console.error('Error updating draft sample:', sampleUpdateError);
+        throw sampleUpdateError;
+      }
+
+      // Update product-specific table
+      let productUpdateData: any = {};
+      let productTable: string;
+
       if (submissionData.productType === 'bean') {
-        Object.assign(updateData, {
+        productTable = 'cocoa_bean';
+        Object.assign(productUpdateData, {
           country: submissionData.country,
           department: submissionData.department,
           municipality: submissionData.municipality,
@@ -667,6 +821,8 @@ export class SamplesService {
           drying_type: submissionData.dryingType,
           drying_time: submissionData.dryingTime,
           variety: submissionData.variety,
+          lot_number: submissionData.lotNumber,
+          harvest_date: submissionData.harvestDate,
           growing_altitude_masl: submissionData.growingAltitudeMasl,
           bean_certifications: submissionData.beanCertifications ? {
             organic: !!submissionData.beanCertifications.organic,
@@ -678,28 +834,81 @@ export class SamplesService {
           } : null,
         });
       } else if (submissionData.productType === 'chocolate') {
-        // Store chocolate data as JSON (constraints are relaxed for drafts)
-        updateData.chocolate_details = submissionData.chocolate || null;
+        productTable = 'chocolate';
+        if (submissionData.chocolate) {
+          Object.assign(productUpdateData, {
+            name: submissionData.chocolate.name,
+            brand: submissionData.chocolate.brand,
+            batch: submissionData.chocolate.batch,
+            production_date: submissionData.chocolate.productionDate || null,
+            manufacturer_country: submissionData.chocolate.manufacturerCountry,
+            cocoa_origin_country: submissionData.chocolate.cocoaOriginCountry,
+            region: submissionData.chocolate.region || null,
+            municipality: submissionData.chocolate.municipality || null,
+            farm_name: submissionData.chocolate.farmName || null,
+            cocoa_variety: submissionData.chocolate.cocoaVariety,
+            fermentation_method: submissionData.chocolate.fermentationMethod,
+            drying_method: submissionData.chocolate.dryingMethod,
+            type: submissionData.chocolate.type,
+            cocoa_percentage: submissionData.chocolate.cocoaPercentage,
+            cocoa_butter_percentage: submissionData.chocolate.cocoaButterPercentage || null,
+            sweeteners: submissionData.chocolate.sweeteners || null,
+            sweetener_other: submissionData.chocolate.sweetenerOther || null,
+            lecithin: submissionData.chocolate.lecithin || null,
+            natural_flavors: submissionData.chocolate.naturalFlavors || null,
+            natural_flavors_other: submissionData.chocolate.naturalFlavorsOther || null,
+            allergens: submissionData.chocolate.allergens || null,
+            certifications: submissionData.chocolate.certifications || null,
+            certifications_other: submissionData.chocolate.certificationsOther || null,
+            conching_time_hours: submissionData.chocolate.conchingTimeHours || null,
+            conching_temperature_celsius: submissionData.chocolate.conchingTemperatureCelsius || null,
+            tempering_method: submissionData.chocolate.temperingMethod,
+            final_granulation_microns: submissionData.chocolate.finalGranulationMicrons || null,
+            competition_category: submissionData.chocolate.competitionCategory || null,
+            lot_number: submissionData.lotNumber || null,
+          });
+        }
       } else if (submissionData.productType === 'liquor') {
-        // Store liquor data as JSON (constraints are relaxed for drafts)
-        updateData.liquor_details = submissionData.liquor || null;
+        productTable = 'cocoa_liquor';
+        if (submissionData.liquor) {
+          Object.assign(productUpdateData, {
+            name: submissionData.liquor.name,
+            brand: submissionData.liquor.brand,
+            batch: submissionData.liquor.batch,
+            processing_date: submissionData.liquor.processingDate || null,
+            country_processing: submissionData.liquor.countryProcessing,
+            lecithin_percentage: submissionData.liquor.lecithinPercentage,
+            cocoa_butter_percentage: submissionData.liquor.cocoaButterPercentage || null,
+            grinding_temperature_celsius: submissionData.liquor.grindingTemperatureCelsius || null,
+            grinding_time_hours: submissionData.liquor.grindingTimeHours || null,
+            processing_method: submissionData.liquor.processingMethod,
+            cocoa_origin_country: submissionData.liquor.cocoaOriginCountry,
+            cocoa_variety: submissionData.liquor.cocoaVariety || null,
+            lot_number: submissionData.lotNumber || null,
+            harvest_date: submissionData.harvestDate || null,
+          });
+        }
+      } else {
+        throw new Error('Invalid product type');
       }
 
-      const { data: sample, error } = await supabase
-        .from('samples')
-        .update(updateData)
-        .eq('id', sampleId)
-        .eq('user_id', user.id) // Ensure user owns the draft
-        .eq('status', 'draft') // Only update drafts
-        .select()
-        .single();
+      const { error: productUpdateError } = await supabase
+        .from(productTable)
+        .update(productUpdateData)
+        .eq('sample_id', sampleId);
 
-      if (error) {
-        console.error('Error updating draft:', error);
-        throw error;
+      if (productUpdateError) {
+        console.error('Error updating product-specific draft data:', productUpdateError);
+        throw productUpdateError;
       }
 
-      return sample;
+      // Fetch the updated draft data
+      const updatedDraft = await this.getSampleById(sampleId);
+      if (!updatedDraft) {
+        throw new Error('Failed to retrieve updated draft data');
+      }
+
+      return updatedDraft;
     } catch (error) {
       console.error('Error in updateDraft:', error);
       throw error;
@@ -789,7 +998,7 @@ export class SamplesService {
 
       // Update the draft to submitted status
       const { data: submittedSample, error } = await supabase
-        .from('samples')
+        .from('sample')
         .update({
           status: 'submitted',
           tracking_code: trackingCode,
@@ -808,7 +1017,13 @@ export class SamplesService {
         throw error;
       }
 
-      return submittedSample;
+      // Fetch the complete submitted sample data
+      const completeSample = await this.getSampleById(sampleId);
+      if (!completeSample) {
+        throw new Error('Failed to retrieve complete sample data');
+      }
+
+      return completeSample;
     } catch (error) {
       console.error('Error in submitDraft:', error);
       throw error;
