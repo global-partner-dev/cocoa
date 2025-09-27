@@ -90,6 +90,7 @@ interface SampleSubmission {
 
   // Additional
   variety: string;
+  additionalSampleDescription?: string;
 
   // Chocolate-specific fields
   chocolateName: string;
@@ -294,6 +295,7 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
     },
 
     variety: '',
+    additionalSampleDescription: '',
 
     // Chocolate defaults
     chocolateName: '',
@@ -454,6 +456,7 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
       contestId: submission.contestId,
       productType: submission.productType,
       agreedToTerms: submission.agreedToTerms,
+      additionalSampleDescription: submission.additionalSampleDescription || undefined,
     };
 
     if (submission.productType === 'bean') {
@@ -1481,11 +1484,6 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
                     )}
                   </div>
                 </div>
-
-                <div className="flex justify-between">
-                <Button variant="outline" onClick={() => setCurrentStep(3)} className="w-full sm:w-auto">Back</Button>
-                <Button disabled onClick={() => setCurrentStep(4)} className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto">Continue</Button>
-              </div>
               </CardContent>
             </Card>
           )}
@@ -1800,11 +1798,6 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
                   </RadioGroup>
                 </div>
               </div>
-
-              <div className="flex justify-between">
-                <Button variant="outline" onClick={() => setCurrentStep(3)} className="w-full sm:w-auto">Back</Button>
-                <Button disabled onClick={() => setCurrentStep(4)} className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto">Continue</Button>
-              </div>
             </CardContent>
           </Card>
           )}
@@ -1913,15 +1906,46 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
                   </div>
                 </div>
               </div>
-
-              <div className="flex justify-between">
-                <Button variant="outline" onClick={() => setCurrentStep(3)} className="w-full sm:w-auto">Back</Button>
-                <Button disabled onClick={() => setCurrentStep(4)} className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto">Continue</Button>
-              </div>
             </CardContent>
           </Card>
           )}
 
+          <div className="flex justify-between">
+            <Button variant="outline" onClick={() => setCurrentStep(3)} className="w-full sm:w-auto">Back</Button>
+            <Button disabled onClick={() => setCurrentStep(4)} className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto">Continue</Button>
+          </div>
+          {/* Additional Sample Description */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base sm:text-lg">Additional Sample Description (Optional)</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
+                Highlight distinctive characteristics, flavor notes, or context that will help judges appreciate your sample.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Label htmlFor="additional-sample-description" className="text-sm font-medium">
+                  Additional Sample Description
+                </Label>
+                <Textarea
+                  id="additional-sample-description"
+                  value={submission.additionalSampleDescription}
+                  onChange={(event) =>
+                    setSubmission((previous) => ({
+                      ...previous,
+                      additionalSampleDescription: event.target.value,
+                    }))
+                  }
+                  placeholder="Share flavor profiles, production techniques, or stories that make your sample stand out."
+                  // maxLength={500}
+                  className="min-h-[140px]"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Optional field. Character limit: 500. This insight accompanies your submission for evaluators.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
           {/* Terms & Submit for all */}
           <TermsAndSubmit />
         </div>

@@ -52,6 +52,7 @@ export interface Sample {
   lot_number?: string;
   harvest_date?: string; // ISO
   growing_altitude_masl?: number;
+  additional_sample_description?: string | null;
   bean_certifications?: {
     organic?: boolean;
     fairtrade?: boolean;
@@ -122,6 +123,7 @@ export interface SampleSubmissionData {
   lotNumber?: string;
   harvestDate?: string; // YYYY-MM-DD
   growingAltitudeMasl?: number;
+  additionalSampleDescription?: string;
   beanCertifications?: {
     organic?: boolean;
     fairtrade?: boolean;
@@ -321,7 +323,8 @@ export class SamplesService {
         tracking_code: trackingCode,
         qr_code_data: '', // Will be updated after QR code generation
         status: 'submitted' as const,
-        agreed_to_terms: submissionData.agreedToTerms
+        agreed_to_terms: submissionData.agreedToTerms,
+        additional_sample_description: submissionData.additionalSampleDescription || null
       };
 
       const { data: sample, error: sampleInsertError } = await supabase
@@ -625,6 +628,7 @@ export class SamplesService {
         agreed_to_terms: submissionData.agreedToTerms || false,
         tracking_code: null, // Will be generated when submitted
         qr_code_data: null, // Will be generated when submitted
+        additional_sample_description: submissionData.additionalSampleDescription || null,
       };
 
       const { data: sample, error: sampleInsertError } = await supabase
@@ -776,6 +780,7 @@ export class SamplesService {
       const sampleUpdateData = {
         contest_id: submissionData.contestId,
         agreed_to_terms: submissionData.agreedToTerms || false,
+        additional_sample_description: submissionData.additionalSampleDescription || null,
       };
 
       const { error: sampleUpdateError } = await supabase
