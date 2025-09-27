@@ -1908,7 +1908,7 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
                     </Select>
                   </div>
                   <div>
-                    <Label>Cocoa Variety</Label>
+                    <Label>Variety or Genetic Material *</Label>
                     <Input value={submission.liquorCocoaVariety} onChange={(e)=>setSubmission(p=>({...p, liquorCocoaVariety:e.target.value}))} />
                   </div>
                 </div>
