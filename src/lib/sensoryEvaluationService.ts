@@ -147,7 +147,7 @@ export class SensoryEvaluationService {
         .from('judge_assignments')
         .select(`
           sample_id,
-          samples (
+          sample (
             id,
             tracking_code,
             status,
@@ -161,7 +161,7 @@ export class SensoryEvaluationService {
           )
         `)
         .eq('judge_id', user.id)
-        .in('samples.status', ['approved', 'evaluated']);
+        .in('sample.status', ['approved', 'evaluated']);
 
       if (assignmentsError) {
         console.error('Error fetching judge assignments:', assignmentsError);

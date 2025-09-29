@@ -93,7 +93,7 @@ export class PhysicalEvaluationService {
       console.log('Fetching samples for physical evaluation...');
       
       const { data: samples, error: samplesError } = await supabase
-        .from('samples')
+        .from('sample')
         .select(`
           *,
           contests:contest_id (
@@ -265,7 +265,7 @@ export class PhysicalEvaluationService {
       const newStatus = evaluation.globalEvaluation === 'disqualified' ? 'disqualified' : 'physical_evaluation';
       
       const { error: statusError } = await supabase
-        .from('samples')
+        .from('sample')
         .update({ 
           status: newStatus,
           updated_at: new Date().toISOString()
@@ -300,7 +300,7 @@ export class PhysicalEvaluationService {
       console.log(`Approving sample ${sampleId}`);
       
       const { error } = await supabase
-        .from('samples')
+        .from('sample')
         .update({ 
           status: 'approved',
           updated_at: new Date().toISOString()
@@ -333,7 +333,7 @@ export class PhysicalEvaluationService {
   private static async getSampleById(sampleId: string): Promise<PhysicalEvaluationUpdateResult> {
     try {
       const { data: sample, error } = await supabase
-        .from('samples')
+        .from('sample')
         .select(`
           *,
           contests:contest_id (

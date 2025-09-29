@@ -61,7 +61,7 @@ export class DirectorSupervisionService {
 
     // 2) Fetch samples with contest and participant
     const { data: samples, error: serr } = await supabase
-      .from('samples')
+      .from('sample')
       .select('id, tracking_code, status, created_at, contests:contest_id ( name, end_date ), profiles:user_id ( name )')
       .in('id', sampleIds);
     if (serr) throw serr;

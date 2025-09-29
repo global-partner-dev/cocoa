@@ -594,7 +594,7 @@ export class ResultsService {
       
       // Get total samples count
       const { count: totalSamples, error: samplesError } = await supabase
-        .from('samples')
+        .from('sample')
         .select('*', { count: 'exact', head: true });
 
       if (samplesError) {

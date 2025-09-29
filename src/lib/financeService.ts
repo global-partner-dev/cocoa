@@ -182,7 +182,7 @@ export class FinanceService {
   static async canEvaluatorPayForSample(sampleId: string) {
     try {
       const { data, error } = await supabase
-        .from('samples')
+        .from('sample')
         .select('contests:contest_id ( final_evaluation )')
         .eq('id', sampleId)
         .single();
@@ -198,7 +198,7 @@ export class FinanceService {
   static async getEvaluationPriceCentsForSample(sampleId: string) {
     try {
       const { data, error } = await supabase
-        .from('samples')
+        .from('sample')
         .select('contests:contest_id ( evaluation_price )')
         .eq('id', sampleId)
         .single();

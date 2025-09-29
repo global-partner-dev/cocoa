@@ -517,7 +517,7 @@ export class SamplesService {
       }
 
       const { data: samples, error } = await supabase
-        .from('samples')
+        .from('sample')
         .select(`
           *,
           contests:contest_id (
@@ -546,7 +546,7 @@ export class SamplesService {
   static async getSampleById(sampleId: string): Promise<Sample | null> {
     try {
       const { data: sample, error } = await supabase
-        .from('samples')
+        .from('sample')
         .select(`
           *,
           contests:contest_id (
@@ -578,7 +578,7 @@ export class SamplesService {
   static async updateSampleStatus(sampleId: string, status: SampleStatus): Promise<void> {
     try {
       const { error } = await supabase
-        .from('samples')
+        .from('sample')
         .update({ status })
         .eq('id', sampleId);
 
@@ -607,7 +607,7 @@ export class SamplesService {
   static async getSampleByTrackingCode(trackingCode: string): Promise<Sample | null> {
     try {
       const { data, error } = await supabase
-        .from('samples')
+        .from('sample')
         .select('*')
         .eq('tracking_code', trackingCode)
         .single();
@@ -948,7 +948,7 @@ export class SamplesService {
       }
 
       const { data: drafts, error } = await supabase
-        .from('samples')
+        .from('sample')
         .select(`
           *,
           contests:contest_id (
@@ -1063,7 +1063,7 @@ export class SamplesService {
       }
 
       const { error } = await supabase
-        .from('samples')
+        .from('sample')
         .delete()
         .eq('id', sampleId)
         .eq('user_id', user.id)

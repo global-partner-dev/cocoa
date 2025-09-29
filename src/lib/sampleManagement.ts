@@ -45,7 +45,7 @@ export class SampleManagementService {
       console.log('Fetching all samples for director management...');
       
       const { data: samples, error: samplesError } = await supabase
-        .from('samples')
+        .from('sample')
         .select(`
           *,
           contests:contest_id (
@@ -134,7 +134,7 @@ export class SampleManagementService {
       }
       
       const { error } = await supabase
-        .from('samples')
+        .from('sample')
         .update(updateData)
         .eq('id', sampleId);
 
@@ -161,7 +161,7 @@ export class SampleManagementService {
       
       // First, try to delete QR code from storage if it exists
       const { data: sample } = await supabase
-        .from('samples')
+        .from('sample')
         .select('tracking_code, qr_code_url')
         .eq('id', sampleId)
         .single();
@@ -181,7 +181,7 @@ export class SampleManagementService {
 
       // Delete sample from database
       const { error: deleteError } = await supabase
-        .from('samples')
+        .from('sample')
         .delete()
         .eq('id', sampleId);
 
@@ -341,7 +341,7 @@ export class SampleManagementService {
       console.log(`Updating notes for sample ${sampleId}`);
       
       const { error } = await supabase
-        .from('samples')
+        .from('sample')
         .update({ 
           notes,
           updated_at: new Date().toISOString()
@@ -373,7 +373,7 @@ export class SampleManagementService {
       console.log(`Bulk updating ${sampleIds.length} samples to status:`, status);
       
       const { error } = await supabase
-        .from('samples')
+        .from('sample')
         .update({ 
           status,
           updated_at: new Date().toISOString()

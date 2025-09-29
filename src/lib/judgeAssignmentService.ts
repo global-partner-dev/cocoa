@@ -48,7 +48,7 @@ export class JudgeAssignmentService {
 
   static async getSamplesForAssignment(): Promise<UISample[]> {
     const { data, error } = await supabase
-      .from('samples')
+      .from('sample')
       .select(`
         *,
         contests:contest_id ( name ),
@@ -192,7 +192,7 @@ export class JudgeAssignmentService {
 
     // 2) Fetch samples + contest relation
     const { data: samples, error: serr } = await supabase
-      .from('samples')
+      .from('sample')
       .select('id, created_at, contest_id, contests:contest_id ( name, end_date )')
       .in('id', sampleIds);
     if (serr) throw serr;
@@ -242,7 +242,7 @@ export class JudgeAssignmentService {
 
     // Fetch samples with their contests
     const { data: samples, error: serr } = await supabase
-      .from('samples')
+      .from('sample')
       .select('id, contest_id, contests:contest_id ( id, name, end_date )')
       .in('id', sampleIds);
     if (serr) throw serr;
