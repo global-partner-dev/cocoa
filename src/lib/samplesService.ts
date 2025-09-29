@@ -164,6 +164,7 @@ export interface SampleSubmissionData {
     temperingMethod: string;
     finalGranulationMicrons?: number;
     competitionCategory: string;
+    withInclusions: boolean;
   };
 
   // Liquor details
@@ -422,6 +423,7 @@ export class SamplesService {
             tempering_method: submissionData.chocolate.temperingMethod,
             final_granulation_microns: submissionData.chocolate.finalGranulationMicrons || null,
             competition_category: submissionData.chocolate.competitionCategory || null,
+            with_inclusions: submissionData.chocolate.withInclusions || false,
             lot_number: submissionData.lotNumber || null,
           });
         }
@@ -732,6 +734,7 @@ export class SamplesService {
             tempering_method: submissionData.chocolate.temperingMethod,
             final_granulation_microns: submissionData.chocolate.finalGranulationMicrons || null,
             competition_category: submissionData.chocolate.competitionCategory || null,
+            with_inclusions: submissionData.chocolate.withInclusions || false,
             lot_number: submissionData.lotNumber || null,
           });
         }
@@ -885,6 +888,7 @@ export class SamplesService {
             tempering_method: submissionData.chocolate.temperingMethod,
             final_granulation_microns: submissionData.chocolate.finalGranulationMicrons || null,
             competition_category: submissionData.chocolate.competitionCategory || null,
+            with_inclusions: submissionData.chocolate.withInclusions || false,
             lot_number: submissionData.lotNumber || null,
           });
         }

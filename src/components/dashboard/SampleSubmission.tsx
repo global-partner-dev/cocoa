@@ -121,6 +121,7 @@ interface SampleSubmission {
   temperingMethod: string; // Manual, Machine, Untempered
   finalGranulationMicrons: number;
   competitionCategory: string;
+  withInclusions: boolean;
 
   // Liquor-specific fields (plus lot/harvest reused)
   liquorName: string;
@@ -217,8 +218,7 @@ const competitionCategories = {
   dark: [
     '≤ 60% cocoa',
     '61-75% cocoa',
-    '≥ 76% cocoa',
-    'With inclusions (salt, spices, nuts)'
+    '≥ 76% cocoa'
   ],
   other: [
     'Milk Chocolate',
@@ -326,6 +326,7 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
     temperingMethod: '',
     finalGranulationMicrons: 0,
     competitionCategory: '',
+    withInclusions: false,
 
     // Liquor defaults
     liquorName: '',
@@ -539,6 +540,7 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
           temperingMethod: submission.temperingMethod,
           finalGranulationMicrons: submission.finalGranulationMicrons || undefined,
           competitionCategory: submission.competitionCategory || undefined,
+          withInclusions: submission.withInclusions,
         }
       } as SampleSubmissionData;
     }
@@ -1707,6 +1709,23 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
                       </div>
                     </div>
                   </RadioGroup>
+                  
+                  {/* Inclusions Checkbox - separate from category selection */}
+                  <div className="mt-4 pt-4 border-t">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="with-inclusions"
+                        checked={submission.withInclusions}
+                        onCheckedChange={(checked) => 
+                          setSubmission(prev => ({ ...prev, withInclusions: checked === true }))
+                        }
+                        className="h-4 w-4"
+                      />
+                      <Label htmlFor="with-inclusions" className="font-normal text-sm">
+                        With inclusions (salt, spices, nuts)
+                      </Label>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
