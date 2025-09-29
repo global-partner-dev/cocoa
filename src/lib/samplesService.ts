@@ -14,8 +14,8 @@ export interface Sample {
   qr_code_data: string;
   qr_code_url?: string;
 
-  // Product type
-  product_type: 'bean' | 'liquor' | 'chocolate';
+  // Product category
+  category: 'cocoa_bean' | 'cocoa_liquor' | 'chocolate';
 
   // Sample Origin Data (bean)
   country?: string;
@@ -201,6 +201,20 @@ export interface QRCodeData {
 }
 
 export class SamplesService {
+  // Helper function to map productType to database category
+  private static mapProductTypeToCategory(productType: 'bean' | 'liquor' | 'chocolate'): 'cocoa_bean' | 'cocoa_liquor' | 'chocolate' {
+    switch (productType) {
+      case 'bean':
+        return 'cocoa_bean';
+      case 'liquor':
+        return 'cocoa_liquor';
+      case 'chocolate':
+        return 'chocolate';
+      default:
+        throw new Error(`Invalid product type: ${productType}`);
+    }
+  }
+
   // Generate tracking code
   static async generateTrackingCode(): Promise<string> {
     try {
@@ -328,6 +342,7 @@ export class SamplesService {
         tracking_code: trackingCode,
         qr_code_data: '', // Will be updated after QR code generation
         status: 'submitted' as const,
+        category: this.mapProductTypeToCategory(submissionData.productType),
         agreed_to_terms: submissionData.agreedToTerms,
         additional_sample_description: submissionData.additionalSampleDescription || null
       };
@@ -642,6 +657,7 @@ export class SamplesService {
         contest_id: submissionData.contestId,
         user_id: user.id,
         status: 'draft',
+        category: this.mapProductTypeToCategory(submissionData.productType),
         agreed_to_terms: submissionData.agreedToTerms || false,
         tracking_code: null, // Will be generated when submitted
         qr_code_data: null, // Will be generated when submitted
@@ -797,6 +813,7 @@ export class SamplesService {
       // Update the main sample table
       const sampleUpdateData = {
         contest_id: submissionData.contestId,
+        category: this.mapProductTypeToCategory(submissionData.productType),
         agreed_to_terms: submissionData.agreedToTerms || false,
         additional_sample_description: submissionData.additionalSampleDescription || null,
       };
