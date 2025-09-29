@@ -188,7 +188,7 @@ export class SensoryEvaluationService {
 
       // Transform data
       const transformedSamples: SensoryEvaluationSample[] = assignments.map(assignment => {
-        const sample = assignment.samples as any;
+        const sample = assignment.sample as any;
         const contest = sample.contests as any;
         const participant = sample.profiles as any;
         

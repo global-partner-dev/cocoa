@@ -365,9 +365,9 @@ const ParticipantDashboard = () => {
               ]);
             }
 
-            // Fetch physical evaluation raw details via samples -> physical_evaluations relation
+            // Fetch physical evaluation raw details via sample -> physical_evaluations relation
             const { data: sampleRow, error: sampleErr } = await supabase
-              .from('samples')
+              .from('sample')
               .select('id, physical_evaluations(*)')
               .eq('tracking_code', selectedSample.trackingCode)
               .single();

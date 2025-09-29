@@ -69,7 +69,7 @@ export class ResultsService {
           evaluations_count,
           latest_evaluation_date,
           rank,
-          samples:sample_id (
+          sample:sample_id (
             id,
             tracking_code,
             status,
@@ -94,7 +94,7 @@ export class ResultsService {
 
       // Build UI model from averaged rows
       const transformedResults: SampleResult[] = top.map((row: any) => {
-        const sample = row.samples;
+        const sample = row.sample;
         const contest = sample?.contests;
         const participant = sample?.profiles;
         const contestId = contest?.id;

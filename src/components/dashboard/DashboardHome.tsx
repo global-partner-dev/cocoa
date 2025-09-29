@@ -47,7 +47,7 @@ const DashboardHome = () => {
           .select('*', { count: 'exact', head: true })
           .lte('start_date', now)
           .gte('end_date', now),
-        supabase.from('samples').select('*', { count: 'exact', head: true }),
+        supabase.from('sample').select('*', { count: 'exact', head: true }),
         // Approved samples materialized in top_results
         supabase.from('top_results').select('*', { count: 'exact', head: true }),
         // Distinct evaluated samples (fetch IDs, then distinct in client). If you want Approved-only, add .eq('verdict','Approved')

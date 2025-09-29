@@ -89,7 +89,7 @@ const FinalResults = () => {
           sample_id,
           overall_quality,
           evaluation_date,
-          samples:sample_id (
+          sample:sample_id (
             id,
             tracking_code,
             created_at,
@@ -122,7 +122,7 @@ const FinalResults = () => {
         avg_score: v.count ? v.sum / v.count : 0,
         count: v.count,
         latest: v.latest,
-        samples: (v.row as any).samples,
+        samples: (v.row as any).sample,
       }))
       arr.sort((a, b) => b.avg_score - a.avg_score)
       setRows(arr)
