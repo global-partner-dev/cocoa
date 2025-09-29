@@ -85,7 +85,7 @@ export interface SensoryEvaluationFormProps {
 const clamp01 = (v: number) => Math.max(0, Math.min(10, v));
 
 const defaultScores: SensoryScores = {
-  cacao: 5, bitterness: 5, astringency: 5, caramelPanela: 5,
+  cacao: 0, bitterness: 0, astringency: 0, caramelPanela: 0,
   acidityTotal: 0, freshFruitTotal: 0, brownFruitTotal: 0, vegetalTotal: 0, floralTotal: 0, woodTotal: 0, spiceTotal: 0, nutTotal: 0, roastDegree: 0, defectsTotal: 0,
   acidity: { frutal: 0, acetic: 0, lactic: 0, mineralButyric: 0 },
   freshFruit: { berries: 0, citrus: 0, yellowPulp: 0, dark: 0, tropical: 0 },
