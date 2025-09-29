@@ -915,96 +915,6 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
   // Terms & submit block reused for all product types
   const TermsAndSubmit = () => (
     <div className="space-y-6">
-      {/* Attached Documentation Section */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-            <Paperclip className="w-4 h-4" />
-            Attached Documentation (Optional)
-          </CardTitle>
-          <CardDescription className="text-xs sm:text-sm">
-            Upload supporting documents such as health certificates, product photos, laboratory analysis, or other relevant files
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* File Upload Button */}
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[hsl(var(--chocolate-medium))] transition-colors">
-            <label htmlFor="document-upload" className="cursor-pointer">
-              <div className="flex flex-col items-center space-y-2">
-                <Upload className="w-8 h-8 text-gray-400" />
-                <div className="text-sm">
-                  <span className="font-medium text-[hsl(var(--chocolate-medium))]">Click to upload</span>
-                  <span className="text-gray-500"> or drag and drop</span>
-                </div>
-                <div className="text-xs text-gray-500">
-                  PDF, JPG, PNG up to 10MB each
-                </div>
-              </div>
-              <input
-                id="document-upload"
-                type="file"
-                className="hidden"
-                multiple
-                accept=".pdf,.jpg,.jpeg,.png"
-                onChange={handleDocumentUpload}
-              />
-            </label>
-          </div>
-
-          {/* Uploaded Documents List */}
-          {submission.attachedDocuments.length > 0 && (
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Uploaded Documents ({submission.attachedDocuments.length})</Label>
-              {submission.attachedDocuments.map((file, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
-                >
-                  <div className="flex items-center space-x-3">
-                    <FileText className="w-4 h-4 text-[hsl(var(--chocolate-medium))]" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{file.name}</p>
-                      <p className="text-xs text-gray-500">
-                        {formatFileSize(file.size)}
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeDocument(index)}
-                    className="h-8 w-8 p-0 hover:bg-red-100"
-                  >
-                    <X className="w-4 h-4 text-red-500" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Document Type Hints */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-gray-600">
-            <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span>Health certificates</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span>Product photos</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span>Laboratory analysis</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-              <span>Other documents</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Terms and Conditions */}
       <Card>
         <CardHeader className="pb-3">
@@ -1910,10 +1820,6 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
           </Card>
           )}
 
-          <div className="flex justify-between">
-            <Button variant="outline" onClick={() => setCurrentStep(3)} className="w-full sm:w-auto">Back</Button>
-            <Button disabled onClick={() => setCurrentStep(4)} className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto">Continue</Button>
-          </div>
           {/* Additional Sample Description */}
           <Card>
             <CardHeader className="pb-3">
@@ -1946,6 +1852,102 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Attached Documentation Section */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                <Paperclip className="w-4 h-4" />
+                Attached Documentation (Optional)
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
+                Upload supporting documents such as health certificates, product photos, laboratory analysis, or other relevant files
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* File Upload Button */}
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[hsl(var(--chocolate-medium))] transition-colors">
+                <label htmlFor="document-upload" className="cursor-pointer">
+                  <div className="flex flex-col items-center space-y-2">
+                    <Upload className="w-8 h-8 text-gray-400" />
+                    <div className="text-sm">
+                      <span className="font-medium text-[hsl(var(--chocolate-medium))]">Click to upload</span>
+                      <span className="text-gray-500"> or drag and drop</span>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      PDF, JPG, PNG up to 10MB each
+                    </div>
+                  </div>
+                  <input
+                    id="document-upload"
+                    type="file"
+                    className="hidden"
+                    multiple
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={handleDocumentUpload}
+                  />
+                </label>
+              </div>
+
+              {/* Uploaded Documents List */}
+              {submission.attachedDocuments.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Uploaded Documents ({submission.attachedDocuments.length})</Label>
+                  {submission.attachedDocuments.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <FileText className="w-4 h-4 text-[hsl(var(--chocolate-medium))]" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{file.name}</p>
+                          <p className="text-xs text-gray-500">
+                            {formatFileSize(file.size)}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeDocument(index)}
+                        className="h-8 w-8 p-0 hover:bg-red-100"
+                      >
+                        <X className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Document Type Hints */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-gray-600">
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span>Health certificates</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Product photos</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <span>Laboratory analysis</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span>Other documents</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-between">
+            <Button variant="outline" onClick={() => setCurrentStep(3)} className="w-full sm:w-auto">Back</Button>
+            <Button disabled onClick={() => setCurrentStep(4)} className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] w-full sm:w-auto">Continue</Button>
+          </div>
+          
           {/* Terms & Submit for all */}
           <TermsAndSubmit />
         </div>
