@@ -457,6 +457,7 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
       productType: submission.productType,
       agreedToTerms: submission.agreedToTerms,
       additionalSampleDescription: submission.additionalSampleDescription || undefined,
+      attachedDocuments: submission.attachedDocuments.length > 0 ? submission.attachedDocuments : undefined,
     };
 
     if (submission.productType === 'bean') {

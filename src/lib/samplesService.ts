@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import QRCode from 'qrcode';
+import { SampleDocumentsService } from './sampleDocumentsService';
 
 // Sample status type
 export type SampleStatus = 'draft' | 'submitted' | 'received' | 'disqualified' | 'approved' | 'evaluated';
@@ -180,6 +181,9 @@ export interface SampleSubmissionData {
     cocoaOriginCountry: string;
     cocoaVariety?: string;
   };
+  
+  // Attached Documents
+  attachedDocuments?: File[];
   
   // Terms Agreement
   agreedToTerms: boolean;
@@ -476,6 +480,17 @@ export class SamplesService {
       if (updateError) {
         console.error('Error updating sample with QR code:', updateError);
         throw updateError;
+      }
+
+      // Upload attached documents if any
+      if (submissionData.attachedDocuments && submissionData.attachedDocuments.length > 0) {
+        try {
+          await SampleDocumentsService.uploadDocuments(updatedSample.id, submissionData.attachedDocuments);
+        } catch (documentError) {
+          console.error('Error uploading documents:', documentError);
+          // Don't fail the entire submission if document upload fails
+          // Just log the error - documents can be uploaded later
+        }
       }
 
       // Fetch the complete sample data with product type
