@@ -354,6 +354,19 @@ export class SensoryEvaluationService {
         throw saveError;
       }
 
+      // Update the judge assignment status to 'completed'
+      const { error: assignmentUpdateError } = await supabase
+        .from('judge_assignments')
+        .update({ status: 'completed' })
+        .eq('sample_id', sampleId)
+        .eq('judge_id', user.id);
+
+      if (assignmentUpdateError) {
+        console.error('Error updating judge assignment status:', assignmentUpdateError);
+        // Don't throw here - the evaluation was saved successfully, 
+        // the assignment status update is secondary
+      }
+
       console.log('Sensory evaluation saved successfully');
       
       const transformedEvaluation = this.transformDatabaseToEvaluation(savedEvaluation);
@@ -364,6 +377,40 @@ export class SensoryEvaluationService {
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Failed to save sensory evaluation' 
+      };
+    }
+  }
+
+  /**
+   * Update judge assignment status when starting evaluation
+   */
+  static async startEvaluation(sampleId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('User not authenticated');
+      }
+
+      // Update the judge assignment status to 'evaluating'
+      const { error: assignmentUpdateError } = await supabase
+        .from('judge_assignments')
+        .update({ status: 'evaluating' })
+        .eq('sample_id', sampleId)
+        .eq('judge_id', user.id);
+
+      if (assignmentUpdateError) {
+        console.error('Error updating judge assignment status to evaluating:', assignmentUpdateError);
+        throw assignmentUpdateError;
+      }
+
+      console.log('Judge assignment status updated to evaluating');
+      return { success: true };
+      
+    } catch (error) {
+      console.error('Error in startEvaluation:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to start evaluation' 
       };
     }
   }

@@ -258,6 +258,25 @@ const JudgeDashboard = () => {
   const handleSampleSelect = async (sample: AssignedSample) => {
     setSelectedSample(sample);
     setLoading(true);
+    
+    // If the sample is pending and doesn't have an evaluation, mark it as in progress
+    if (sample.status === 'pending' && !sample.hasEvaluation) {
+      try {
+        const { SensoryEvaluationService } = await import("@/lib/sensoryEvaluationService");
+        await SensoryEvaluationService.startEvaluation(sample.id);
+        
+        // Update local state to reflect the status change
+        const updatedSamples = samples.map(s =>
+          s.id === sample.id ? { ...s, status: 'in_progress' as const, evaluationProgress: 10 } : s
+        );
+        setSamples(updatedSamples);
+        setSelectedSample({ ...sample, status: 'in_progress', evaluationProgress: 10 });
+      } catch (error) {
+        console.error('Error starting evaluation:', error);
+        // Continue anyway - the evaluation can still be done
+      }
+    }
+    
     await loadExistingEvaluation(sample.id);
     setLoading(false);
   };
