@@ -102,21 +102,34 @@ const defaultScores: SensoryScores = {
 
 type NumericScoreKey = 'cacao' | 'acidityTotal' | 'freshFruitTotal' | 'brownFruitTotal' | 'vegetalTotal' | 'floralTotal' | 'woodTotal' | 'spiceTotal' | 'nutTotal' | 'caramelPanela' | 'bitterness' | 'astringency' | 'roastDegree' | 'defectsTotal';
 
-const getLabelMap = (t: any): { key: NumericScoreKey; label: string }[] => [
-  { key: 'cacao', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.cacao') },
-  { key: 'acidityTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.acidityTotal') },
-  { key: 'freshFruitTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.freshFruitTotal') },
-  { key: 'brownFruitTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.brownFruitTotal') },
-  { key: 'vegetalTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.vegetalTotal') },
-  { key: 'floralTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.floralTotal') },
-  { key: 'woodTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.woodTotal') },
-  { key: 'spiceTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.spiceTotal') },
-  { key: 'nutTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.nutTotal') },
-  { key: 'caramelPanela', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.caramelPanela') },
-  { key: 'bitterness', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.bitterness') },
-  { key: 'astringency', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.astringency') },
-  { key: 'roastDegree', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.roastDegree') },
-  { key: 'defectsTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.defectsTotal') },
+type AttributeCategory = 'main' | 'complementary' | 'defects';
+
+interface AttributeItem {
+  key: NumericScoreKey;
+  label: string;
+  category: AttributeCategory;
+}
+
+const getLabelMap = (t: any): AttributeItem[] => [
+  // Main attributes (key elements) - in specified order
+  { key: 'cacao', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.cacao'), category: 'main' },
+  { key: 'bitterness', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.bitterness'), category: 'main' },
+  { key: 'astringency', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.astringency'), category: 'main' },
+  { key: 'roastDegree', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.roastDegree'), category: 'main' },
+  { key: 'acidityTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.acidityTotal'), category: 'main' },
+  
+  // Complementary attributes (may or may not be present) - in specified order
+  { key: 'freshFruitTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.freshFruitTotal'), category: 'complementary' },
+  { key: 'brownFruitTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.brownFruitTotal'), category: 'complementary' },
+  { key: 'vegetalTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.vegetalTotal'), category: 'complementary' },
+  { key: 'floralTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.floralTotal'), category: 'complementary' },
+  { key: 'woodTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.woodTotal'), category: 'complementary' },
+  { key: 'spiceTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.spiceTotal'), category: 'complementary' },
+  { key: 'nutTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.nutTotal'), category: 'complementary' },
+  { key: 'caramelPanela', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.caramelPanela'), category: 'complementary' },
+  
+  // Atypical flavors/defects (deviations/warnings)
+  { key: 'defectsTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.defectsTotal'), category: 'defects' },
 ];
 
 const DefectRow = ({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) => (
@@ -136,6 +149,70 @@ const SliderRow = ({ label, value, onChange }: { label: string; value: number; o
     <span className="w-10 text-right text-sm font-medium">{value.toFixed(1)}</span>
   </div>
 );
+
+const getCategoryStyles = (category: AttributeCategory) => {
+  switch (category) {
+    case 'main':
+      return {
+        containerClass: 'border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-950/20 pl-4 py-2 rounded-r',
+        labelClass: 'text-blue-800 dark:text-blue-200 font-semibold',
+        icon: '★',
+        iconClass: 'text-blue-600'
+      };
+    case 'complementary':
+      return {
+        containerClass: 'border-l-4 border-green-500 bg-green-50 dark:bg-green-950/20 pl-4 py-2 rounded-r',
+        labelClass: 'text-green-800 dark:text-green-200',
+        icon: '◆',
+        iconClass: 'text-green-600'
+      };
+    case 'defects':
+      return {
+        containerClass: 'border-l-4 border-red-500 bg-red-50 dark:bg-red-950/20 pl-4 py-2 rounded-r',
+        labelClass: 'text-red-800 dark:text-red-200 font-medium',
+        icon: '⚠',
+        iconClass: 'text-red-600'
+      };
+    default:
+      return {
+        containerClass: '',
+        labelClass: '',
+        icon: '',
+        iconClass: ''
+      };
+  }
+};
+
+const CategorizedSliderRow = ({ 
+  attribute, 
+  value, 
+  onChange 
+}: { 
+  attribute: AttributeItem; 
+  value: number; 
+  onChange: (v: number) => void 
+}) => {
+  const styles = getCategoryStyles(attribute.category);
+  
+  return (
+    <div className={`flex items-center space-x-4 ${styles.containerClass}`}>
+      <div className="flex items-center space-x-2 w-48">
+        <span className={`${styles.iconClass} text-sm`}>{styles.icon}</span>
+        <span className={`text-sm ${styles.labelClass}`}>{attribute.label}</span>
+      </div>
+      <input 
+        type="range" 
+        min={0} 
+        max={10} 
+        step={0.1} 
+        value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value))} 
+        className="flex-1" 
+      />
+      <span className="w-10 text-right text-sm font-medium">{value.toFixed(1)}</span>
+    </div>
+  );
+};
 
 const getDisqOptions = (t: any) => [
   t('dashboard.sensoryEvaluation.finalVerdict.reasons.humidity'),
@@ -392,10 +469,33 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Calculated totals and direct attributes */}
-          {getLabelMap(t).map(({ key, label }) => (
-            <SliderRow key={key} label={`★ ${label}`} value={scores[key] as number} onChange={(v) => setNumeric(key, v)} />
-          ))}
+          {/* Categorized attributes with visual differentiation */}
+          <div className="space-y-4">
+            <div className="text-sm text-muted-foreground mb-4">
+              <div className="flex flex-wrap gap-4 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="text-blue-600">★</span>
+                  <span>{t('dashboard.sensoryEvaluation.intensityScale.categories.main')}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-green-600">◆</span>
+                  <span>{t('dashboard.sensoryEvaluation.intensityScale.categories.complementary')}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-red-600">⚠</span>
+                  <span>{t('dashboard.sensoryEvaluation.intensityScale.categories.defects')}</span>
+                </div>
+              </div>
+            </div>
+            {getLabelMap(t).map((attribute) => (
+              <CategorizedSliderRow 
+                key={attribute.key} 
+                attribute={attribute} 
+                value={scores[attribute.key] as number} 
+                onChange={(v) => setNumeric(attribute.key, v)} 
+              />
+            ))}
+          </div>
 
           <Separator className="my-2" />
 
@@ -450,14 +550,6 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
               <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.skin')} value={scores.nut.skin} onChange={(v) => updateSub('nut', 'skin', v)} />
             </div>
           </div>
-
-          {/* Direct attributes */}
-          <Separator className="my-4" />
-          <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.attributes.cacao')} value={scores.cacao} onChange={(v) => setNumeric('cacao', v)} />
-          <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.attributes.bitterness')} value={scores.bitterness} onChange={(v) => setNumeric('bitterness', v)} />
-          <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.attributes.astringency')} value={scores.astringency} onChange={(v) => setNumeric('astringency', v)} />
-          <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.attributes.caramelPanela')} value={scores.caramelPanela} onChange={(v) => setNumeric('caramelPanela', v)} />
-          <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.attributes.roastDegree')} value={scores.roastDegree} onChange={(v) => setNumeric('roastDegree', v)} />
 
           {/* Sweetness only for chocolate */}
           {meta.evaluationType === 'chocolate' && (

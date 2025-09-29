@@ -763,7 +763,12 @@
         "directAttributes": {
           "sweetness": "Sweetness",
           "sweetnessNote": "Sweetness (chocolate only)",
-          "textureNotes": "Texture Notes"
+          "textureNotes": "Comment"
+        },
+        "categories": {
+          "main": "Key Elements",
+          "complementary": "Complementary Characteristics",
+          "defects": "Atypical Flavors/Defects"
         }
       },
       "defects": {
