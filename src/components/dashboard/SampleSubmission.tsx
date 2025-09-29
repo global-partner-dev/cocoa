@@ -244,7 +244,8 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
   const [contests, setContests] = useState<Contest[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedContest, setSelectedContest] = useState<Contest | null>(null);
-  const [submission, setSubmission] = useState<SampleSubmission>({
+  // Define initial state as a constant to reuse for resets
+  const initialSubmissionState: SampleSubmission = {
     contestId: '',
     contestName: '',
     productType: 'bean',
@@ -346,10 +347,19 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
     attachedDocuments: [],
 
     agreedToTerms: false
-  });
+  };
+
+  const [submission, setSubmission] = useState<SampleSubmission>(initialSubmissionState);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  // Function to reset form to initial state
+  const resetForm = () => {
+    setSubmission(initialSubmissionState);
+    setCurrentStep(1);
+    setSelectedContest(null);
+  };
 
   // Load available contests on component mount
   useEffect(() => {
@@ -1019,19 +1029,7 @@ const SampleSubmission = ({ draftId }: SampleSubmissionProps = {}) => {
             <Button
               variant="outline"
               className="w-full mt-4"
-              onClick={() => {
-                setCurrentStep(1);
-                setSelectedContest(null);
-                setSubmission({
-                  ...submission,
-                  id: undefined,
-                  trackingCode: undefined,
-                  qrCodeUrl: undefined,
-                  contestId: '',
-                  contestName: '',
-                  agreedToTerms: false,
-                });
-              }}
+              onClick={resetForm}
             >
               Submit Another
             </Button>
