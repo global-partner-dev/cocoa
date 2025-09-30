@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip as ReTooltip } from "recharts";
 import { useTranslation } from "react-i18next";
 
@@ -49,6 +50,37 @@ export interface SensoryScores {
   defects: {
     dirty: number; animal: number; rotten: number; smoke: number; humid: number; moldy: number; overfermented: number; other: number;
   };
+  
+  // Typical and Atypical Odors (cocoa_liquor only)
+  typicalOdors?: {
+    cleanCacao: boolean;
+    chocolate: boolean;
+    ripeFruit: boolean;
+    floral: boolean;
+    spicy: boolean;
+    caramelSweet: boolean;
+    honeyMolasses: boolean;
+    driedFruits: boolean;
+    citrus: boolean;
+    freshHerbal: boolean;
+    butterySoftDairy: boolean;
+    lightSmoky: boolean;
+  };
+  atypicalOdors?: {
+    excessFermentation: boolean;
+    moldDamp: boolean;
+    earthClay: boolean;
+    intenseSmokeOrBurnt: boolean;
+    rancidOxidized: boolean;
+    medicinalChemical: boolean;
+    animalLeather: boolean;
+    soapDetergent: boolean;
+    pronouncedTannicNote: boolean;
+    sulfurousRottenEgg: boolean;
+    fuelGasolineDiesel: boolean;
+    industrialSolvents: boolean;
+  };
+  
   // Additional (chocolate evaluation)
   sweetness?: number; // Sweetness (chocolate only)
   textureNotes?: string;
@@ -77,6 +109,7 @@ export interface SensoryEvaluationFormProps {
   metaDefaults: Partial<SensoryMeta>;
   initialData?: SensoryEvaluationResult; // Existing evaluation data to load
   referenceImageUrl?: string; // Optional flavor wheel reference image
+  category?: 'cocoa_bean' | 'cocoa_liquor' | 'chocolate'; // Sample category from database
   onCancel?: () => void;
   onSubmit?: (result: SensoryEvaluationResult) => void;
 }
@@ -96,6 +129,14 @@ const defaultScores: SensoryScores = {
   spice: { spices: 0, tobacco: 0, umami: 0 },
   nut: { kernel: 0, skin: 0 },
   defects: { dirty: 0, animal: 0, rotten: 0, smoke: 0, humid: 0, moldy: 0, overfermented: 0, other: 0 },
+  typicalOdors: {
+    cleanCacao: false, chocolate: false, ripeFruit: false, floral: false, spicy: false, caramelSweet: false,
+    honeyMolasses: false, driedFruits: false, citrus: false, freshHerbal: false, butterySoftDairy: false, lightSmoky: false
+  },
+  atypicalOdors: {
+    excessFermentation: false, moldDamp: false, earthClay: false, intenseSmokeOrBurnt: false, rancidOxidized: false, medicinalChemical: false,
+    animalLeather: false, soapDetergent: false, pronouncedTannicNote: false, sulfurousRottenEgg: false, fuelGasolineDiesel: false, industrialSolvents: false
+  },
   sweetness: 0,
   textureNotes: "",
 };
@@ -147,6 +188,13 @@ const SliderRow = ({ label, value, onChange }: { label: string; value: number; o
     <input type="range" min={0} max={10} step={0.1} value={value}
       onChange={(e) => onChange(parseFloat(e.target.value))} className="flex-1" />
     <span className="w-10 text-right text-sm font-medium">{value.toFixed(1)}</span>
+  </div>
+);
+
+const CheckboxRow = ({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) => (
+  <div className="flex items-center space-x-4">
+    <Checkbox checked={checked} onCheckedChange={(checked) => onChange(Boolean(checked))} />
+    <span className="flex-1 text-sm">{label}</span>
   </div>
 );
 
@@ -220,13 +268,15 @@ const getDisqOptions = (t: any) => [
   t('dashboard.sensoryEvaluation.finalVerdict.reasons.other'),
 ];
 
-const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefaults, initialData, referenceImageUrl, onCancel, onSubmit }) => {
+const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefaults, initialData, referenceImageUrl, category, onCancel, onSubmit }) => {
   const { t } = useTranslation();
   const [meta, setMeta] = useState<SensoryMeta>({
     evaluationDate: new Date().toISOString().slice(0, 10),
     evaluationTime: new Date().toISOString().slice(11, 16),
     ...metaDefaults,
     ...(initialData?.meta || {}),
+    // Set evaluationType based on category prop, mapping cocoa_liquor to cocoa_mass for backward compatibility
+    evaluationType: category === 'cocoa_liquor' ? 'cocoa_mass' : (category === 'chocolate' ? 'chocolate' : 'cocoa_mass'),
   });
   const [scores, setScores] = useState<SensoryScores>(() => {
     if (!initialData?.scores) {
@@ -246,6 +296,8 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
       spice: { ...defaultScores.spice, ...(initialData.scores.spice || {}) },
       nut: { ...defaultScores.nut, ...(initialData.scores.nut || {}) },
       defects: { ...defaultScores.defects, ...(initialData.scores.defects || {}) },
+      typicalOdors: { ...defaultScores.typicalOdors, ...(initialData.scores.typicalOdors || {}) },
+      atypicalOdors: { ...defaultScores.atypicalOdors, ...(initialData.scores.atypicalOdors || {}) },
     };
   });
 
@@ -330,9 +382,9 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
     const defectsSum = (scores.defects.dirty + scores.defects.animal + scores.defects.rotten + scores.defects.smoke + scores.defects.humid + scores.defects.moldy + scores.defects.overfermented + scores.defects.other);
     const defectNormalized = defectsSum / 8; // 0–10 scale normalization
     const penalty = defectNormalized * 0.3;
-    const chocolateBonus = meta.evaluationType === 'chocolate' && typeof scores.sweetness === 'number' ? (scores.sweetness - 5) * 0.05 : 0;
+    const chocolateBonus = category === 'chocolate' && typeof scores.sweetness === 'number' ? (scores.sweetness - 5) * 0.05 : 0;
     return clamp01(base - penalty + chocolateBonus);
-  }, [scores, meta.evaluationType]);
+  }, [scores, category]);
 
   const radarData = useMemo(() => {
     const labelMap = getLabelMap(t);
@@ -348,8 +400,23 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
   const updateSub = <T extends 'acidity' | 'freshFruit' | 'brownFruit' | 'vegetal' | 'floral' | 'wood' | 'spice' | 'nut'>(group: T, key: string, value: number) => {
     setScores(prev => {
       const next = { ...prev } as SensoryScores;
+      if (!next[group]) {
+        next[group] = {} as any;
+      }
       (next[group] as Record<string, number>)[key] = clamp01(value);
       return recalcTotals(next);
+    });
+  };
+
+  // Handler to update boolean odor attributes
+  const updateOdor = <T extends 'typicalOdors' | 'atypicalOdors'>(group: T, key: string, value: boolean) => {
+    setScores(prev => {
+      const next = { ...prev } as SensoryScores;
+      if (!next[group]) {
+        next[group] = {} as any;
+      }
+      (next[group] as Record<string, boolean>)[key] = value;
+      return next;
     });
   };
 
@@ -447,7 +514,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
         </CardContent>
       </Card>
 
-      {/* Evaluation Type + Main Attributes */}
+      {/* Main Attributes */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
@@ -456,15 +523,12 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
               <CardDescription>{t('dashboard.sensoryEvaluation.intensityScale.description')}</CardDescription>
             </div>
             <div className="min-w-[220px]">
-              <label className="block text-xs text-muted-foreground mb-1">{t('dashboard.sensoryEvaluation.intensityScale.evaluationType')}</label>
-              <select
-                className="w-full border rounded px-3 py-2"
-                value={meta.evaluationType || 'cocoa_mass'}
-                onChange={(e) => setMeta({ ...meta, evaluationType: e.target.value as 'cocoa_mass' | 'chocolate' })}
-              >
-                <option value="cocoa_mass">{t('dashboard.sensoryEvaluation.intensityScale.types.cocoaMass')}</option>
-                <option value="chocolate">{t('dashboard.sensoryEvaluation.intensityScale.types.chocolate')}</option>
-              </select>
+              <label className="block text-xs text-muted-foreground mb-1">Sample Category</label>
+              <div className="w-full border rounded px-3 py-2 bg-gray-50 text-gray-700">
+                {category === 'cocoa_bean' ? 'Cocoa Bean' : 
+                 category === 'cocoa_liquor' ? 'Cocoa Liquor/Mass' : 
+                 category === 'chocolate' ? 'Chocolate' : 'Unknown'}
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -499,6 +563,49 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
 
           <Separator className="my-2" />
 
+          <div className="grid md:grid-cols-2 gap-6">
+              {/* Typical Odors */}
+              <div className="space-y-3">
+                <div className="font-medium text-green-700 flex items-center gap-2">
+                  <span className="text-green-600">✓</span>
+                  <span>Typical</span>
+                </div>
+                <CheckboxRow label="Clean cacao" checked={scores.typicalOdors?.cleanCacao || false} onChange={(v) => updateOdor('typicalOdors', 'cleanCacao', v)} />
+                <CheckboxRow label="Chocolate" checked={scores.typicalOdors?.chocolate || false} onChange={(v) => updateOdor('typicalOdors', 'chocolate', v)} />
+                <CheckboxRow label="Ripe fruit" checked={scores.typicalOdors?.ripeFruit || false} onChange={(v) => updateOdor('typicalOdors', 'ripeFruit', v)} />
+                <CheckboxRow label="Floral" checked={scores.typicalOdors?.floral || false} onChange={(v) => updateOdor('typicalOdors', 'floral', v)} />
+                <CheckboxRow label="Spicy" checked={scores.typicalOdors?.spicy || false} onChange={(v) => updateOdor('typicalOdors', 'spicy', v)} />
+                <CheckboxRow label="Caramel / sweet" checked={scores.typicalOdors?.caramelSweet || false} onChange={(v) => updateOdor('typicalOdors', 'caramelSweet', v)} />
+                <CheckboxRow label="Honey / molasses" checked={scores.typicalOdors?.honeyMolasses || false} onChange={(v) => updateOdor('typicalOdors', 'honeyMolasses', v)} />
+                <CheckboxRow label="Dried fruits" checked={scores.typicalOdors?.driedFruits || false} onChange={(v) => updateOdor('typicalOdors', 'driedFruits', v)} />
+                <CheckboxRow label="Citrus" checked={scores.typicalOdors?.citrus || false} onChange={(v) => updateOdor('typicalOdors', 'citrus', v)} />
+                <CheckboxRow label="Fresh herbal" checked={scores.typicalOdors?.freshHerbal || false} onChange={(v) => updateOdor('typicalOdors', 'freshHerbal', v)} />
+                <CheckboxRow label="Buttery / soft dairy" checked={scores.typicalOdors?.butterySoftDairy || false} onChange={(v) => updateOdor('typicalOdors', 'butterySoftDairy', v)} />
+                <CheckboxRow label="Light smoky" checked={scores.typicalOdors?.lightSmoky || false} onChange={(v) => updateOdor('typicalOdors', 'lightSmoky', v)} />
+              </div>
+              
+              {/* Atypical Odors */}
+              <div className="space-y-3">
+                <div className="font-medium text-red-700 flex items-center gap-2">
+                  <span className="text-red-600">⚠</span>
+                  <span>Atypical</span>
+                </div>
+                <CheckboxRow label="Excess fermentation" checked={scores.atypicalOdors?.excessFermentation || false} onChange={(v) => updateOdor('atypicalOdors', 'excessFermentation', v)} />
+                <CheckboxRow label="Mold / damp" checked={scores.atypicalOdors?.moldDamp || false} onChange={(v) => updateOdor('atypicalOdors', 'moldDamp', v)} />
+                <CheckboxRow label="Earth / clay" checked={scores.atypicalOdors?.earthClay || false} onChange={(v) => updateOdor('atypicalOdors', 'earthClay', v)} />
+                <CheckboxRow label="Intense smoke / burnt" checked={scores.atypicalOdors?.intenseSmokeOrBurnt || false} onChange={(v) => updateOdor('atypicalOdors', 'intenseSmokeOrBurnt', v)} />
+                <CheckboxRow label="Rancid / oxidized" checked={scores.atypicalOdors?.rancidOxidized || false} onChange={(v) => updateOdor('atypicalOdors', 'rancidOxidized', v)} />
+                <CheckboxRow label="Medicinal / chemical" checked={scores.atypicalOdors?.medicinalChemical || false} onChange={(v) => updateOdor('atypicalOdors', 'medicinalChemical', v)} />
+                <CheckboxRow label="Animal / leather" checked={scores.atypicalOdors?.animalLeather || false} onChange={(v) => updateOdor('atypicalOdors', 'animalLeather', v)} />
+                <CheckboxRow label="Soap / detergent" checked={scores.atypicalOdors?.soapDetergent || false} onChange={(v) => updateOdor('atypicalOdors', 'soapDetergent', v)} />
+                <CheckboxRow label="Pronounced tannic note" checked={scores.atypicalOdors?.pronouncedTannicNote || false} onChange={(v) => updateOdor('atypicalOdors', 'pronouncedTannicNote', v)} />
+                <CheckboxRow label="Sulfurous / rotten egg" checked={scores.atypicalOdors?.sulfurousRottenEgg || false} onChange={(v) => updateOdor('atypicalOdors', 'sulfurousRottenEgg', v)} />
+                <CheckboxRow label="Fuel (gasoline, diesel)" checked={scores.atypicalOdors?.fuelGasolineDiesel || false} onChange={(v) => updateOdor('atypicalOdors', 'fuelGasolineDiesel', v)} />
+                <CheckboxRow label="Industrial solvents (paint, glue, thinner)" checked={scores.atypicalOdors?.industrialSolvents || false} onChange={(v) => updateOdor('atypicalOdors', 'industrialSolvents', v)} />
+              </div>
+          </div>
+          
+          <Separator className="my-2" />
           {/* Sub-attributes that feed the totals (exact per your schema) */}
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-3">
@@ -552,7 +659,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
           </div>
 
           {/* Sweetness only for chocolate */}
-          {meta.evaluationType === 'chocolate' && (
+          {category === 'chocolate' && (
             <div>
               <Separator className="my-4" />
               <label className="text-xs text-muted-foreground">{t('dashboard.sensoryEvaluation.intensityScale.directAttributes.sweetnessNote')}</label>

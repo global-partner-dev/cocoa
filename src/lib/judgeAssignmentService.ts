@@ -29,6 +29,7 @@ export interface JudgeAssignedSample {
   deadline: string;     // ISO date (contest end date)
   status: 'pending' | 'in_progress' | 'completed';
   evaluationProgress?: number;
+  category?: 'cocoa_bean' | 'cocoa_liquor' | 'chocolate';
 }
 
 export interface JudgeActiveContest {
@@ -193,7 +194,7 @@ export class JudgeAssignmentService {
     // 2) Fetch samples + contest relation
     const { data: samples, error: serr } = await supabase
       .from('sample')
-      .select('id, created_at, contest_id, contests:contest_id ( name, end_date )')
+      .select('id, created_at, contest_id, category, contests:contest_id ( name, end_date )')
       .in('id', sampleIds);
     if (serr) throw serr;
 
@@ -221,6 +222,7 @@ export class JudgeAssignmentService {
         deadline: String(deadline).split('T')[0],
         status: mappedStatus,
         evaluationProgress: statusToProgress(rawStatus),
+        category: (s as any).category || undefined,
       } as JudgeAssignedSample;
     });
   }

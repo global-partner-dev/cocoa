@@ -73,6 +73,7 @@ export class ResultsService {
             id,
             tracking_code,
             status,
+            category,
             created_at,
             contests (
               id,
@@ -127,7 +128,7 @@ export class ResultsService {
           overallScore,
           ranking: row.rank,
           totalParticipants: top.length,
-          category: 'Fine Flavor',
+          category: sample?.category || 'cocoa_bean',
           awards: row.rank <= 3 ? (row.rank === 1 ? ['Gold Medal', 'Best in Show'] : row.rank === 2 ? ['Silver Medal'] : ['Bronze Medal']) : undefined,
           judgeComments: 'Aggregated result based on multiple evaluations.',
           recommendations: [],

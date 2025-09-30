@@ -321,6 +321,7 @@ const EvaluatorDashboard = () => {
                 metaDefaults={{ evaluatorName: t('evaluatorDashboard.sensory.currentEvaluator'), sampleCode: selectedSample.internalCode }}
                 initialData={existingEvaluation}
                 referenceImageUrl="/sensory_wheel.jpg"
+                category={selectedSample.category as 'cocoa_bean' | 'cocoa_liquor' | 'chocolate'}
                 onCancel={() => { setSelectedSample(null); setExistingEvaluation(null); }}
                 onSubmit={async (result) => {
                   try {
