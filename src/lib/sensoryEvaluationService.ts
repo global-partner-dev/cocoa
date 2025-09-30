@@ -86,6 +86,36 @@ export interface SensoryEvaluationData {
   sweetness?: number;
   textureNotes?: string;
   
+  // Odor fields
+  typicalOdors?: {
+    cleanCacao: boolean;
+    chocolate: boolean;
+    ripeFruit: boolean;
+    floral: boolean;
+    spicy: boolean;
+    caramelSweet: boolean;
+    honeyMolasses: boolean;
+    driedFruits: boolean;
+    citrus: boolean;
+    freshHerbal: boolean;
+    butterySoftDairy: boolean;
+    lightSmoky: boolean;
+  };
+  atypicalOdors?: {
+    excessFermentation: boolean;
+    moldDamp: boolean;
+    earthClay: boolean;
+    intenseSmokeOrBurnt: boolean;
+    rancidOxidized: boolean;
+    medicinalChemical: boolean;
+    animalLeather: boolean;
+    soapDetergent: boolean;
+    pronouncedTannicNote: boolean;
+    sulfurousRottenEgg: boolean;
+    fuelGasolineDiesel: boolean;
+    industrialSolvents: boolean;
+  };
+  
   // Overall
   overallQuality: number;
   
@@ -338,6 +368,10 @@ export class SensoryEvaluationService {
         verdict: evaluationResult.verdict.result,
         disqualification_reasons: evaluationResult.verdict.reasons || null,
         other_disqualification_reason: evaluationResult.verdict.otherReason || null,
+        
+        // Odor fields (JSON)
+        typical_odors: evaluationResult.scores.typicalOdors || {},
+        atypical_odors: evaluationResult.scores.atypicalOdors || {},
       };
 
       // Insert or update sensory evaluation
@@ -553,6 +587,10 @@ export class SensoryEvaluationService {
       // Chocolate-specific
       sweetness: dbRecord.sweetness ? parseFloat(dbRecord.sweetness) : undefined,
       textureNotes: dbRecord.texture_notes,
+      
+      // Odor fields
+      typicalOdors: dbRecord.typical_odors || {},
+      atypicalOdors: dbRecord.atypical_odors || {},
       
       // Overall
       overallQuality: parseFloat(dbRecord.overall_quality) || 0,
