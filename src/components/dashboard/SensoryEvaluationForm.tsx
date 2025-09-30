@@ -351,13 +351,13 @@ const getLabelMap = (t: any): AttributeItem[] => [
 ];
 
 const DefectRow = ({ label, value, onChange, tooltip }: { label: string; value: number; onChange: (v: number) => void; tooltip?: string }) => (
-  <div className="flex items-center space-x-4">
-    <div className="w-40 text-sm flex items-center gap-1">
-      <span>{label}</span>
+  <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+    <div className="sm:w-40 text-sm flex items-center gap-1 min-w-0">
+      <span className="truncate">{label}</span>
       {tooltip && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+            <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help flex-shrink-0" />
           </TooltipTrigger>
           <TooltipContent side="right" className="max-w-sm">
             <p className="text-sm leading-relaxed">{tooltip}</p>
@@ -365,20 +365,22 @@ const DefectRow = ({ label, value, onChange, tooltip }: { label: string; value: 
         </Tooltip>
       )}
     </div>
-    <input type="range" min={0} max={10} step={0.5} value={value}
-      onChange={(e) => onChange(parseFloat(e.target.value))} className="flex-1" />
-    <span className="w-10 text-right text-sm font-medium">{value.toFixed(1)}</span>
+    <div className="flex items-center space-x-3 flex-1">
+      <input type="range" min={0} max={10} step={0.5} value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value))} className="flex-1 min-w-0" />
+      <span className="w-10 text-right text-sm font-medium flex-shrink-0">{value.toFixed(1)}</span>
+    </div>
   </div>
 );
 
 const SliderRow = ({ label, value, onChange, tooltip }: { label: string; value: number; onChange: (v: number) => void; tooltip?: string }) => (
-  <div className="flex items-center space-x-4">
-    <div className="w-48 text-sm flex items-center gap-1">
-      <span>{label}</span>
+  <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+    <div className="sm:w-48 text-sm flex items-center gap-1 min-w-0">
+      <span className="truncate">{label}</span>
       {tooltip && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+            <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help flex-shrink-0" />
           </TooltipTrigger>
           <TooltipContent side="right" className="max-w-sm">
             <p className="text-sm leading-relaxed">{tooltip}</p>
@@ -386,16 +388,18 @@ const SliderRow = ({ label, value, onChange, tooltip }: { label: string; value: 
         </Tooltip>
       )}
     </div>
-    <input type="range" min={0} max={10} step={0.1} value={value}
-      onChange={(e) => onChange(parseFloat(e.target.value))} className="flex-1" />
-    <span className="w-10 text-right text-sm font-medium">{value.toFixed(1)}</span>
+    <div className="flex items-center space-x-3 flex-1">
+      <input type="range" min={0} max={10} step={0.1} value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value))} className="flex-1 min-w-0" />
+      <span className="w-10 text-right text-sm font-medium flex-shrink-0">{value.toFixed(1)}</span>
+    </div>
   </div>
 );
 
 const CheckboxRow = ({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) => (
-  <div className="flex items-center space-x-4">
-    <Checkbox checked={checked} onCheckedChange={(checked) => onChange(Boolean(checked))} />
-    <span className="flex-1 text-sm">{label}</span>
+  <div className="flex items-center space-x-3">
+    <Checkbox checked={checked} onCheckedChange={(checked) => onChange(Boolean(checked))} className="flex-shrink-0" />
+    <span className="flex-1 text-sm break-words">{label}</span>
   </div>
 );
 
@@ -446,14 +450,14 @@ const CategorizedSliderRow = ({
   const styles = getCategoryStyles(attribute.category);
   
   return (
-    <div className={`flex items-center space-x-4 ${styles.containerClass}`}>
-      <div className="flex items-center space-x-2 w-48">
-        <span className={`${styles.iconClass} text-sm`}>{styles.icon}</span>
-        <span className={`text-sm ${styles.labelClass}`}>{attribute.label}</span>
+    <div className={`flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 ${styles.containerClass}`}>
+      <div className="flex items-center space-x-2 sm:w-48 min-w-0">
+        <span className={`${styles.iconClass} text-sm flex-shrink-0`}>{styles.icon}</span>
+        <span className={`text-sm ${styles.labelClass} truncate`}>{attribute.label}</span>
         {tooltip && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+              <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help flex-shrink-0" />
             </TooltipTrigger>
             <TooltipContent side="right" className="max-w-sm">
               <p className="text-sm leading-relaxed">{tooltip}</p>
@@ -461,16 +465,18 @@ const CategorizedSliderRow = ({
           </Tooltip>
         )}
       </div>
-      <input 
-        type="range" 
-        min={0} 
-        max={10} 
-        step={0.1} 
-        value={value}
-        onChange={(e) => onChange(parseFloat(e.target.value))} 
-        className="flex-1" 
-      />
-      <span className="w-10 text-right text-sm font-medium">{value.toFixed(1)}</span>
+      <div className="flex items-center space-x-3 flex-1">
+        <input 
+          type="range" 
+          min={0} 
+          max={10} 
+          step={0.1} 
+          value={value}
+          onChange={(e) => onChange(parseFloat(e.target.value))} 
+          className="flex-1 min-w-0" 
+        />
+        <span className="w-10 text-right text-sm font-medium flex-shrink-0">{value.toFixed(1)}</span>
+      </div>
     </div>
   );
 };
@@ -774,7 +780,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
 
   return (
     <TooltipProvider>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6 p-2 sm:p-4 lg:p-6">
       {/* Radar Chart on top (shows live or after submit) */}
       <Card>
         <CardHeader>
@@ -784,27 +790,29 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
           })}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-3 gap-4 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
             {/* Left: Reference image (if provided) */}
-            <div className="md:col-span-1">
+            <div className="lg:col-span-1 order-2 lg:order-1">
               {referenceImageUrl ? (
-                <img src={referenceImageUrl} alt="Flavor reference" className="rounded border w-full" />
+                <img src={referenceImageUrl} alt="Flavor reference" className="rounded border w-full max-w-sm mx-auto lg:max-w-none" />
               ) : (
-                <div className="text-xs text-muted-foreground">{t('dashboard.sensoryEvaluation.flavorRadar.referenceImage')}</div>
+                <div className="text-xs text-muted-foreground text-center lg:text-left">{t('dashboard.sensoryEvaluation.flavorRadar.referenceImage')}</div>
               )}
             </div>
             {/* Right: Live radar chart */}
-            <div className="md:col-span-2" style={{ height: 320 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart data={radarData} outerRadius={110}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10 }} />
-                  <PolarRadiusAxis angle={30} domain={[0, 10]} tick={{ fontSize: 10 }} />
-                  <Radar name="Intensity" dataKey="value" stroke="#7c3aed" fill="#7c3aed" fillOpacity={0.4} />
-                  <ReTooltip formatter={(value: number | string) => Number(value).toFixed(1)} />
-                </RadarChart>
-              </ResponsiveContainer>
-              <div className="mt-3 text-sm text-muted-foreground">
+            <div className="lg:col-span-2 order-1 lg:order-2">
+              <div className="w-full" style={{ height: 'clamp(280px, 50vw, 400px)' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={radarData} outerRadius="80%">
+                    <PolarGrid />
+                    <PolarAngleAxis dataKey="subject" tick={{ fontSize: 'clamp(8px, 2vw, 10px)' }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 10]} tick={{ fontSize: 'clamp(8px, 2vw, 10px)' }} />
+                    <Radar name="Intensity" dataKey="value" stroke="#7c3aed" fill="#7c3aed" fillOpacity={0.4} />
+                    <ReTooltip formatter={(value: number | string) => Number(value).toFixed(1)} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-3 text-sm text-muted-foreground text-center lg:text-left">
                 {t('dashboard.sensoryEvaluation.flavorRadar.overallQuality')} <span className="font-semibold">{overallQuality.toFixed(1)}/10</span>
               </div>
             </div>
@@ -1068,10 +1076,10 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
                         {breakdown.overall.toFixed(2)}/10
                       </span>
                     </div>
-                    <div className="mt-2 text-sm text-purple-700 dark:text-purple-300">
-                      Formula: (Flavor × 0.40) + (Aroma × 0.25) + (Texture × 0.20) + (Aftertaste × 0.10) + (Appearance × 0.05)
+                    <div className="mt-2 text-sm text-purple-700 dark:text-purple-300 break-words">
+                      <span className="font-medium">Formula:</span> (Flavor × 0.40) + (Aroma × 0.25) + (Texture × 0.20) + (Aftertaste × 0.10) + (Appearance × 0.05)
                     </div>
-                    <div className="mt-2 text-xs text-purple-600 dark:text-purple-400">
+                    <div className="mt-2 text-xs text-purple-600 dark:text-purple-400 break-words">
                       = ({breakdown.flavor.score.toFixed(2)} × 0.40) + ({breakdown.aroma.score.toFixed(2)} × 0.25) + ({breakdown.texture.score.toFixed(2)} × 0.20) + ({breakdown.aftertaste.score.toFixed(2)} × 0.10) + ({breakdown.appearance.score.toFixed(2)} × 0.05)
                     </div>
                   </div>
@@ -1087,28 +1095,30 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
         <CardHeader>
           <CardTitle>{t('dashboard.sensoryEvaluation.metaInformation.title')}</CardTitle>
         </CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs text-muted-foreground">{t('dashboard.sensoryEvaluation.metaInformation.fields.date')}</label>
-              <input type="date" className="w-full border rounded px-3 py-2" value={meta.evaluationDate || ''} onChange={e => setMeta({ ...meta, evaluationDate: e.target.value })} />
-            </div>
-            <div>
-              <label className="text-xs text-muted-foreground">{t('dashboard.sensoryEvaluation.metaInformation.fields.time')}</label>
-              <input type="time" className="w-full border rounded px-3 py-2" value={meta.evaluationTime || ''} onChange={e => setMeta({ ...meta, evaluationTime: e.target.value })} />
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="sm:col-span-2 lg:col-span-1">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-muted-foreground block mb-1">{t('dashboard.sensoryEvaluation.metaInformation.fields.date')}</label>
+                <input type="date" className="w-full border rounded px-3 py-2 text-sm" value={meta.evaluationDate || ''} onChange={e => setMeta({ ...meta, evaluationDate: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground block mb-1">{t('dashboard.sensoryEvaluation.metaInformation.fields.time')}</label>
+                <input type="time" className="w-full border rounded px-3 py-2 text-sm" value={meta.evaluationTime || ''} onChange={e => setMeta({ ...meta, evaluationTime: e.target.value })} />
+              </div>
             </div>
           </div>
           <div>
-            <label className="text-xs text-muted-foreground">{t('dashboard.sensoryEvaluation.metaInformation.fields.evaluatorName')}</label>
-            <input className="w-full border rounded px-3 py-2" value={meta.evaluatorName || ''} onChange={e => setMeta({ ...meta, evaluatorName: e.target.value })} />
+            <label className="text-xs text-muted-foreground block mb-1">{t('dashboard.sensoryEvaluation.metaInformation.fields.evaluatorName')}</label>
+            <input className="w-full border rounded px-3 py-2 text-sm" value={meta.evaluatorName || ''} onChange={e => setMeta({ ...meta, evaluatorName: e.target.value })} />
           </div>
           <div>
-            <label className="text-xs text-muted-foreground">{t('dashboard.sensoryEvaluation.metaInformation.fields.sampleCode')}</label>
-            <input className="w-full border rounded px-3 py-2" value={meta.sampleCode || ''} onChange={e => setMeta({ ...meta, sampleCode: e.target.value })} />
+            <label className="text-xs text-muted-foreground block mb-1">{t('dashboard.sensoryEvaluation.metaInformation.fields.sampleCode')}</label>
+            <input className="w-full border rounded px-3 py-2 text-sm" value={meta.sampleCode || ''} onChange={e => setMeta({ ...meta, sampleCode: e.target.value })} />
           </div>
-          <div className="md:col-span-2">
-            <label className="text-xs text-muted-foreground">{t('dashboard.sensoryEvaluation.metaInformation.fields.sampleNotes')}</label>
-            <textarea className="w-full border rounded px-3 py-2" rows={2} value={meta.sampleNotes || ''} onChange={e => setMeta({ ...meta, sampleNotes: e.target.value })} />
+          <div className="sm:col-span-2 lg:col-span-4">
+            <label className="text-xs text-muted-foreground block mb-1">{t('dashboard.sensoryEvaluation.metaInformation.fields.sampleNotes')}</label>
+            <textarea className="w-full border rounded px-3 py-2 text-sm" rows={2} value={meta.sampleNotes || ''} onChange={e => setMeta({ ...meta, sampleNotes: e.target.value })} />
           </div>
         </CardContent>
       </Card>
@@ -1116,14 +1126,14 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
       {/* Main Attributes */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between gap-4">
-            <div>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex-1">
               <CardTitle>{t('dashboard.sensoryEvaluation.intensityScale.title')}</CardTitle>
               <CardDescription>{t('dashboard.sensoryEvaluation.intensityScale.description')}</CardDescription>
             </div>
-            <div className="min-w-[220px]">
+            <div className="lg:min-w-[220px] w-full lg:w-auto">
               <label className="block text-xs text-muted-foreground mb-1">{t('dashboard.sensoryEvaluation.intensityScale.sampleCategory')}</label>
-              <div className="w-full border rounded px-3 py-2 bg-gray-50 text-gray-700">
+              <div className="w-full border rounded px-3 py-2 bg-gray-50 text-gray-700 text-sm">
                 {category === 'cocoa_bean' ? t('dashboard.sensoryEvaluation.intensityScale.sampleTypes.cocoaBean') : 
                  category === 'cocoa_liquor' ? t('dashboard.sensoryEvaluation.intensityScale.sampleTypes.cocoaLiquor') : 
                  category === 'chocolate' ? t('dashboard.sensoryEvaluation.intensityScale.sampleTypes.chocolate') : t('dashboard.sensoryEvaluation.intensityScale.sampleTypes.unknown')}
@@ -1138,16 +1148,16 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
               {/* Categorized attributes with visual differentiation */}
               <div className="space-y-4">
                 <div className="text-sm text-muted-foreground mb-4">
-                  <div className="flex flex-wrap gap-4 text-xs">
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap gap-3 sm:gap-4 text-xs justify-center sm:justify-start">
+                    <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-950/20 px-2 py-1 rounded">
                       <span className="text-blue-600">★</span>
                       <span>{t('dashboard.sensoryEvaluation.intensityScale.categories.main')}</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 bg-green-50 dark:bg-green-950/20 px-2 py-1 rounded">
                       <span className="text-green-600">◆</span>
                       <span>{t('dashboard.sensoryEvaluation.intensityScale.categories.complementary')}</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 bg-red-50 dark:bg-red-950/20 px-2 py-1 rounded">
                       <span className="text-red-600">⚠</span>
                       <span>{t('dashboard.sensoryEvaluation.intensityScale.categories.defects')}</span>
                     </div>
@@ -1216,7 +1226,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
             <>
               <Separator className="my-2" />
               {/* Sub-attributes that feed the totals (exact per your schema) */}
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
             <div className="space-y-3">
               <div className="font-medium">{t('dashboard.sensoryEvaluation.intensityScale.subAttributes.acidity')}</div>
               <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.fruity')} value={scores.acidity.frutal} onChange={(v) => updateSub('acidity', 'frutal', v)} tooltip={subAttributeTooltips.frutal} />
@@ -1347,7 +1357,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
                   </div>
                   <div>
                     <label className="text-sm font-medium">Specific Notes (0-10 each, multiple selection)</label>
-                    <div className="grid md:grid-cols-2 gap-3 mt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
                       <SliderRow label="Floral" value={scores.chocolate.aroma.specificNotes.floral} onChange={(v) => updateChocolateAttribute('aroma', 'specificNotes.floral', v)} />
                       <SliderRow label="Fruity" value={scores.chocolate.aroma.specificNotes.fruity} onChange={(v) => updateChocolateAttribute('aroma', 'specificNotes.fruity', v)} />
                       <SliderRow label="Toasted" value={scores.chocolate.aroma.specificNotes.toasted} onChange={(v) => updateChocolateAttribute('aroma', 'specificNotes.toasted', v)} />
@@ -1457,7 +1467,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
                   </div>
                   <div>
                     <label className="text-sm font-medium">Flavor Notes (0-10 each, multiple selection)</label>
-                    <div className="grid md:grid-cols-2 gap-3 mt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
                       <SliderRow label="Citrus" value={scores.chocolate.flavor.flavorNotes.citrus} onChange={(v) => updateChocolateAttribute('flavor', 'flavorNotes.citrus', v)} />
                       <SliderRow label="Red Fruits" value={scores.chocolate.flavor.flavorNotes.redFruits} onChange={(v) => updateChocolateAttribute('flavor', 'flavorNotes.redFruits', v)} />
                       <SliderRow label="Nuts" value={scores.chocolate.flavor.flavorNotes.nuts} onChange={(v) => updateChocolateAttribute('flavor', 'flavorNotes.nuts', v)} />
@@ -1657,11 +1667,15 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
       </Card>
 
       {/* Actions */}
-      <div className="flex items-center justify-end space-x-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:space-x-3">
         {onCancel && (
-          <Button variant="outline" onClick={onCancel}>{t('dashboard.sensoryEvaluation.actions.cancel')}</Button>
+          <Button variant="outline" onClick={onCancel} className="w-full sm:w-auto">
+            {t('dashboard.sensoryEvaluation.actions.cancel')}
+          </Button>
         )}
-        <Button onClick={handleSubmit}>{t('dashboard.sensoryEvaluation.actions.completeEvaluation')}</Button>
+        <Button onClick={handleSubmit} className="w-full sm:w-auto">
+          {t('dashboard.sensoryEvaluation.actions.completeEvaluation')}
+        </Button>
       </div>
 
       {/* Defect Confirmation Dialog */}
