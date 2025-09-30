@@ -165,6 +165,12 @@
         "submitted": "Enviado",
         "score": "puntuación"
       },
+      "draftSamples": {
+        "title": "Borradores de Muestras",
+        "description": "Continúa trabajando en tus muestras no enviadas",
+        "lastModified": "Última modificación",
+        "draft": "Borrador"
+      },
       "openContests": {
         "title": "Concursos Abiertos",
         "open": "Abierto",

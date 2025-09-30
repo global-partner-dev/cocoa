@@ -165,6 +165,12 @@
         "submitted": "Submitted",
         "score": "score"
       },
+      "draftSamples": {
+        "title": "Draft Samples",
+        "description": "Continue working on your unsubmitted samples",
+        "lastModified": "Last modified",
+        "draft": "Draft"
+      },
       "openContests": {
         "title": "Open Contests",
         "open": "Open",

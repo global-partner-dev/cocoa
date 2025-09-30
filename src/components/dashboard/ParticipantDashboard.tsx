@@ -759,8 +759,8 @@ const ParticipantDashboard = () => {
           <div className="xl:col-span-2" style={{ marginTop: '1rem' }}>
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base sm:text-lg">Draft Samples</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">Continue working on your unsubmitted samples</CardDescription>
+                <CardTitle className="text-base sm:text-lg">{t('dashboard.participantDashboard.draftSamples.title')}</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">{t('dashboard.participantDashboard.draftSamples.description')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3 sm:space-y-4">
@@ -783,7 +783,7 @@ const ParticipantDashboard = () => {
                               {draft.contestName} • {draft.productType}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              Last modified: {draft.lastModified}
+                              {t('dashboard.participantDashboard.draftSamples.lastModified')}: {draft.lastModified}
                             </p>
                           </div>
                         </div>
@@ -791,7 +791,7 @@ const ParticipantDashboard = () => {
                           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                             <div className="text-left lg:text-right">
                               <Badge className="bg-orange-100 text-orange-800 text-xs">
-                                Draft
+                                {t('dashboard.participantDashboard.draftSamples.draft')}
                               </Badge>
                             </div>
                             <div className="w-16 sm:w-20 flex-shrink-0">
