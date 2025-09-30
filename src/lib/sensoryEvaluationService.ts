@@ -405,7 +405,7 @@ export class SensoryEvaluationService {
         texture_notes: evaluationResult.scores.textureNotes || null,
         
         // Comprehensive chocolate evaluation data
-        chocolate_data: evaluationResult.scores.chocolate ? JSON.stringify(evaluationResult.scores.chocolate) : null,
+        chocolate_data: evaluationResult.scores.chocolate || null,
         
         // Overall
         overall_quality: evaluationResult.scores.overallQuality || 0,
@@ -640,7 +640,7 @@ export class SensoryEvaluationService {
       textureNotes: dbRecord.texture_notes,
       
       // Comprehensive chocolate evaluation data
-      chocolateData: dbRecord.chocolate_data ? JSON.parse(dbRecord.chocolate_data) : undefined,
+      chocolateData: dbRecord.chocolate_data || undefined,
       
       // Odor fields
       typicalOdors: dbRecord.typical_odors || {},
