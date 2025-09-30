@@ -359,8 +359,8 @@ const DefectRow = ({ label, value, onChange, tooltip }: { label: string; value: 
           <TooltipTrigger asChild>
             <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
           </TooltipTrigger>
-          <TooltipContent side="right" className="max-w-xs">
-            <p className="text-xs">{tooltip}</p>
+          <TooltipContent side="right" className="max-w-sm">
+            <p className="text-sm leading-relaxed">{tooltip}</p>
           </TooltipContent>
         </Tooltip>
       )}
@@ -380,8 +380,8 @@ const SliderRow = ({ label, value, onChange, tooltip }: { label: string; value: 
           <TooltipTrigger asChild>
             <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
           </TooltipTrigger>
-          <TooltipContent side="right" className="max-w-xs">
-            <p className="text-xs">{tooltip}</p>
+          <TooltipContent side="right" className="max-w-sm">
+            <p className="text-sm leading-relaxed">{tooltip}</p>
           </TooltipContent>
         </Tooltip>
       )}
@@ -455,8 +455,8 @@ const CategorizedSliderRow = ({
             <TooltipTrigger asChild>
               <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
             </TooltipTrigger>
-            <TooltipContent side="right" className="max-w-xs">
-              <p className="text-xs">{tooltip}</p>
+            <TooltipContent side="right" className="max-w-sm">
+              <p className="text-sm leading-relaxed">{tooltip}</p>
             </TooltipContent>
           </Tooltip>
         )}
