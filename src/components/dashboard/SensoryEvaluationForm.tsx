@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip as ReTooltip } from "recharts";
 import { useTranslation } from "react-i18next";
-import { calculateChocolateOverallScore } from "@/lib/chocolateScoringUtils";
+import { calculateChocolateOverallScore, getChocolateScoringBreakdown } from "@/lib/chocolateScoringUtils";
 
 // Types for the demo
 export interface SensoryMeta {
@@ -791,6 +791,177 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
                 }
               </div>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Score Breakdown Panel - For Chocolate */}
+      {selectedCategory === 'chocolate' && scores.chocolate && (
+        <Card className="border-2 border-purple-200 dark:border-purple-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span>Score Breakdown</span>
+            </CardTitle>
+            <CardDescription>Detailed calculation of the final score</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {(() => {
+              const breakdown = getChocolateScoringBreakdown(scores.chocolate);
+              return (
+                <>
+                  {/* Flavor - 40% */}
+                  <div className="bg-amber-50 dark:bg-amber-950/20 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold text-amber-800 dark:text-amber-200">Flavor (40%)</span>
+                      <span className="text-lg font-bold text-amber-900 dark:text-amber-100">
+                        {breakdown.flavor.score.toFixed(2)}/10
+                      </span>
+                    </div>
+                    <div className="space-y-1 text-sm text-amber-700 dark:text-amber-300">
+                      <div className="flex justify-between">
+                        <span>• Sweetness: {scores.chocolate.flavor.sweetness.toFixed(1)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• Bitterness: {scores.chocolate.flavor.bitterness.toFixed(1)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• Acidity: {scores.chocolate.flavor.acidity.toFixed(1)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• Flavor Intensity: {scores.chocolate.flavor.flavorIntensity.toFixed(1)}</span>
+                      </div>
+                      <div className="mt-2 pt-2 border-t border-amber-200 dark:border-amber-800">
+                        <div className="flex justify-between font-medium">
+                          <span>Weighted Contribution:</span>
+                          <span>{breakdown.flavor.weightedScore.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Aroma - 25% */}
+                  <div className="bg-rose-50 dark:bg-rose-950/20 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold text-rose-800 dark:text-rose-200">Aroma (25%)</span>
+                      <span className="text-lg font-bold text-rose-900 dark:text-rose-100">
+                        {breakdown.aroma.score.toFixed(2)}/10
+                      </span>
+                    </div>
+                    <div className="space-y-1 text-sm text-rose-700 dark:text-rose-300">
+                      <div className="flex justify-between">
+                        <span>• Aromatic Intensity: {scores.chocolate.aroma.aromaIntensity.toFixed(1)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• Aromatic Quality: {scores.chocolate.aroma.aromaQuality.toFixed(1)}</span>
+                      </div>
+                      <div className="mt-2 pt-2 border-t border-rose-200 dark:border-rose-800">
+                        <div className="flex justify-between font-medium">
+                          <span>Weighted Contribution:</span>
+                          <span>{breakdown.aroma.weightedScore.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Texture - 20% */}
+                  <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold text-blue-800 dark:text-blue-200">Texture (20%)</span>
+                      <span className="text-lg font-bold text-blue-900 dark:text-blue-100">
+                        {breakdown.texture.score.toFixed(2)}/10
+                      </span>
+                    </div>
+                    <div className="space-y-1 text-sm text-blue-700 dark:text-blue-300">
+                      <div className="flex justify-between">
+                        <span>• Smoothness: {scores.chocolate.texture.smoothness.toFixed(1)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• Melting: {scores.chocolate.texture.melting.toFixed(1)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• Body: {scores.chocolate.texture.body.toFixed(1)}</span>
+                      </div>
+                      <div className="mt-2 pt-2 border-t border-blue-200 dark:border-blue-800">
+                        <div className="flex justify-between font-medium">
+                          <span>Weighted Contribution:</span>
+                          <span>{breakdown.texture.weightedScore.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Aftertaste - 10% */}
+                  <div className="bg-emerald-50 dark:bg-emerald-950/20 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold text-emerald-800 dark:text-emerald-200">Aftertaste (10%)</span>
+                      <span className="text-lg font-bold text-emerald-900 dark:text-emerald-100">
+                        {breakdown.aftertaste.score.toFixed(2)}/10
+                      </span>
+                    </div>
+                    <div className="space-y-1 text-sm text-emerald-700 dark:text-emerald-300">
+                      <div className="flex justify-between">
+                        <span>• Persistence: {scores.chocolate.aftertaste.persistence.toFixed(1)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• Aftertaste Quality: {scores.chocolate.aftertaste.aftertasteQuality.toFixed(1)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• Final Balance: {scores.chocolate.aftertaste.finalBalance.toFixed(1)}</span>
+                      </div>
+                      <div className="mt-2 pt-2 border-t border-emerald-200 dark:border-emerald-800">
+                        <div className="flex justify-between font-medium">
+                          <span>Weighted Contribution:</span>
+                          <span>{breakdown.aftertaste.weightedScore.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Appearance - 5% */}
+                  <div className="bg-slate-50 dark:bg-slate-950/20 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold text-slate-800 dark:text-slate-200">Appearance (5%)</span>
+                      <span className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                        {breakdown.appearance.score.toFixed(2)}/10
+                      </span>
+                    </div>
+                    <div className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                      <div className="flex justify-between">
+                        <span>• Color: {scores.chocolate.appearance.color.toFixed(1)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• Gloss: {scores.chocolate.appearance.gloss.toFixed(1)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• Surface Homogeneity: {scores.chocolate.appearance.surfaceHomogeneity.toFixed(1)}</span>
+                      </div>
+                      <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                        <div className="flex justify-between font-medium">
+                          <span>Weighted Contribution:</span>
+                          <span>{breakdown.appearance.weightedScore.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Final Score */}
+                  <div className="bg-purple-100 dark:bg-purple-900/30 rounded-lg p-4 border-2 border-purple-500">
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-bold text-purple-900 dark:text-purple-100">FINAL SCORE</span>
+                      <span className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                        {breakdown.overall.toFixed(2)}/10
+                      </span>
+                    </div>
+                    <div className="mt-2 text-sm text-purple-700 dark:text-purple-300">
+                      Formula: (Flavor × 0.40) + (Aroma × 0.25) + (Texture × 0.20) + (Aftertaste × 0.10) + (Appearance × 0.05)
+                    </div>
+                    <div className="mt-2 text-xs text-purple-600 dark:text-purple-400">
+                      = ({breakdown.flavor.score.toFixed(2)} × 0.40) + ({breakdown.aroma.score.toFixed(2)} × 0.25) + ({breakdown.texture.score.toFixed(2)} × 0.20) + ({breakdown.aftertaste.score.toFixed(2)} × 0.10) + ({breakdown.appearance.score.toFixed(2)} × 0.05)
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </CardContent>
         </Card>
       )}
