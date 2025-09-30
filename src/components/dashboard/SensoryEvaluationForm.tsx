@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip as ReTooltip } from "recharts";
 import { useTranslation } from "react-i18next";
 
@@ -417,56 +418,57 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
     };
   });
 
-  // Auto-calc totals from sub-attributes using final weighted-sum rules (clamped to 0–10)
+  // Auto-calc totals from sub-attributes using NEW weighted-sum rules (clamped to 0–10)
   const recalcTotals = (s: SensoryScores): SensoryScores => {
     const defectsSum = (
       s.defects.dirty + s.defects.animal + s.defects.rotten + s.defects.smoke +
       s.defects.humid + s.defects.moldy + s.defects.overfermented + s.defects.other
     );
 
+    // NEW SCORING: Complementary attributes use SUM (not weighted average), capped at 10
     const aciditySum = (
       s.acidity.frutal + s.acidity.acetic + s.acidity.lactic + s.acidity.mineralButyric
     );
 
-    const freshFruitWeighted = (
-      s.freshFruit.berries + 0.8 * s.freshFruit.citrus + 0.3 * s.freshFruit.yellowPulp +
-      0.3 * s.freshFruit.dark + 0.3 * s.freshFruit.tropical
+    const freshFruitSum = (
+      s.freshFruit.berries + s.freshFruit.citrus + s.freshFruit.yellowPulp +
+      s.freshFruit.dark + s.freshFruit.tropical
     );
 
-    const brownFruitWeighted = (
-      s.brownFruit.dry + 0.8 * s.brownFruit.brown + 0.3 * s.brownFruit.overripe
+    const brownFruitSum = (
+      s.brownFruit.dry + s.brownFruit.brown + s.brownFruit.overripe
     );
 
-    const vegetalWeighted = (
-      s.vegetal.grassHerb + 0.8 * s.vegetal.earthy
+    const vegetalSum = (
+      s.vegetal.grassHerb + s.vegetal.earthy
     );
 
-    const floralWeighted = (
-      s.floral.orangeBlossom + 0.8 * s.floral.flowers
+    const floralSum = (
+      s.floral.orangeBlossom + s.floral.flowers
     );
 
-    const woodWeighted = (
-      s.wood.light + 0.8 * s.wood.dark + 0.3 * s.wood.resin
+    const woodSum = (
+      s.wood.light + s.wood.dark + s.wood.resin
     );
 
-    const spiceWeighted = (
-      s.spice.spices + 0.8 * s.spice.tobacco + 0.3 * s.spice.umami
+    const spiceSum = (
+      s.spice.spices + s.spice.tobacco + s.spice.umami
     );
 
-    const nutWeighted = (
-      s.nut.kernel + 0.8 * s.nut.skin
+    const nutSum = (
+      s.nut.kernel + s.nut.skin
     );
 
     return {
       ...s,
       acidityTotal: clamp01(aciditySum),
-      freshFruitTotal: clamp01(freshFruitWeighted),
-      brownFruitTotal: clamp01(brownFruitWeighted),
-      vegetalTotal: clamp01(vegetalWeighted),
-      floralTotal: clamp01(floralWeighted),
-      woodTotal: clamp01(woodWeighted),
-      spiceTotal: clamp01(spiceWeighted),
-      nutTotal: clamp01(nutWeighted),
+      freshFruitTotal: clamp01(freshFruitSum),
+      brownFruitTotal: clamp01(brownFruitSum),
+      vegetalTotal: clamp01(vegetalSum),
+      floralTotal: clamp01(floralSum),
+      woodTotal: clamp01(woodSum),
+      spiceTotal: clamp01(spiceSum),
+      nutTotal: clamp01(nutSum),
       defectsTotal: clamp01(defectsSum), // Sum of all defects, clamped to 0–10
     };
   };
@@ -475,6 +477,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
   const [additionalPositive, setAdditionalPositive] = useState(initialData?.comments?.additionalPositive || "");
   const [verdict, setVerdict] = useState<SensoryVerdict>(initialData?.verdict || { result: 'Approved', reasons: [] });
   const [submitted, setSubmitted] = useState(false);
+  const [showDefectConfirmation, setShowDefectConfirmation] = useState(false);
 
   // Initialize chocolate structure when chocolate category is selected
   useEffect(() => {
@@ -486,7 +489,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
     }
   }, [selectedCategory, scores.chocolate]);
 
-  // Derived overall quality: average of positive attributes minus mild penalty for defects
+  // NEW SCORING SYSTEM: Weighted scoring with defect penalties
   const overallQuality = useMemo(() => {
     if (selectedCategory === 'chocolate' && scores.chocolate) {
       // For chocolate evaluation, calculate based on chocolate-specific attributes
@@ -523,12 +526,21 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
       
       return clamp01(base + notesBonus);
     } else {
-      // For cocoa bean/liquor evaluation, use original calculation
-      const positives = [
-        scores.cacao,
-        scores.bitterness,
-        scores.astringency,
-        scores.caramelPanela,
+      // NEW SCORING FORMULA for cocoa bean/liquor:
+      // TOTAL_SCORE = (MAIN_ATTRIBUTES_SCORE × 0.60) + (COMPLEMENTARY_ATTRIBUTES_SCORE × 0.40) − DEFECT_PENALTY
+      
+      // 1. Main Attributes (60% of Total)
+      // Cocoa (40%), Bitterness (25%), Astringency (20%), Roasting Degree (15%)
+      const mainScore = (
+        scores.cacao * 0.40 +
+        scores.bitterness * 0.25 +
+        scores.astringency * 0.20 +
+        scores.roastDegree * 0.15
+      ); 
+      
+      // 2. Complementary Attributes (40% of Total)
+      // Average of 9 complementary attributes, then multiply by 4
+      const complementaryAttributes = [
         scores.acidityTotal,
         scores.freshFruitTotal,
         scores.brownFruitTotal,
@@ -537,14 +549,26 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
         scores.woodTotal,
         scores.spiceTotal,
         scores.nutTotal,
+        scores.caramelPanela,
       ];
-      const base = positives.reduce((a, b) => a + b, 0) / positives.length;
-      // Defects total is a SUM (not average). Normalize (divide by 8) to keep 0–10 scale impact, then apply penalty factor
-      const defectsSum = (scores.defects.dirty + scores.defects.animal + scores.defects.rotten + scores.defects.smoke + scores.defects.humid + scores.defects.moldy + scores.defects.overfermented + scores.defects.other);
-      const defectNormalized = defectsSum / 8; // 0–10 scale normalization
-      const penalty = defectNormalized * 0.3;
-      const chocolateBonus = selectedCategory === 'chocolate' && typeof scores.sweetness === 'number' ? (scores.sweetness - 5) * 0.05 : 0;
-      return clamp01(base - penalty + chocolateBonus);
+      const complementaryScore = (complementaryAttributes.reduce((a, b) => a + b, 0) / 9);
+      
+      // 3. Defect Penalty System
+      const defectsTotal = scores.defectsTotal;
+      let defectPenalty = 0;
+      
+      if (defectsTotal >= 7) {
+        // Automatic disqualification
+        return 0;
+      } else if (defectsTotal >= 3 && defectsTotal < 7) {
+        // Proportional penalty: PENALTY = (TOTAL_DEFECT / 10) × NO_DEFECT_SCORE
+        const noDefectScore = mainScore + complementaryScore;
+        defectPenalty = (defectsTotal / 10) * noDefectScore;
+      }
+      // If defectsTotal < 3, no penalty
+      
+      const totalScore = mainScore * 0.6 + complementaryScore * 0.4 - defectPenalty;
+      return clamp01(totalScore);
     }
   }, [scores, selectedCategory]);
 
@@ -640,6 +664,12 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
   };
 
   const handleSubmit = () => {
+    // Check if defects >= 3 for cocoa bean/liquor and show confirmation
+    if (selectedCategory !== 'chocolate' && scores.defectsTotal >= 3 && !showDefectConfirmation) {
+      setShowDefectConfirmation(true);
+      return;
+    }
+    
     const result: SensoryEvaluationResult = {
       meta,
       scores: { ...scores, overallQuality },
@@ -651,6 +681,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
       },
     };
     setSubmitted(true);
+    setShowDefectConfirmation(false);
     onSubmit?.(result);
   };
 
@@ -692,6 +723,124 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
           </div>
         </CardContent>
       </Card>
+
+      {/* Score Breakdown Panel - Only for cocoa bean/liquor */}
+      {selectedCategory !== 'chocolate' && (
+        <Card className="border-2 border-purple-200 dark:border-purple-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span>Score Breakdown</span>
+            </CardTitle>
+            <CardDescription>Detailed calculation of the final score</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Main Attributes Score */}
+            <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-semibold text-blue-800 dark:text-blue-200">Main Attributes (60%)</span>
+                <span className="text-lg font-bold text-blue-900 dark:text-blue-100">
+                  {((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.roastDegree * 0.15)).toFixed(2)}/10
+                </span>
+              </div>
+              <div className="space-y-1 text-sm text-blue-700 dark:text-blue-300">
+                <div className="flex justify-between">
+                  <span>• Cocoa (40%): {scores.cacao.toFixed(1)}</span>
+                  <span>{(scores.cacao * 0.40 ).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>• Bitterness (25%): {scores.bitterness.toFixed(1)}</span>
+                  <span>{(scores.bitterness * 0.25 ).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>• Astringency (20%): {scores.astringency.toFixed(1)}</span>
+                  <span>{(scores.astringency * 0.20 ).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>• Roasting Degree (15%): {scores.roastDegree.toFixed(1)}</span>
+                  <span>{(scores.roastDegree * 0.15 ).toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Complementary Attributes Score */}
+            <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-semibold text-green-800 dark:text-green-200">Complementary Attributes (40%)</span>
+                <span className="text-lg font-bold text-green-900 dark:text-green-100">
+                  {(([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9)).toFixed(2)}/10
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-1 text-xs text-green-700 dark:text-green-300">
+                <div>• Acidity: {scores.acidityTotal.toFixed(1)}</div>
+                <div>• Fresh Fruit: {scores.freshFruitTotal.toFixed(1)}</div>
+                <div>• Brown Fruit: {scores.brownFruitTotal.toFixed(1)}</div>
+                <div>• Vegetal: {scores.vegetalTotal.toFixed(1)}</div>
+                <div>• Floral: {scores.floralTotal.toFixed(1)}</div>
+                <div>• Wood: {scores.woodTotal.toFixed(1)}</div>
+                <div>• Spice: {scores.spiceTotal.toFixed(1)}</div>
+                <div>• Nut: {scores.nutTotal.toFixed(1)}</div>
+                <div>• Caramel/Panela: {scores.caramelPanela.toFixed(1)}</div>
+              </div>
+              <div className="mt-2 text-sm text-green-700 dark:text-green-300">
+                Average: {([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9).toFixed(2)} × 4
+              </div>
+            </div>
+
+            {/* Defect Penalty */}
+            <div className="bg-red-50 dark:bg-red-950/20 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-semibold text-red-800 dark:text-red-200">Defect Penalty</span>
+                <span className="text-lg font-bold text-red-900 dark:text-red-100">
+                  {scores.defectsTotal >= 7 ? 'DISQUALIFIED' : 
+                   scores.defectsTotal >= 3 ? `-${((scores.defectsTotal / 10) * ((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.roastDegree * 0.15) + ([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9))).toFixed(2)}` :
+                   '0.00'}
+                </span>
+              </div>
+              <div className="text-sm text-red-700 dark:text-red-300">
+                Total Defects: {scores.defectsTotal.toFixed(1)}/10
+                {scores.defectsTotal >= 7 && <span className="ml-2 font-bold">(≥7: Auto-disqualification)</span>}
+                {scores.defectsTotal >= 3 && scores.defectsTotal < 7 && <span className="ml-2">(3-6: Proportional penalty)</span>}
+                {scores.defectsTotal < 3 && <span className="ml-2">({"<"}3: No penalty)</span>}
+              </div>
+            </div>
+
+            {/* Final Score */}
+            <div className="bg-purple-100 dark:bg-purple-900/30 rounded-lg p-4 border-2 border-purple-500">
+              <div className="flex items-center justify-between">
+                <span className="text-lg font-bold text-purple-900 dark:text-purple-100">FINAL SCORE</span>
+                <span className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                  {overallQuality.toFixed(2)}/10
+                </span>
+              </div>
+              <div className="mt-2 text-sm text-purple-700 dark:text-purple-300">
+                {scores.defectsTotal >= 7 ? 
+                  'Sample disqualified due to excessive defects (≥7 points)' :
+                  `Main 0.6 × (${((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.roastDegree * 0.15)).toFixed(2)}) + Complementary 0.4 × (${(([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9)).toFixed(2)})${scores.defectsTotal >= 3 ? ` - Penalty (${((scores.defectsTotal / 10) * ((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.roastDegree * 0.15) + ([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9))).toFixed(2)})` : ''}`
+                }
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-1 text-sm">
+                <span>Score Progress</span>
+                <span>{(overallQuality * 10).toFixed(0)}%</span>
+              </div>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
+                <div 
+                  className={`h-full transition-all duration-300 ${
+                    overallQuality >= 8 ? 'bg-green-500' :
+                    overallQuality >= 6 ? 'bg-yellow-500' :
+                    overallQuality >= 4 ? 'bg-orange-500' :
+                    'bg-red-500'
+                  }`}
+                  style={{ width: `${Math.min(overallQuality * 10, 100)}%` }}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Meta Information */}
       <Card>
@@ -1157,6 +1306,53 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
           <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.moldy')} value={scores.defects.moldy} onChange={(v) => updateDefect('moldy', v)} />
           <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.overfermented')} value={scores.defects.overfermented} onChange={(v) => updateDefect('overfermented', v)} />
           <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.other')} value={scores.defects.other} onChange={(v) => updateDefect('other', v)} />
+          
+          {/* Defect Total and Alerts */}
+          <div className="mt-4 pt-4 border-t">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">Total Defects:</span>
+              <span className="text-lg font-bold">{scores.defectsTotal.toFixed(1)}/10</span>
+            </div>
+            
+            {/* Visual Alerts for Defect Thresholds */}
+            {scores.defectsTotal >= 7 && (
+              <div className="bg-red-100 dark:bg-red-900/30 border-2 border-red-500 rounded-lg p-3 mt-2">
+                <div className="flex items-center space-x-2">
+                  <span className="text-2xl">🚫</span>
+                  <div>
+                    <div className="font-bold text-red-800 dark:text-red-200">AUTOMATIC DISQUALIFICATION</div>
+                    <div className="text-sm text-red-700 dark:text-red-300">Defects ≥ 7 points: Sample will receive a score of 0</div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {scores.defectsTotal >= 3 && scores.defectsTotal < 7 && (
+              <div className="bg-yellow-100 dark:bg-yellow-900/30 border-2 border-yellow-500 rounded-lg p-3 mt-2">
+                <div className="flex items-center space-x-2">
+                  <span className="text-2xl">⚠️</span>
+                  <div>
+                    <div className="font-bold text-yellow-800 dark:text-yellow-200">PROPORTIONAL PENALTY APPLIED</div>
+                    <div className="text-sm text-yellow-700 dark:text-yellow-300">
+                      Defects between 3-6 points: Penalty = ({scores.defectsTotal.toFixed(1)} / 10) × Base Score
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {scores.defectsTotal < 3 && scores.defectsTotal > 0 && (
+              <div className="bg-green-100 dark:bg-green-900/30 border border-green-500 rounded-lg p-2 mt-2">
+                <div className="flex items-center space-x-2">
+                  <span className="text-xl">✓</span>
+                  <div className="text-sm text-green-700 dark:text-green-300">
+                    Defects &lt; 3 points: No penalty applied
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          
           <div className="text-xs text-muted-foreground">{t('dashboard.sensoryEvaluation.defects.note')}</div>
         </CardContent>
       </Card>
@@ -1226,6 +1422,69 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
         )}
         <Button onClick={handleSubmit}>{t('dashboard.sensoryEvaluation.actions.completeEvaluation')}</Button>
       </div>
+
+      {/* Defect Confirmation Dialog */}
+      <Dialog open={showDefectConfirmation} onOpenChange={setShowDefectConfirmation}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <span className="text-2xl">⚠️</span>
+              <span>Confirm Evaluation Submission</span>
+            </DialogTitle>
+            <DialogDescription>
+              This sample has significant defects that will impact the final score.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-lg p-4">
+              <div className="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">
+                Defect Summary
+              </div>
+              <div className="text-sm text-yellow-800 dark:text-yellow-200 space-y-1">
+                <div>Total Defects: <strong>{scores.defectsTotal.toFixed(1)}/10</strong></div>
+                {scores.defectsTotal >= 7 && (
+                  <div className="text-red-600 dark:text-red-400 font-bold mt-2">
+                    ⚠️ This sample will be DISQUALIFIED (defects ≥ 7)
+                  </div>
+                )}
+                {scores.defectsTotal >= 3 && scores.defectsTotal < 7 && (
+                  <div className="mt-2">
+                    A proportional penalty will be applied: <strong>{((scores.defectsTotal / 10) * 100).toFixed(0)}%</strong> of the base score
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-lg p-4">
+              <div className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                Final Score Preview
+              </div>
+              <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                {overallQuality.toFixed(2)}/10
+              </div>
+              {scores.defectsTotal >= 7 && (
+                <div className="text-sm text-red-600 dark:text-red-400 mt-1">
+                  Sample will receive a score of 0 due to disqualification
+                </div>
+              )}
+            </div>
+
+            <div className="text-sm text-muted-foreground">
+              Please review the defect scores carefully before submitting. Once submitted, this evaluation will be recorded with the calculated penalties.
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDefectConfirmation(false)}>
+              Review Defects
+            </Button>
+            <Button onClick={handleSubmit} variant={scores.defectsTotal >= 7 ? "destructive" : "default"}>
+              Confirm & Submit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
