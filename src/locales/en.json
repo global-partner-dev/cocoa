@@ -712,9 +712,16 @@
         "title": "Intensity Scale",
         "description": "Enter the intensity of each attribute (0–10). Values with star are calculated.",
         "evaluationType": "Evaluation Type",
+        "sampleCategory": "Sample Category",
         "types": {
           "cocoaMass": "Cocoa Mass",
           "chocolate": "Chocolate"
+        },
+        "sampleTypes": {
+          "cocoaBean": "Cocoa Bean",
+          "cocoaLiquor": "Cocoa Liquor/Mass",
+          "chocolate": "Chocolate",
+          "unknown": "Unknown"
         },
         "attributes": {
           "cacao": "Cacao",
@@ -865,6 +872,38 @@
           "other": "Other"
         },
         "otherReasonPlaceholder": "Specify other reason"
+      },
+      "scoring": {
+        "defectPenalty": "Defect Penalty",
+        "disqualified": "DISQUALIFIED",
+        "finalScore": "FINAL SCORE",
+        "scoreBreakdown": "Score Breakdown",
+        "disqualificationMessage": "Sample disqualified due to excessive defects (≥7 points)",
+        "totalDefects": "Total Defects: {{value}}/10",
+        "autoDisqualification": "(≥7: Auto-disqualification)",
+        "proportionalPenalty": "(3-6: Proportional penalty)",
+        "noPenalty": "(<3: No penalty)",
+        "mainScore": "Main {{weight}} × ({{score}})",
+        "complementaryScore": "Complementary {{weight}} × ({{score}})",
+        "penalty": "Penalty ({{value}})",
+        "average": "Average: {{value}} × 4"
+      },
+      "chocolateRadar": {
+        "color": "Color",
+        "gloss": "Gloss",
+        "surface": "Surface",
+        "aromaIntensity": "Aroma Intensity",
+        "aromaQuality": "Aroma Quality",
+        "smoothness": "Smoothness",
+        "melting": "Melting",
+        "body": "Body",
+        "sweetness": "Sweetness",
+        "bitterness": "Bitterness",
+        "acidity": "Acidity",
+        "flavorIntensity": "Flavor Intensity",
+        "persistence": "Persistence",
+        "aftertasteQuality": "Aftertaste Quality",
+        "finalBalance": "Final Balance"
       },
       "actions": {
         "cancel": "Cancel",

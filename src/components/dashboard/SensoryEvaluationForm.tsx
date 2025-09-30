@@ -659,21 +659,21 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
     if (selectedCategory === 'chocolate' && scores.chocolate) {
       // For chocolate evaluation, show chocolate-specific attributes
       return [
-        { subject: 'Color', value: scores.chocolate.appearance.color, fullMark: 10 },
-        { subject: 'Gloss', value: scores.chocolate.appearance.gloss, fullMark: 10 },
-        { subject: 'Surface', value: scores.chocolate.appearance.surfaceHomogeneity, fullMark: 10 },
-        { subject: 'Aroma Intensity', value: scores.chocolate.aroma.aromaIntensity, fullMark: 10 },
-        { subject: 'Aroma Quality', value: scores.chocolate.aroma.aromaQuality, fullMark: 10 },
-        { subject: 'Smoothness', value: scores.chocolate.texture.smoothness, fullMark: 10 },
-        { subject: 'Melting', value: scores.chocolate.texture.melting, fullMark: 10 },
-        { subject: 'Body', value: scores.chocolate.texture.body, fullMark: 10 },
-        { subject: 'Sweetness', value: scores.chocolate.flavor.sweetness, fullMark: 10 },
-        { subject: 'Bitterness', value: scores.chocolate.flavor.bitterness, fullMark: 10 },
-        { subject: 'Acidity', value: scores.chocolate.flavor.acidity, fullMark: 10 },
-        { subject: 'Flavor Intensity', value: scores.chocolate.flavor.flavorIntensity, fullMark: 10 },
-        { subject: 'Persistence', value: scores.chocolate.aftertaste.persistence, fullMark: 10 },
-        { subject: 'Aftertaste Quality', value: scores.chocolate.aftertaste.aftertasteQuality, fullMark: 10 },
-        { subject: 'Final Balance', value: scores.chocolate.aftertaste.finalBalance, fullMark: 10 },
+        { subject: t('dashboard.sensoryEvaluation.chocolateRadar.color'), value: scores.chocolate.appearance.color, fullMark: 10 },
+        { subject: t('dashboard.sensoryEvaluation.chocolateRadar.gloss'), value: scores.chocolate.appearance.gloss, fullMark: 10 },
+        { subject: t('dashboard.sensoryEvaluation.chocolateRadar.surface'), value: scores.chocolate.appearance.surfaceHomogeneity, fullMark: 10 },
+        { subject: t('dashboard.sensoryEvaluation.chocolateRadar.aromaIntensity'), value: scores.chocolate.aroma.aromaIntensity, fullMark: 10 },
+        { subject: t('dashboard.sensoryEvaluation.chocolateRadar.aromaQuality'), value: scores.chocolate.aroma.aromaQuality, fullMark: 10 },
+        { subject: t('dashboard.sensoryEvaluation.chocolateRadar.smoothness'), value: scores.chocolate.texture.smoothness, fullMark: 10 },
+        { subject: t('dashboard.sensoryEvaluation.chocolateRadar.melting'), value: scores.chocolate.texture.melting, fullMark: 10 },
+        { subject: t('dashboard.sensoryEvaluation.chocolateRadar.body'), value: scores.chocolate.texture.body, fullMark: 10 },
+        { subject: t('dashboard.sensoryEvaluation.chocolateRadar.sweetness'), value: scores.chocolate.flavor.sweetness, fullMark: 10 },
+        { subject: t('dashboard.sensoryEvaluation.chocolateRadar.bitterness'), value: scores.chocolate.flavor.bitterness, fullMark: 10 },
+        { subject: t('dashboard.sensoryEvaluation.chocolateRadar.acidity'), value: scores.chocolate.flavor.acidity, fullMark: 10 },
+        { subject: t('dashboard.sensoryEvaluation.chocolateRadar.flavorIntensity'), value: scores.chocolate.flavor.flavorIntensity, fullMark: 10 },
+        { subject: t('dashboard.sensoryEvaluation.chocolateRadar.persistence'), value: scores.chocolate.aftertaste.persistence, fullMark: 10 },
+        { subject: t('dashboard.sensoryEvaluation.chocolateRadar.aftertasteQuality'), value: scores.chocolate.aftertaste.aftertasteQuality, fullMark: 10 },
+        { subject: t('dashboard.sensoryEvaluation.chocolateRadar.finalBalance'), value: scores.chocolate.aftertaste.finalBalance, fullMark: 10 },
       ];
     } else {
       // For cocoa bean/liquor evaluation, use original attributes
@@ -870,40 +870,40 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
                 <div>• Caramel/Panela: {scores.caramelPanela.toFixed(1)}</div>
               </div>
               <div className="mt-2 text-sm text-green-700 dark:text-green-300">
-                Average: {([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9).toFixed(2)} × 4
+                {t('dashboard.sensoryEvaluation.scoring.average', { value: ([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9).toFixed(2) })}
               </div>
             </div>
 
             {/* Defect Penalty */}
             <div className="bg-red-50 dark:bg-red-950/20 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold text-red-800 dark:text-red-200">Defect Penalty</span>
+                <span className="font-semibold text-red-800 dark:text-red-200">{t('dashboard.sensoryEvaluation.scoring.defectPenalty')}</span>
                 <span className="text-lg font-bold text-red-900 dark:text-red-100">
-                  {scores.defectsTotal >= 7 ? 'DISQUALIFIED' : 
+                  {scores.defectsTotal >= 7 ? t('dashboard.sensoryEvaluation.scoring.disqualified') : 
                    scores.defectsTotal >= 3 ? `-${((scores.defectsTotal / 10) * ((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.roastDegree * 0.15) + ([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9))).toFixed(2)}` :
                    '0.00'}
                 </span>
               </div>
               <div className="text-sm text-red-700 dark:text-red-300">
-                Total Defects: {scores.defectsTotal.toFixed(1)}/10
-                {scores.defectsTotal >= 7 && <span className="ml-2 font-bold">(≥7: Auto-disqualification)</span>}
-                {scores.defectsTotal >= 3 && scores.defectsTotal < 7 && <span className="ml-2">(3-6: Proportional penalty)</span>}
-                {scores.defectsTotal < 3 && <span className="ml-2">({"<"}3: No penalty)</span>}
+                {t('dashboard.sensoryEvaluation.scoring.totalDefects', { value: scores.defectsTotal.toFixed(1) })}
+                {scores.defectsTotal >= 7 && <span className="ml-2 font-bold">{t('dashboard.sensoryEvaluation.scoring.autoDisqualification')}</span>}
+                {scores.defectsTotal >= 3 && scores.defectsTotal < 7 && <span className="ml-2">{t('dashboard.sensoryEvaluation.scoring.proportionalPenalty')}</span>}
+                {scores.defectsTotal < 3 && <span className="ml-2">{t('dashboard.sensoryEvaluation.scoring.noPenalty')}</span>}
               </div>
             </div>
 
             {/* Final Score */}
             <div className="bg-purple-100 dark:bg-purple-900/30 rounded-lg p-4 border-2 border-purple-500">
               <div className="flex items-center justify-between">
-                <span className="text-lg font-bold text-purple-900 dark:text-purple-100">FINAL SCORE</span>
+                <span className="text-lg font-bold text-purple-900 dark:text-purple-100">{t('dashboard.sensoryEvaluation.scoring.finalScore')}</span>
                 <span className="text-2xl font-bold text-purple-900 dark:text-purple-100">
                   {overallQuality.toFixed(2)}/10
                 </span>
               </div>
               <div className="mt-2 text-sm text-purple-700 dark:text-purple-300">
                 {scores.defectsTotal >= 7 ? 
-                  'Sample disqualified due to excessive defects (≥7 points)' :
-                  `Main 0.6 × (${((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.roastDegree * 0.15)).toFixed(2)}) + Complementary 0.4 × (${(([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9)).toFixed(2)})${scores.defectsTotal >= 3 ? ` - Penalty (${((scores.defectsTotal / 10) * ((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.roastDegree * 0.15) + ([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9))).toFixed(2)})` : ''}`
+                  t('dashboard.sensoryEvaluation.scoring.disqualificationMessage') :
+                  `${t('dashboard.sensoryEvaluation.scoring.mainScore', { weight: '0.6', score: ((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.roastDegree * 0.15)).toFixed(2) })} + ${t('dashboard.sensoryEvaluation.scoring.complementaryScore', { weight: '0.4', score: (([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9)).toFixed(2) })}${scores.defectsTotal >= 3 ? ` - ${t('dashboard.sensoryEvaluation.scoring.penalty', { value: ((scores.defectsTotal / 10) * ((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.roastDegree * 0.15) + ([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9))).toFixed(2) })}` : ''}`
                 }
               </div>
             </div>
@@ -916,7 +916,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
         <Card className="border-2 border-purple-200 dark:border-purple-800">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span>Score Breakdown</span>
+              <span>{t('dashboard.sensoryEvaluation.scoring.scoreBreakdown')}</span>
             </CardTitle>
             <CardDescription>Detailed calculation of the final score</CardDescription>
           </CardHeader>
@@ -1122,11 +1122,11 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
               <CardDescription>{t('dashboard.sensoryEvaluation.intensityScale.description')}</CardDescription>
             </div>
             <div className="min-w-[220px]">
-              <label className="block text-xs text-muted-foreground mb-1">Sample Category</label>
+              <label className="block text-xs text-muted-foreground mb-1">{t('dashboard.sensoryEvaluation.intensityScale.sampleCategory')}</label>
               <div className="w-full border rounded px-3 py-2 bg-gray-50 text-gray-700">
-                {category === 'cocoa_bean' ? 'Cocoa Bean' : 
-                 category === 'cocoa_liquor' ? 'Cocoa Liquor/Mass' : 
-                 category === 'chocolate' ? 'Chocolate' : 'Unknown'}
+                {category === 'cocoa_bean' ? t('dashboard.sensoryEvaluation.intensityScale.sampleTypes.cocoaBean') : 
+                 category === 'cocoa_liquor' ? t('dashboard.sensoryEvaluation.intensityScale.sampleTypes.cocoaLiquor') : 
+                 category === 'chocolate' ? t('dashboard.sensoryEvaluation.intensityScale.sampleTypes.chocolate') : t('dashboard.sensoryEvaluation.intensityScale.sampleTypes.unknown')}
               </div>
             </div>
           </div>

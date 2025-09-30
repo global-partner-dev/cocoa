@@ -712,9 +712,16 @@
         "title": "Escala de Intensidad",
         "description": "Ingresa la intensidad de cada atributo (0–10). Los valores con estrella son calculados.",
         "evaluationType": "Tipo de Evaluación",
+        "sampleCategory": "Categoría de Muestra",
         "types": {
           "cocoaMass": "Masa de Cacao",
           "chocolate": "Chocolate"
+        },
+        "sampleTypes": {
+          "cocoaBean": "Grano de Cacao",
+          "cocoaLiquor": "Licor/Masa de Cacao",
+          "chocolate": "Chocolate",
+          "unknown": "Desconocido"
         },
         "attributes": {
           "cacao": "Cacao",
@@ -865,6 +872,38 @@
           "other": "Otro"
         },
         "otherReasonPlaceholder": "Especificar otra razón"
+      },
+      "scoring": {
+        "defectPenalty": "Penalización por Defectos",
+        "disqualified": "DESCALIFICADO",
+        "finalScore": "PUNTUACIÓN FINAL",
+        "scoreBreakdown": "Desglose de Puntuación",
+        "disqualificationMessage": "Muestra descalificada debido a defectos excesivos (≥7 puntos)",
+        "totalDefects": "Defectos Totales: {{value}}/10",
+        "autoDisqualification": "(≥7: Descalificación automática)",
+        "proportionalPenalty": "(3-6: Penalización proporcional)",
+        "noPenalty": "(<3: Sin penalización)",
+        "mainScore": "Principal {{weight}} × ({{score}})",
+        "complementaryScore": "Complementario {{weight}} × ({{score}})",
+        "penalty": "Penalización ({{value}})",
+        "average": "Promedio: {{value}} × 4"
+      },
+      "chocolateRadar": {
+        "color": "Color",
+        "gloss": "Brillo",
+        "surface": "Superficie",
+        "aromaIntensity": "Intensidad del Aroma",
+        "aromaQuality": "Calidad del Aroma",
+        "smoothness": "Suavidad",
+        "melting": "Fusión",
+        "body": "Cuerpo",
+        "sweetness": "Dulzura",
+        "bitterness": "Amargor",
+        "acidity": "Acidez",
+        "flavorIntensity": "Intensidad del Sabor",
+        "persistence": "Persistencia",
+        "aftertasteQuality": "Calidad del Retrogusto",
+        "finalBalance": "Balance Final"
       },
       "actions": {
         "cancel": "Cancelar",
