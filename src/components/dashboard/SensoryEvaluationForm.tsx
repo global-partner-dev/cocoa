@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip as ReTooltip } from "recharts";
 import { useTranslation } from "react-i18next";
 
@@ -270,13 +271,14 @@ const getDisqOptions = (t: any) => [
 
 const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefaults, initialData, referenceImageUrl, category, onCancel, onSubmit }) => {
   const { t } = useTranslation();
+  const [selectedCategory, setSelectedCategory] = useState<'cocoa_bean' | 'cocoa_liquor' | 'chocolate'>(category || 'cocoa_bean');
   const [meta, setMeta] = useState<SensoryMeta>({
     evaluationDate: new Date().toISOString().slice(0, 10),
     evaluationTime: new Date().toISOString().slice(11, 16),
     ...metaDefaults,
     ...(initialData?.meta || {}),
-    // Set evaluationType based on category prop, mapping cocoa_liquor to cocoa_mass for backward compatibility
-    evaluationType: category === 'cocoa_liquor' ? 'cocoa_mass' : (category === 'chocolate' ? 'chocolate' : 'cocoa_mass'),
+    // Set evaluationType based on selectedCategory, mapping cocoa_liquor to cocoa_mass for backward compatibility
+    evaluationType: selectedCategory === 'cocoa_liquor' ? 'cocoa_mass' : (selectedCategory === 'chocolate' ? 'chocolate' : 'cocoa_mass'),
   });
   const [scores, setScores] = useState<SensoryScores>(() => {
     if (!initialData?.scores) {
@@ -382,9 +384,9 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
     const defectsSum = (scores.defects.dirty + scores.defects.animal + scores.defects.rotten + scores.defects.smoke + scores.defects.humid + scores.defects.moldy + scores.defects.overfermented + scores.defects.other);
     const defectNormalized = defectsSum / 8; // 0–10 scale normalization
     const penalty = defectNormalized * 0.3;
-    const chocolateBonus = category === 'chocolate' && typeof scores.sweetness === 'number' ? (scores.sweetness - 5) * 0.05 : 0;
+    const chocolateBonus = selectedCategory === 'chocolate' && typeof scores.sweetness === 'number' ? (scores.sweetness - 5) * 0.05 : 0;
     return clamp01(base - penalty + chocolateBonus);
-  }, [scores, category]);
+  }, [scores, selectedCategory]);
 
   const radarData = useMemo(() => {
     const labelMap = getLabelMap(t);
@@ -524,11 +526,22 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
             </div>
             <div className="min-w-[220px]">
               <label className="block text-xs text-muted-foreground mb-1">Sample Category</label>
-              <div className="w-full border rounded px-3 py-2 bg-gray-50 text-gray-700">
-                {category === 'cocoa_bean' ? 'Cocoa Bean' : 
-                 category === 'cocoa_liquor' ? 'Cocoa Liquor/Mass' : 
-                 category === 'chocolate' ? 'Chocolate' : 'Unknown'}
-              </div>
+              <Select value={selectedCategory} onValueChange={(value: 'cocoa_bean' | 'cocoa_liquor' | 'chocolate') => {
+                setSelectedCategory(value);
+                setMeta(prev => ({
+                  ...prev,
+                  evaluationType: value === 'cocoa_liquor' ? 'cocoa_mass' : (value === 'chocolate' ? 'chocolate' : 'cocoa_mass')
+                }));
+              }}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cocoa_bean">Cocoa Bean</SelectItem>
+                  <SelectItem value="cocoa_liquor">Cocoa Liquor/Mass</SelectItem>
+                  <SelectItem value="chocolate">Chocolate</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardHeader>
@@ -659,7 +672,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
           </div>
 
           {/* Sweetness only for chocolate */}
-          {category === 'chocolate' && (
+          {selectedCategory === 'chocolate' && (
             <div>
               <Separator className="my-4" />
               <label className="text-xs text-muted-foreground">{t('dashboard.sensoryEvaluation.intensityScale.directAttributes.sweetnessNote')}</label>
