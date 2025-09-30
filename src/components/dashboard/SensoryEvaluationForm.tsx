@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip as ReTooltip } from "recharts";
 import { useTranslation } from "react-i18next";
+import { calculateChocolateOverallScore } from "@/lib/chocolateScoringUtils";
 
 // Types for the demo
 export interface SensoryMeta {
@@ -492,39 +493,10 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
   // NEW SCORING SYSTEM: Weighted scoring with defect penalties
   const overallQuality = useMemo(() => {
     if (selectedCategory === 'chocolate' && scores.chocolate) {
-      // For chocolate evaluation, calculate based on chocolate-specific attributes
-      const chocolateScores = [
-        // Appearance (3 attributes)
-        scores.chocolate.appearance.color,
-        scores.chocolate.appearance.gloss,
-        scores.chocolate.appearance.surfaceHomogeneity,
-        // Aroma (2 main attributes)
-        scores.chocolate.aroma.aromaIntensity,
-        scores.chocolate.aroma.aromaQuality,
-        // Texture (3 attributes)
-        scores.chocolate.texture.smoothness,
-        scores.chocolate.texture.melting,
-        scores.chocolate.texture.body,
-        // Flavor (4 main attributes)
-        scores.chocolate.flavor.sweetness,
-        scores.chocolate.flavor.bitterness,
-        scores.chocolate.flavor.acidity,
-        scores.chocolate.flavor.flavorIntensity,
-        // Aftertaste (3 attributes)
-        scores.chocolate.aftertaste.persistence,
-        scores.chocolate.aftertaste.aftertasteQuality,
-        scores.chocolate.aftertaste.finalBalance,
-      ];
-      
-      // Calculate average of all chocolate attributes
-      const base = chocolateScores.reduce((a, b) => a + b, 0) / chocolateScores.length;
-      
-      // Add bonus for specific notes and flavor notes (optional enhancement)
-      const aromaNotesAvg = Object.values(scores.chocolate.aroma.specificNotes).reduce((a, b) => a + b, 0) / 8;
-      const flavorNotesAvg = Object.values(scores.chocolate.flavor.flavorNotes).reduce((a, b) => a + b, 0) / 7;
-      const notesBonus = (aromaNotesAvg + flavorNotesAvg) * 0.1; // Small bonus for complexity
-      
-      return clamp01(base + notesBonus);
+      // NEW CHOCOLATE SCORING METHOD (Weighted by Category)
+      // Uses the standardized chocolate scoring utility
+      // Formula: (Flavor × 0.40) + (Aroma × 0.25) + (Texture × 0.20) + (Aftertaste × 0.10) + (Appearance × 0.05)
+      return calculateChocolateOverallScore(scores.chocolate);
     } else {
       // NEW SCORING FORMULA for cocoa bean/liquor:
       // TOTAL_SCORE = (MAIN_ATTRIBUTES_SCORE × 0.60) + (COMPLEMENTARY_ATTRIBUTES_SCORE × 0.40) − DEFECT_PENALTY
@@ -817,25 +789,6 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
                   'Sample disqualified due to excessive defects (≥7 points)' :
                   `Main 0.6 × (${((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.roastDegree * 0.15)).toFixed(2)}) + Complementary 0.4 × (${(([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9)).toFixed(2)})${scores.defectsTotal >= 3 ? ` - Penalty (${((scores.defectsTotal / 10) * ((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.roastDegree * 0.15) + ([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9))).toFixed(2)})` : ''}`
                 }
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="mt-4">
-              <div className="flex items-center justify-between mb-1 text-sm">
-                <span>Score Progress</span>
-                <span>{(overallQuality * 10).toFixed(0)}%</span>
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
-                <div 
-                  className={`h-full transition-all duration-300 ${
-                    overallQuality >= 8 ? 'bg-green-500' :
-                    overallQuality >= 6 ? 'bg-yellow-500' :
-                    overallQuality >= 4 ? 'bg-orange-500' :
-                    'bg-red-500'
-                  }`}
-                  style={{ width: `${Math.min(overallQuality * 10, 100)}%` }}
-                />
               </div>
             </div>
           </CardContent>
