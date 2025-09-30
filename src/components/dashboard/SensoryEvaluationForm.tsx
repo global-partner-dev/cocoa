@@ -526,22 +526,11 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
             </div>
             <div className="min-w-[220px]">
               <label className="block text-xs text-muted-foreground mb-1">Sample Category</label>
-              <Select value={selectedCategory} onValueChange={(value: 'cocoa_bean' | 'cocoa_liquor' | 'chocolate') => {
-                setSelectedCategory(value);
-                setMeta(prev => ({
-                  ...prev,
-                  evaluationType: value === 'cocoa_liquor' ? 'cocoa_mass' : (value === 'chocolate' ? 'chocolate' : 'cocoa_mass')
-                }));
-              }}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="cocoa_bean">Cocoa Bean</SelectItem>
-                  <SelectItem value="cocoa_liquor">Cocoa Liquor/Mass</SelectItem>
-                  <SelectItem value="chocolate">Chocolate</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="w-full border rounded px-3 py-2 bg-gray-50 text-gray-700">
+                {category === 'cocoa_bean' ? 'Cocoa Bean' : 
+                 category === 'cocoa_liquor' ? 'Cocoa Liquor/Mass' : 
+                 category === 'chocolate' ? 'Chocolate' : 'Unknown'}
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -576,7 +565,8 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
 
           <Separator className="my-2" />
 
-          <div className="grid md:grid-cols-2 gap-6">
+          {category === 'cocoa_liquor' && (
+            <div className="grid md:grid-cols-2 gap-6">
               {/* Typical Odors */}
               <div className="space-y-3">
                 <div className="font-medium text-green-700 flex items-center gap-2">
@@ -616,7 +606,8 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
                 <CheckboxRow label="Fuel (gasoline, diesel)" checked={scores.atypicalOdors?.fuelGasolineDiesel || false} onChange={(v) => updateOdor('atypicalOdors', 'fuelGasolineDiesel', v)} />
                 <CheckboxRow label="Industrial solvents (paint, glue, thinner)" checked={scores.atypicalOdors?.industrialSolvents || false} onChange={(v) => updateOdor('atypicalOdors', 'industrialSolvents', v)} />
               </div>
-          </div>
+            </div>
+          )}
           
           <Separator className="my-2" />
           {/* Sub-attributes that feed the totals (exact per your schema) */}
