@@ -232,6 +232,9 @@ const JudgeDashboard = () => {
             sweetness: result.data.sweetness,
             textureNotes: result.data.textureNotes,
             overallQuality: result.data.overallQuality,
+            chocolate: result.data.chocolateData,
+            typicalOdors: result.data.typicalOdors,
+            atypicalOdors: result.data.atypicalOdors,
           },
           comments: {
             flavorComments: result.data.flavorComments,
