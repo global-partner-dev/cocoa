@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,13 +19,13 @@ export interface SensoryMeta {
 }
 
 export interface SensoryScores {
-  // Single-value attributes (0-10)
+  // Single-value attributes (0-10) - for cocoa bean/liquor
   cacao: number; // Cacao
   bitterness: number; // Bitterness
   astringency: number; // Astringency
   caramelPanela: number; // Caramel / Panela (simple value)
 
-  // Calculated group totals (0-10)
+  // Calculated group totals (0-10) - for cocoa bean/liquor
   acidityTotal: number; // Acidity (Total) = avg(frutal, acetic, lactic, mineralButyric)
   freshFruitTotal: number; // Fresh Fruit (Total) = avg(berries, citrus, yellowPulp, dark, tropical)
   brownFruitTotal: number; // Brown Fruit (Total) = avg(dry, brown, overripe)
@@ -37,7 +37,7 @@ export interface SensoryScores {
   roastDegree: number; // Roast Degree (simple value)
   defectsTotal: number; // Defects (Total) = sum of all defects
 
-  // Sub-attributes used to compute totals (0-10)
+  // Sub-attributes used to compute totals (0-10) - for cocoa bean/liquor
   acidity: { frutal: number; acetic: number; lactic: number; mineralButyric: number };
   freshFruit: { berries: number; citrus: number; yellowPulp: number; dark: number; tropical: number };
   brownFruit: { dry: number; brown: number; overripe: number };
@@ -47,7 +47,7 @@ export interface SensoryScores {
   spice: { spices: number; tobacco: number; umami: number };
   nut: { kernel: number; skin: number };
 
-  // Defects (0-10)
+  // Defects (0-10) - for cocoa bean/liquor
   defects: {
     dirty: number; animal: number; rotten: number; smoke: number; humid: number; moldy: number; overfermented: number; other: number;
   };
@@ -82,7 +82,60 @@ export interface SensoryScores {
     industrialSolvents: boolean;
   };
   
-  // Additional (chocolate evaluation)
+  // Chocolate-specific evaluation attributes
+  chocolate?: {
+    // 1 Appearance
+    appearance: {
+      color: number; // 0-10
+      gloss: number; // 0-10
+      surfaceHomogeneity: number; // 0-10
+    };
+    // 2 Aroma
+    aroma: {
+      aromaIntensity: number; // 0-10
+      aromaQuality: number; // 0-10
+      specificNotes: {
+        floral: number; // 0-10
+        fruity: number; // 0-10
+        toasted: number; // 0-10
+        hazelnut: number; // 0-10
+        earthy: number; // 0-10
+        spicy: number; // 0-10
+        milky: number; // 0-10
+        woody: number; // 0-10
+      };
+    };
+    // 3 Texture
+    texture: {
+      smoothness: number; // 0-10
+      melting: number; // 0-10
+      body: number; // 0-10
+    };
+    // 4 Flavor
+    flavor: {
+      sweetness: number; // 0-10
+      bitterness: number; // 0-10
+      acidity: number; // 0-10
+      flavorIntensity: number; // 0-10
+      flavorNotes: {
+        citrus: number; // 0-10
+        redFruits: number; // 0-10
+        nuts: number; // 0-10
+        caramel: number; // 0-10
+        malt: number; // 0-10
+        wood: number; // 0-10
+        spices: number; // 0-10
+      };
+    };
+    // 5 Aftertaste
+    aftertaste: {
+      persistence: number; // 0-10
+      aftertasteQuality: number; // 0-10
+      finalBalance: number; // 0-10
+    };
+  };
+  
+  // Legacy chocolate attributes (for backward compatibility)
   sweetness?: number; // Sweetness (chocolate only)
   textureNotes?: string;
   // Aggregates
@@ -137,6 +190,52 @@ const defaultScores: SensoryScores = {
   atypicalOdors: {
     excessFermentation: false, moldDamp: false, earthClay: false, intenseSmokeOrBurnt: false, rancidOxidized: false, medicinalChemical: false,
     animalLeather: false, soapDetergent: false, pronouncedTannicNote: false, sulfurousRottenEgg: false, fuelGasolineDiesel: false, industrialSolvents: false
+  },
+  chocolate: {
+    appearance: {
+      color: 0,
+      gloss: 0,
+      surfaceHomogeneity: 0,
+    },
+    aroma: {
+      aromaIntensity: 0,
+      aromaQuality: 0,
+      specificNotes: {
+        floral: 0,
+        fruity: 0,
+        toasted: 0,
+        hazelnut: 0,
+        earthy: 0,
+        spicy: 0,
+        milky: 0,
+        woody: 0,
+      },
+    },
+    texture: {
+      smoothness: 0,
+      melting: 0,
+      body: 0,
+    },
+    flavor: {
+      sweetness: 0,
+      bitterness: 0,
+      acidity: 0,
+      flavorIntensity: 0,
+      flavorNotes: {
+        citrus: 0,
+        redFruits: 0,
+        nuts: 0,
+        caramel: 0,
+        malt: 0,
+        wood: 0,
+        spices: 0,
+      },
+    },
+    aftertaste: {
+      persistence: 0,
+      aftertasteQuality: 0,
+      finalBalance: 0,
+    },
   },
   sweetness: 0,
   textureNotes: "",
@@ -300,6 +399,21 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
       defects: { ...defaultScores.defects, ...(initialData.scores.defects || {}) },
       typicalOdors: { ...defaultScores.typicalOdors, ...(initialData.scores.typicalOdors || {}) },
       atypicalOdors: { ...defaultScores.atypicalOdors, ...(initialData.scores.atypicalOdors || {}) },
+      chocolate: initialData.scores.chocolate ? {
+        appearance: { ...defaultScores.chocolate!.appearance, ...(initialData.scores.chocolate.appearance || {}) },
+        aroma: {
+          ...defaultScores.chocolate!.aroma,
+          ...(initialData.scores.chocolate.aroma || {}),
+          specificNotes: { ...defaultScores.chocolate!.aroma.specificNotes, ...(initialData.scores.chocolate.aroma?.specificNotes || {}) }
+        },
+        texture: { ...defaultScores.chocolate!.texture, ...(initialData.scores.chocolate.texture || {}) },
+        flavor: {
+          ...defaultScores.chocolate!.flavor,
+          ...(initialData.scores.chocolate.flavor || {}),
+          flavorNotes: { ...defaultScores.chocolate!.flavor.flavorNotes, ...(initialData.scores.chocolate.flavor?.flavorNotes || {}) }
+        },
+        aftertaste: { ...defaultScores.chocolate!.aftertaste, ...(initialData.scores.chocolate.aftertaste || {}) },
+      } : defaultScores.chocolate,
     };
   });
 
@@ -362,36 +476,104 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
   const [verdict, setVerdict] = useState<SensoryVerdict>(initialData?.verdict || { result: 'Approved', reasons: [] });
   const [submitted, setSubmitted] = useState(false);
 
+  // Initialize chocolate structure when chocolate category is selected
+  useEffect(() => {
+    if (selectedCategory === 'chocolate' && !scores.chocolate) {
+      setScores(prev => ({
+        ...prev,
+        chocolate: { ...defaultScores.chocolate! }
+      }));
+    }
+  }, [selectedCategory, scores.chocolate]);
+
   // Derived overall quality: average of positive attributes minus mild penalty for defects
   const overallQuality = useMemo(() => {
-    // Average of totals + single-value attributes; light penalty for defects
-    const positives = [
-      scores.cacao,
-      scores.bitterness,
-      scores.astringency,
-      scores.caramelPanela,
-      scores.acidityTotal,
-      scores.freshFruitTotal,
-      scores.brownFruitTotal,
-      scores.vegetalTotal,
-      scores.floralTotal,
-      scores.woodTotal,
-      scores.spiceTotal,
-      scores.nutTotal,
-    ];
-    const base = positives.reduce((a, b) => a + b, 0) / positives.length;
-    // Defects total is a SUM (not average). Normalize (divide by 8) to keep 0–10 scale impact, then apply penalty factor
-    const defectsSum = (scores.defects.dirty + scores.defects.animal + scores.defects.rotten + scores.defects.smoke + scores.defects.humid + scores.defects.moldy + scores.defects.overfermented + scores.defects.other);
-    const defectNormalized = defectsSum / 8; // 0–10 scale normalization
-    const penalty = defectNormalized * 0.3;
-    const chocolateBonus = selectedCategory === 'chocolate' && typeof scores.sweetness === 'number' ? (scores.sweetness - 5) * 0.05 : 0;
-    return clamp01(base - penalty + chocolateBonus);
+    if (selectedCategory === 'chocolate' && scores.chocolate) {
+      // For chocolate evaluation, calculate based on chocolate-specific attributes
+      const chocolateScores = [
+        // Appearance (3 attributes)
+        scores.chocolate.appearance.color,
+        scores.chocolate.appearance.gloss,
+        scores.chocolate.appearance.surfaceHomogeneity,
+        // Aroma (2 main attributes)
+        scores.chocolate.aroma.aromaIntensity,
+        scores.chocolate.aroma.aromaQuality,
+        // Texture (3 attributes)
+        scores.chocolate.texture.smoothness,
+        scores.chocolate.texture.melting,
+        scores.chocolate.texture.body,
+        // Flavor (4 main attributes)
+        scores.chocolate.flavor.sweetness,
+        scores.chocolate.flavor.bitterness,
+        scores.chocolate.flavor.acidity,
+        scores.chocolate.flavor.flavorIntensity,
+        // Aftertaste (3 attributes)
+        scores.chocolate.aftertaste.persistence,
+        scores.chocolate.aftertaste.aftertasteQuality,
+        scores.chocolate.aftertaste.finalBalance,
+      ];
+      
+      // Calculate average of all chocolate attributes
+      const base = chocolateScores.reduce((a, b) => a + b, 0) / chocolateScores.length;
+      
+      // Add bonus for specific notes and flavor notes (optional enhancement)
+      const aromaNotesAvg = Object.values(scores.chocolate.aroma.specificNotes).reduce((a, b) => a + b, 0) / 8;
+      const flavorNotesAvg = Object.values(scores.chocolate.flavor.flavorNotes).reduce((a, b) => a + b, 0) / 7;
+      const notesBonus = (aromaNotesAvg + flavorNotesAvg) * 0.1; // Small bonus for complexity
+      
+      return clamp01(base + notesBonus);
+    } else {
+      // For cocoa bean/liquor evaluation, use original calculation
+      const positives = [
+        scores.cacao,
+        scores.bitterness,
+        scores.astringency,
+        scores.caramelPanela,
+        scores.acidityTotal,
+        scores.freshFruitTotal,
+        scores.brownFruitTotal,
+        scores.vegetalTotal,
+        scores.floralTotal,
+        scores.woodTotal,
+        scores.spiceTotal,
+        scores.nutTotal,
+      ];
+      const base = positives.reduce((a, b) => a + b, 0) / positives.length;
+      // Defects total is a SUM (not average). Normalize (divide by 8) to keep 0–10 scale impact, then apply penalty factor
+      const defectsSum = (scores.defects.dirty + scores.defects.animal + scores.defects.rotten + scores.defects.smoke + scores.defects.humid + scores.defects.moldy + scores.defects.overfermented + scores.defects.other);
+      const defectNormalized = defectsSum / 8; // 0–10 scale normalization
+      const penalty = defectNormalized * 0.3;
+      const chocolateBonus = selectedCategory === 'chocolate' && typeof scores.sweetness === 'number' ? (scores.sweetness - 5) * 0.05 : 0;
+      return clamp01(base - penalty + chocolateBonus);
+    }
   }, [scores, selectedCategory]);
 
   const radarData = useMemo(() => {
-    const labelMap = getLabelMap(t);
-    return labelMap.map(({ key, label }) => ({ subject: label, value: scores[key] as number, fullMark: 10 }));
-  }, [scores, t]);
+    if (selectedCategory === 'chocolate' && scores.chocolate) {
+      // For chocolate evaluation, show chocolate-specific attributes
+      return [
+        { subject: 'Color', value: scores.chocolate.appearance.color, fullMark: 10 },
+        { subject: 'Gloss', value: scores.chocolate.appearance.gloss, fullMark: 10 },
+        { subject: 'Surface', value: scores.chocolate.appearance.surfaceHomogeneity, fullMark: 10 },
+        { subject: 'Aroma Intensity', value: scores.chocolate.aroma.aromaIntensity, fullMark: 10 },
+        { subject: 'Aroma Quality', value: scores.chocolate.aroma.aromaQuality, fullMark: 10 },
+        { subject: 'Smoothness', value: scores.chocolate.texture.smoothness, fullMark: 10 },
+        { subject: 'Melting', value: scores.chocolate.texture.melting, fullMark: 10 },
+        { subject: 'Body', value: scores.chocolate.texture.body, fullMark: 10 },
+        { subject: 'Sweetness', value: scores.chocolate.flavor.sweetness, fullMark: 10 },
+        { subject: 'Bitterness', value: scores.chocolate.flavor.bitterness, fullMark: 10 },
+        { subject: 'Acidity', value: scores.chocolate.flavor.acidity, fullMark: 10 },
+        { subject: 'Flavor Intensity', value: scores.chocolate.flavor.flavorIntensity, fullMark: 10 },
+        { subject: 'Persistence', value: scores.chocolate.aftertaste.persistence, fullMark: 10 },
+        { subject: 'Aftertaste Quality', value: scores.chocolate.aftertaste.aftertasteQuality, fullMark: 10 },
+        { subject: 'Final Balance', value: scores.chocolate.aftertaste.finalBalance, fullMark: 10 },
+      ];
+    } else {
+      // For cocoa bean/liquor evaluation, use original attributes
+      const labelMap = getLabelMap(t);
+      return labelMap.map(({ key, label }) => ({ subject: label, value: scores[key] as number, fullMark: 10 }));
+    }
+  }, [scores, t, selectedCategory]);
 
   // Helper to set numeric top-level score keys safely
   const setNumeric = (k: NumericScoreKey, v: number) => {
@@ -428,6 +610,32 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
       const next = { ...prev } as SensoryScores;
       next.defects[key] = clamp01(value);
       return recalcTotals(next);
+    });
+  };
+
+  // Handler to update chocolate attributes
+  const updateChocolateAttribute = (section: keyof NonNullable<SensoryScores['chocolate']>, key: string, value: number) => {
+    setScores(prev => {
+      const next = { ...prev } as SensoryScores;
+      if (!next.chocolate) {
+        next.chocolate = { ...defaultScores.chocolate! };
+      }
+      
+      const sectionData = next.chocolate[section] as any;
+      if (typeof sectionData === 'object' && sectionData !== null) {
+        if (key.includes('.')) {
+          // Handle nested attributes like specificNotes.floral
+          const [subSection, subKey] = key.split('.');
+          if (!sectionData[subSection]) {
+            sectionData[subSection] = {};
+          }
+          sectionData[subSection][subKey] = clamp01(value);
+        } else {
+          sectionData[key] = clamp01(value);
+        }
+      }
+      
+      return next;
     });
   };
 
@@ -535,33 +743,38 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Categorized attributes with visual differentiation */}
-          <div className="space-y-4">
-            <div className="text-sm text-muted-foreground mb-4">
-              <div className="flex flex-wrap gap-4 text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="text-blue-600">★</span>
-                  <span>{t('dashboard.sensoryEvaluation.intensityScale.categories.main')}</span>
+          {/* Show cocoa-specific evaluation for cocoa bean/liquor */}
+          {selectedCategory !== 'chocolate' && (
+            <>
+              {/* Categorized attributes with visual differentiation */}
+              <div className="space-y-4">
+                <div className="text-sm text-muted-foreground mb-4">
+                  <div className="flex flex-wrap gap-4 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-600">★</span>
+                      <span>{t('dashboard.sensoryEvaluation.intensityScale.categories.main')}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-600">◆</span>
+                      <span>{t('dashboard.sensoryEvaluation.intensityScale.categories.complementary')}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-red-600">⚠</span>
+                      <span>{t('dashboard.sensoryEvaluation.intensityScale.categories.defects')}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-green-600">◆</span>
-                  <span>{t('dashboard.sensoryEvaluation.intensityScale.categories.complementary')}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-red-600">⚠</span>
-                  <span>{t('dashboard.sensoryEvaluation.intensityScale.categories.defects')}</span>
-                </div>
+                {getLabelMap(t).map((attribute) => (
+                  <CategorizedSliderRow 
+                    key={attribute.key} 
+                    attribute={attribute} 
+                    value={scores[attribute.key] as number} 
+                    onChange={(v) => setNumeric(attribute.key, v)} 
+                  />
+                ))}
               </div>
-            </div>
-            {getLabelMap(t).map((attribute) => (
-              <CategorizedSliderRow 
-                key={attribute.key} 
-                attribute={attribute} 
-                value={scores[attribute.key] as number} 
-                onChange={(v) => setNumeric(attribute.key, v)} 
-              />
-            ))}
-          </div>
+            </>
+          )}
 
           <Separator className="my-2" />
 
@@ -609,9 +822,11 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
             </div>
           )}
           
-          <Separator className="my-2" />
-          {/* Sub-attributes that feed the totals (exact per your schema) */}
-          <div className="grid md:grid-cols-2 gap-6">
+          {selectedCategory !== 'chocolate' && (
+            <>
+              <Separator className="my-2" />
+              {/* Sub-attributes that feed the totals (exact per your schema) */}
+              <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <div className="font-medium">{t('dashboard.sensoryEvaluation.intensityScale.subAttributes.acidity')}</div>
               <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.fruity')} value={scores.acidity.frutal} onChange={(v) => updateSub('acidity', 'frutal', v)} />
@@ -659,11 +874,258 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
               <div className="font-medium">{t('dashboard.sensoryEvaluation.intensityScale.subAttributes.nut')}</div>
               <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.kernel')} value={scores.nut.kernel} onChange={(v) => updateSub('nut', 'kernel', v)} />
               <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.skin')} value={scores.nut.skin} onChange={(v) => updateSub('nut', 'skin', v)} />
-            </div>
-          </div>
+              </div>
+              </div>
+            </>
+          )}
 
-          {/* Sweetness only for chocolate */}
-          {selectedCategory === 'chocolate' && (
+          {/* Comprehensive Chocolate Evaluation */}
+          {selectedCategory === 'chocolate' && scores.chocolate && (
+            <div>
+              <Separator className="my-6" />
+              <div className="text-lg font-semibold mb-4">Chocolate Sensory Evaluation</div>
+              
+              {/* 1 Appearance */}
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="text-base">1. Appearance</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">Color (0-10)</label>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      0-3.9: Very light / atypical for the type | 4-6.9: Acceptable color but irregular | 7-10: Ideal and characteristic color
+                    </div>
+                    <SliderRow 
+                      label="Color" 
+                      value={scores.chocolate.appearance.color} 
+                      onChange={(v) => updateChocolateAttribute('appearance', 'color', v)} 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Gloss (0-10)</label>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      0-3: Dull / no shine | 4-6.9: Medium shine / patchy | 7-10: Uniform and attractive shine
+                    </div>
+                    <SliderRow 
+                      label="Gloss" 
+                      value={scores.chocolate.appearance.gloss} 
+                      onChange={(v) => updateChocolateAttribute('appearance', 'gloss', v)} 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Surface Homogeneity (0-10)</label>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      0-3.9: Irregular surface / defects | 4-6.9: Acceptable with minor imperfections | 7-10: Perfectly homogeneous
+                    </div>
+                    <SliderRow 
+                      label="Surface Homogeneity" 
+                      value={scores.chocolate.appearance.surfaceHomogeneity} 
+                      onChange={(v) => updateChocolateAttribute('appearance', 'surfaceHomogeneity', v)} 
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 2 Aroma */}
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="text-base">2. Aroma</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">Aroma Intensity (0-10)</label>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      0-3.9: Imperceptible aroma | 4-6.9: Moderate but subtle aroma | 7-10: Intense and enveloping aroma
+                    </div>
+                    <SliderRow 
+                      label="Aroma Intensity" 
+                      value={scores.chocolate.aroma.aromaIntensity} 
+                      onChange={(v) => updateChocolateAttribute('aroma', 'aromaIntensity', v)} 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Aroma Quality (0-10)</label>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      0-3.9: Unpleasant / defective aromas | 4-6.9: Neutral / simple aromas | 7-10: Complex and pleasant aromas
+                    </div>
+                    <SliderRow 
+                      label="Aroma Quality" 
+                      value={scores.chocolate.aroma.aromaQuality} 
+                      onChange={(v) => updateChocolateAttribute('aroma', 'aromaQuality', v)} 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Specific Notes (0-10 each, multiple selection)</label>
+                    <div className="grid md:grid-cols-2 gap-3 mt-2">
+                      <SliderRow label="Floral" value={scores.chocolate.aroma.specificNotes.floral} onChange={(v) => updateChocolateAttribute('aroma', 'specificNotes.floral', v)} />
+                      <SliderRow label="Fruity" value={scores.chocolate.aroma.specificNotes.fruity} onChange={(v) => updateChocolateAttribute('aroma', 'specificNotes.fruity', v)} />
+                      <SliderRow label="Toasted" value={scores.chocolate.aroma.specificNotes.toasted} onChange={(v) => updateChocolateAttribute('aroma', 'specificNotes.toasted', v)} />
+                      <SliderRow label="Hazelnut" value={scores.chocolate.aroma.specificNotes.hazelnut} onChange={(v) => updateChocolateAttribute('aroma', 'specificNotes.hazelnut', v)} />
+                      <SliderRow label="Earthy" value={scores.chocolate.aroma.specificNotes.earthy} onChange={(v) => updateChocolateAttribute('aroma', 'specificNotes.earthy', v)} />
+                      <SliderRow label="Spicy" value={scores.chocolate.aroma.specificNotes.spicy} onChange={(v) => updateChocolateAttribute('aroma', 'specificNotes.spicy', v)} />
+                      <SliderRow label="Milky" value={scores.chocolate.aroma.specificNotes.milky} onChange={(v) => updateChocolateAttribute('aroma', 'specificNotes.milky', v)} />
+                      <SliderRow label="Woody" value={scores.chocolate.aroma.specificNotes.woody} onChange={(v) => updateChocolateAttribute('aroma', 'specificNotes.woody', v)} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 3 Texture */}
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="text-base">3. Texture</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">Smoothness (0-10)</label>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      0-3.9: Rough / grainy | 4-6.9: Regular texture | 7-10: Silky and smooth
+                    </div>
+                    <SliderRow 
+                      label="Smoothness" 
+                      value={scores.chocolate.texture.smoothness} 
+                      onChange={(v) => updateChocolateAttribute('texture', 'smoothness', v)} 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Melting (0-10)</label>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      0-3.9: Melts too fast / too slow | 4-6.9: Irregular melting | 7-10: Gradual and uniform melting
+                    </div>
+                    <SliderRow 
+                      label="Melting" 
+                      value={scores.chocolate.texture.melting} 
+                      onChange={(v) => updateChocolateAttribute('texture', 'melting', v)} 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Body (0-10)</label>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      0-3.9: Weak / watery body | 4-6.9: Medium body | 7-10: Full and creamy body
+                    </div>
+                    <SliderRow 
+                      label="Body" 
+                      value={scores.chocolate.texture.body} 
+                      onChange={(v) => updateChocolateAttribute('texture', 'body', v)} 
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 4 Flavor */}
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="text-base">4. Flavor</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium">Sweetness (0-10)</label>
+                      <div className="text-xs text-muted-foreground mb-2">
+                        0-3.9: Too sweet / bitter | 4-6.9: Acceptable balance | 7-10: Perfectly balanced sweetness
+                      </div>
+                      <SliderRow 
+                        label="Sweetness" 
+                        value={scores.chocolate.flavor.sweetness} 
+                        onChange={(v) => updateChocolateAttribute('flavor', 'sweetness', v)} 
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Bitterness (0-10)</label>
+                      <div className="text-xs text-muted-foreground mb-2">
+                        0-3.9: Unpleasant bitterness | 4-6.9: Present but acceptable | 7-10: Characteristic and pleasant bitterness
+                      </div>
+                      <SliderRow 
+                        label="Bitterness" 
+                        value={scores.chocolate.flavor.bitterness} 
+                        onChange={(v) => updateChocolateAttribute('flavor', 'bitterness', v)} 
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Acidity (0-10)</label>
+                      <div className="text-xs text-muted-foreground mb-2">
+                        0-3.9: Unbalanced acidity | 5-6.9: Perceptible but not annoying | 7-10: Bright and balanced acidity
+                      </div>
+                      <SliderRow 
+                        label="Acidity" 
+                        value={scores.chocolate.flavor.acidity} 
+                        onChange={(v) => updateChocolateAttribute('flavor', 'acidity', v)} 
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Flavor Intensity (0-10)</label>
+                      <div className="text-xs text-muted-foreground mb-2">
+                        2-3.9: Weak / diluted flavors | 4-6.9: Moderate flavors | 7-10: Intense and defined flavors
+                      </div>
+                      <SliderRow 
+                        label="Flavor Intensity" 
+                        value={scores.chocolate.flavor.flavorIntensity} 
+                        onChange={(v) => updateChocolateAttribute('flavor', 'flavorIntensity', v)} 
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Flavor Notes (0-10 each, multiple selection)</label>
+                    <div className="grid md:grid-cols-2 gap-3 mt-2">
+                      <SliderRow label="Citrus" value={scores.chocolate.flavor.flavorNotes.citrus} onChange={(v) => updateChocolateAttribute('flavor', 'flavorNotes.citrus', v)} />
+                      <SliderRow label="Red Fruits" value={scores.chocolate.flavor.flavorNotes.redFruits} onChange={(v) => updateChocolateAttribute('flavor', 'flavorNotes.redFruits', v)} />
+                      <SliderRow label="Nuts" value={scores.chocolate.flavor.flavorNotes.nuts} onChange={(v) => updateChocolateAttribute('flavor', 'flavorNotes.nuts', v)} />
+                      <SliderRow label="Caramel" value={scores.chocolate.flavor.flavorNotes.caramel} onChange={(v) => updateChocolateAttribute('flavor', 'flavorNotes.caramel', v)} />
+                      <SliderRow label="Malt" value={scores.chocolate.flavor.flavorNotes.malt} onChange={(v) => updateChocolateAttribute('flavor', 'flavorNotes.malt', v)} />
+                      <SliderRow label="Wood" value={scores.chocolate.flavor.flavorNotes.wood} onChange={(v) => updateChocolateAttribute('flavor', 'flavorNotes.wood', v)} />
+                      <SliderRow label="Spices" value={scores.chocolate.flavor.flavorNotes.spices} onChange={(v) => updateChocolateAttribute('flavor', 'flavorNotes.spices', v)} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 5 Aftertaste */}
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="text-base">5. Aftertaste</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">Persistence (0-10)</label>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      0-3.9: Disappears immediately | 4-6.9: Medium persistence (30-60 seconds) | 7-10: Long persistence (+90 seconds)
+                    </div>
+                    <SliderRow 
+                      label="Persistence" 
+                      value={scores.chocolate.aftertaste.persistence} 
+                      onChange={(v) => updateChocolateAttribute('aftertaste', 'persistence', v)} 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Aftertaste Quality (0-10)</label>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      0-3.9: Unpleasant | 4-6.9: Neutral / acceptable | 7-10: Clean and pleasant
+                    </div>
+                    <SliderRow 
+                      label="Aftertaste Quality" 
+                      value={scores.chocolate.aftertaste.aftertasteQuality} 
+                      onChange={(v) => updateChocolateAttribute('aftertaste', 'aftertasteQuality', v)} 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Final Balance (0-10)</label>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      0-3.9: Unbalanced with residual flavors | 4-6.9: Acceptable balance | 7-10: Perfect and harmonious balance
+                    </div>
+                    <SliderRow 
+                      label="Final Balance" 
+                      value={scores.chocolate.aftertaste.finalBalance} 
+                      onChange={(v) => updateChocolateAttribute('aftertaste', 'finalBalance', v)} 
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Legacy sweetness for backward compatibility */}
+          {selectedCategory === 'chocolate' && !scores.chocolate && (
             <div>
               <Separator className="my-4" />
               <label className="text-xs text-muted-foreground">{t('dashboard.sensoryEvaluation.intensityScale.directAttributes.sweetnessNote')}</label>
