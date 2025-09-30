@@ -6,9 +6,11 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip as ReTooltip } from "recharts";
 import { useTranslation } from "react-i18next";
 import { calculateChocolateOverallScore, getChocolateScoringBreakdown } from "@/lib/chocolateScoringUtils";
+import { HelpCircle } from "lucide-react";
 
 // Types for the demo
 export interface SensoryMeta {
@@ -253,6 +255,79 @@ interface AttributeItem {
   category: AttributeCategory;
 }
 
+// Tooltip descriptions for main attributes
+const getAttributeTooltips = (t: any): Record<string, string> => ({
+  cacao: t('dashboard.sensoryEvaluation.tooltips.cacao'),
+  bitterness: t('dashboard.sensoryEvaluation.tooltips.bitterness'),
+  astringency: t('dashboard.sensoryEvaluation.tooltips.astringency'),
+  roastDegree: t('dashboard.sensoryEvaluation.tooltips.roastDegree'),
+  acidityTotal: t('dashboard.sensoryEvaluation.tooltips.acidityTotal'),
+  freshFruitTotal: t('dashboard.sensoryEvaluation.tooltips.freshFruitTotal'),
+  brownFruitTotal: t('dashboard.sensoryEvaluation.tooltips.brownFruitTotal'),
+  vegetalTotal: t('dashboard.sensoryEvaluation.tooltips.vegetalTotal'),
+  floralTotal: t('dashboard.sensoryEvaluation.tooltips.floralTotal'),
+  woodTotal: t('dashboard.sensoryEvaluation.tooltips.woodTotal'),
+  spiceTotal: t('dashboard.sensoryEvaluation.tooltips.spiceTotal'),
+  nutTotal: t('dashboard.sensoryEvaluation.tooltips.nutTotal'),
+  caramelPanela: t('dashboard.sensoryEvaluation.tooltips.caramelPanela'),
+  defectsTotal: t('dashboard.sensoryEvaluation.tooltips.defectsTotal'),
+});
+
+// Tooltip descriptions for sub-attributes
+const getSubAttributeTooltips = (t: any): Record<string, string> => ({
+  // Acidity sub-attributes
+  frutal: t('dashboard.sensoryEvaluation.tooltips.subAttributes.frutal'),
+  acetic: t('dashboard.sensoryEvaluation.tooltips.subAttributes.acetic'),
+  lactic: t('dashboard.sensoryEvaluation.tooltips.subAttributes.lactic'),
+  mineralButyric: t('dashboard.sensoryEvaluation.tooltips.subAttributes.mineralButyric'),
+  
+  // Fresh Fruit sub-attributes
+  berries: t('dashboard.sensoryEvaluation.tooltips.subAttributes.berries'),
+  citrus: t('dashboard.sensoryEvaluation.tooltips.subAttributes.citrus'),
+  darkFruit: t('dashboard.sensoryEvaluation.tooltips.subAttributes.dark'),
+  yellowPulp: t('dashboard.sensoryEvaluation.tooltips.subAttributes.yellowPulp'),
+  tropical: t('dashboard.sensoryEvaluation.tooltips.subAttributes.tropical'),
+  
+  // Brown Fruit sub-attributes
+  dry: t('dashboard.sensoryEvaluation.tooltips.subAttributes.dry'),
+  brown: t('dashboard.sensoryEvaluation.tooltips.subAttributes.brown'),
+  overripe: t('dashboard.sensoryEvaluation.tooltips.subAttributes.overripe'),
+  
+  // Vegetal sub-attributes
+  grassHerb: t('dashboard.sensoryEvaluation.tooltips.subAttributes.grassHerb'),
+  earthy: t('dashboard.sensoryEvaluation.tooltips.subAttributes.earthy'),
+  mushroom: t('dashboard.sensoryEvaluation.tooltips.subAttributes.mushroom'),
+  mossForest: t('dashboard.sensoryEvaluation.tooltips.subAttributes.mossForest'),
+  
+  // Floral sub-attributes
+  orangeBlossom: t('dashboard.sensoryEvaluation.tooltips.subAttributes.orangeBlossom'),
+  flowers: t('dashboard.sensoryEvaluation.tooltips.subAttributes.flowers'),
+  
+  // Wood sub-attributes
+  lightWood: t('dashboard.sensoryEvaluation.tooltips.subAttributes.light'),
+  darkWood: t('dashboard.sensoryEvaluation.tooltips.subAttributes.woodDark'),
+  resin: t('dashboard.sensoryEvaluation.tooltips.subAttributes.resin'),
+  
+  // Spice sub-attributes
+  spices: t('dashboard.sensoryEvaluation.tooltips.subAttributes.spices'),
+  tobacco: t('dashboard.sensoryEvaluation.tooltips.subAttributes.tobacco'),
+  umami: t('dashboard.sensoryEvaluation.tooltips.subAttributes.umami'),
+  
+  // Nut sub-attributes
+  kernel: t('dashboard.sensoryEvaluation.tooltips.subAttributes.kernel'),
+  skin: t('dashboard.sensoryEvaluation.tooltips.subAttributes.skin'),
+  
+  // Defects
+  dirty: t('dashboard.sensoryEvaluation.tooltips.subAttributes.dirty'),
+  animal: t('dashboard.sensoryEvaluation.tooltips.subAttributes.animal'),
+  overfermented: t('dashboard.sensoryEvaluation.tooltips.subAttributes.overfermented'),
+  rotten: t('dashboard.sensoryEvaluation.tooltips.subAttributes.rotten'),
+  smoke: t('dashboard.sensoryEvaluation.tooltips.subAttributes.smoke'),
+  humid: t('dashboard.sensoryEvaluation.tooltips.subAttributes.humid'),
+  moldy: t('dashboard.sensoryEvaluation.tooltips.subAttributes.moldy'),
+  other: t('dashboard.sensoryEvaluation.tooltips.subAttributes.other'),
+});
+
 const getLabelMap = (t: any): AttributeItem[] => [
   // Main attributes (key elements) - in specified order
   { key: 'cacao', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.cacao'), category: 'main' },
@@ -275,18 +350,42 @@ const getLabelMap = (t: any): AttributeItem[] => [
   { key: 'defectsTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.defectsTotal'), category: 'defects' },
 ];
 
-const DefectRow = ({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) => (
+const DefectRow = ({ label, value, onChange, tooltip }: { label: string; value: number; onChange: (v: number) => void; tooltip?: string }) => (
   <div className="flex items-center space-x-4">
-    <span className="w-40 text-sm">{label}</span>
+    <div className="w-40 text-sm flex items-center gap-1">
+      <span>{label}</span>
+      {tooltip && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+          </TooltipTrigger>
+          <TooltipContent side="right" className="max-w-xs">
+            <p className="text-xs">{tooltip}</p>
+          </TooltipContent>
+        </Tooltip>
+      )}
+    </div>
     <input type="range" min={0} max={10} step={0.5} value={value}
       onChange={(e) => onChange(parseFloat(e.target.value))} className="flex-1" />
     <span className="w-10 text-right text-sm font-medium">{value.toFixed(1)}</span>
   </div>
 );
 
-const SliderRow = ({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) => (
+const SliderRow = ({ label, value, onChange, tooltip }: { label: string; value: number; onChange: (v: number) => void; tooltip?: string }) => (
   <div className="flex items-center space-x-4">
-    <span className="w-48 text-sm">{label}</span>
+    <div className="w-48 text-sm flex items-center gap-1">
+      <span>{label}</span>
+      {tooltip && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+          </TooltipTrigger>
+          <TooltipContent side="right" className="max-w-xs">
+            <p className="text-xs">{tooltip}</p>
+          </TooltipContent>
+        </Tooltip>
+      )}
+    </div>
     <input type="range" min={0} max={10} step={0.1} value={value}
       onChange={(e) => onChange(parseFloat(e.target.value))} className="flex-1" />
     <span className="w-10 text-right text-sm font-medium">{value.toFixed(1)}</span>
@@ -336,11 +435,13 @@ const getCategoryStyles = (category: AttributeCategory) => {
 const CategorizedSliderRow = ({ 
   attribute, 
   value, 
-  onChange 
+  onChange,
+  tooltip
 }: { 
   attribute: AttributeItem; 
   value: number; 
-  onChange: (v: number) => void 
+  onChange: (v: number) => void;
+  tooltip?: string;
 }) => {
   const styles = getCategoryStyles(attribute.category);
   
@@ -349,6 +450,16 @@ const CategorizedSliderRow = ({
       <div className="flex items-center space-x-2 w-48">
         <span className={`${styles.iconClass} text-sm`}>{styles.icon}</span>
         <span className={`text-sm ${styles.labelClass}`}>{attribute.label}</span>
+        {tooltip && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent side="right" className="max-w-xs">
+              <p className="text-xs">{tooltip}</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
       </div>
       <input 
         type="range" 
@@ -657,8 +768,13 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
     onSubmit?.(result);
   };
 
+  // Get tooltip maps
+  const attributeTooltips = getAttributeTooltips(t);
+  const subAttributeTooltips = getSubAttributeTooltips(t);
+
   return (
-    <div className="space-y-6">
+    <TooltipProvider>
+      <div className="space-y-6">
       {/* Radar Chart on top (shows live or after submit) */}
       <Card>
         <CardHeader>
@@ -1042,7 +1158,8 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
                     key={attribute.key} 
                     attribute={attribute} 
                     value={scores[attribute.key] as number} 
-                    onChange={(v) => setNumeric(attribute.key, v)} 
+                    onChange={(v) => setNumeric(attribute.key, v)}
+                    tooltip={attributeTooltips[attribute.key]}
                   />
                 ))}
               </div>
@@ -1102,51 +1219,51 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
               <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <div className="font-medium">{t('dashboard.sensoryEvaluation.intensityScale.subAttributes.acidity')}</div>
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.fruity')} value={scores.acidity.frutal} onChange={(v) => updateSub('acidity', 'frutal', v)} />
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.acetic')} value={scores.acidity.acetic} onChange={(v) => updateSub('acidity', 'acetic', v)} />
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.lactic')} value={scores.acidity.lactic} onChange={(v) => updateSub('acidity', 'lactic', v)} />
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.mineralButyric')} value={scores.acidity.mineralButyric} onChange={(v) => updateSub('acidity', 'mineralButyric', v)} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.fruity')} value={scores.acidity.frutal} onChange={(v) => updateSub('acidity', 'frutal', v)} tooltip={subAttributeTooltips.frutal} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.acetic')} value={scores.acidity.acetic} onChange={(v) => updateSub('acidity', 'acetic', v)} tooltip={subAttributeTooltips.acetic} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.lactic')} value={scores.acidity.lactic} onChange={(v) => updateSub('acidity', 'lactic', v)} tooltip={subAttributeTooltips.lactic} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.mineralButyric')} value={scores.acidity.mineralButyric} onChange={(v) => updateSub('acidity', 'mineralButyric', v)} tooltip={subAttributeTooltips.mineralButyric} />
             </div>
             <div className="space-y-3">
               <div className="font-medium">{t('dashboard.sensoryEvaluation.intensityScale.subAttributes.freshFruit')}</div>
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.berries')} value={scores.freshFruit.berries} onChange={(v) => updateSub('freshFruit', 'berries', v)} />
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.citrus')} value={scores.freshFruit.citrus} onChange={(v) => updateSub('freshFruit', 'citrus', v)} />
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.yellowPulp')} value={scores.freshFruit.yellowPulp} onChange={(v) => updateSub('freshFruit', 'yellowPulp', v)} />
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.dark')} value={scores.freshFruit.dark} onChange={(v) => updateSub('freshFruit', 'dark', v)} />
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.tropical')} value={scores.freshFruit.tropical} onChange={(v) => updateSub('freshFruit', 'tropical', v)} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.berries')} value={scores.freshFruit.berries} onChange={(v) => updateSub('freshFruit', 'berries', v)} tooltip={subAttributeTooltips.berries} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.citrus')} value={scores.freshFruit.citrus} onChange={(v) => updateSub('freshFruit', 'citrus', v)} tooltip={subAttributeTooltips.citrus} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.yellowPulp')} value={scores.freshFruit.yellowPulp} onChange={(v) => updateSub('freshFruit', 'yellowPulp', v)} tooltip={subAttributeTooltips.yellowPulp} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.dark')} value={scores.freshFruit.dark} onChange={(v) => updateSub('freshFruit', 'dark', v)} tooltip={subAttributeTooltips.darkFruit} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.tropical')} value={scores.freshFruit.tropical} onChange={(v) => updateSub('freshFruit', 'tropical', v)} tooltip={subAttributeTooltips.tropical} />
             </div>
             <div className="space-y-3">
               <div className="font-medium">{t('dashboard.sensoryEvaluation.intensityScale.subAttributes.brownFruit')}</div>
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.dry')} value={scores.brownFruit.dry} onChange={(v) => updateSub('brownFruit', 'dry', v)} />
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.brown')} value={scores.brownFruit.brown} onChange={(v) => updateSub('brownFruit', 'brown', v)} />
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.overripe')} value={scores.brownFruit.overripe} onChange={(v) => updateSub('brownFruit', 'overripe', v)} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.dry')} value={scores.brownFruit.dry} onChange={(v) => updateSub('brownFruit', 'dry', v)} tooltip={subAttributeTooltips.dry} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.brown')} value={scores.brownFruit.brown} onChange={(v) => updateSub('brownFruit', 'brown', v)} tooltip={subAttributeTooltips.brown} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.overripe')} value={scores.brownFruit.overripe} onChange={(v) => updateSub('brownFruit', 'overripe', v)} tooltip={subAttributeTooltips.overripe} />
             </div>
             <div className="space-y-3">
               <div className="font-medium">{t('dashboard.sensoryEvaluation.intensityScale.subAttributes.vegetal')}</div>
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.grassHerb')} value={scores.vegetal.grassHerb} onChange={(v) => updateSub('vegetal', 'grassHerb', v)} />
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.earthy')} value={scores.vegetal.earthy} onChange={(v) => updateSub('vegetal', 'earthy', v)} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.grassHerb')} value={scores.vegetal.grassHerb} onChange={(v) => updateSub('vegetal', 'grassHerb', v)} tooltip={subAttributeTooltips.grassHerb} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.earthy')} value={scores.vegetal.earthy} onChange={(v) => updateSub('vegetal', 'earthy', v)} tooltip={subAttributeTooltips.earthy} />
             </div>
             <div className="space-y-3">
               <div className="font-medium">{t('dashboard.sensoryEvaluation.intensityScale.subAttributes.floral')}</div>
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.orangeBlossom')} value={scores.floral.orangeBlossom} onChange={(v) => updateSub('floral', 'orangeBlossom', v)} />
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.flowers')} value={scores.floral.flowers} onChange={(v) => updateSub('floral', 'flowers', v)} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.orangeBlossom')} value={scores.floral.orangeBlossom} onChange={(v) => updateSub('floral', 'orangeBlossom', v)} tooltip={subAttributeTooltips.orangeBlossom} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.flowers')} value={scores.floral.flowers} onChange={(v) => updateSub('floral', 'flowers', v)} tooltip={subAttributeTooltips.flowers} />
             </div>
             <div className="space-y-3">
               <div className="font-medium">{t('dashboard.sensoryEvaluation.intensityScale.subAttributes.wood')}</div>
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.light')} value={scores.wood.light} onChange={(v) => updateSub('wood', 'light', v)} />
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.woodDark')} value={scores.wood.dark} onChange={(v) => updateSub('wood', 'dark', v)} />
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.resin')} value={scores.wood.resin} onChange={(v) => updateSub('wood', 'resin', v)} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.light')} value={scores.wood.light} onChange={(v) => updateSub('wood', 'light', v)} tooltip={subAttributeTooltips.lightWood} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.woodDark')} value={scores.wood.dark} onChange={(v) => updateSub('wood', 'dark', v)} tooltip={subAttributeTooltips.darkWood} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.resin')} value={scores.wood.resin} onChange={(v) => updateSub('wood', 'resin', v)} tooltip={subAttributeTooltips.resin} />
             </div>
             <div className="space-y-3">
               <div className="font-medium">{t('dashboard.sensoryEvaluation.intensityScale.subAttributes.spice')}</div>
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.spices')} value={scores.spice.spices} onChange={(v) => updateSub('spice', 'spices', v)} />
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.tobacco')} value={scores.spice.tobacco} onChange={(v) => updateSub('spice', 'tobacco', v)} />
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.umami')} value={scores.spice.umami} onChange={(v) => updateSub('spice', 'umami', v)} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.spices')} value={scores.spice.spices} onChange={(v) => updateSub('spice', 'spices', v)} tooltip={subAttributeTooltips.spices} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.tobacco')} value={scores.spice.tobacco} onChange={(v) => updateSub('spice', 'tobacco', v)} tooltip={subAttributeTooltips.tobacco} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.umami')} value={scores.spice.umami} onChange={(v) => updateSub('spice', 'umami', v)} tooltip={subAttributeTooltips.umami} />
             </div>
             <div className="space-y-3">
               <div className="font-medium">{t('dashboard.sensoryEvaluation.intensityScale.subAttributes.nut')}</div>
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.kernel')} value={scores.nut.kernel} onChange={(v) => updateSub('nut', 'kernel', v)} />
-              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.skin')} value={scores.nut.skin} onChange={(v) => updateSub('nut', 'skin', v)} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.kernel')} value={scores.nut.kernel} onChange={(v) => updateSub('nut', 'kernel', v)} tooltip={subAttributeTooltips.kernel} />
+              <SliderRow label={t('dashboard.sensoryEvaluation.intensityScale.subAttributes.skin')} value={scores.nut.skin} onChange={(v) => updateSub('nut', 'skin', v)} tooltip={subAttributeTooltips.skin} />
               </div>
               </div>
             </>
@@ -1422,14 +1539,14 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
           <CardTitle>{t('dashboard.sensoryEvaluation.defects.title')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.dirty')} value={scores.defects.dirty} onChange={(v) => updateDefect('dirty', v)} />
-          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.animal')} value={scores.defects.animal} onChange={(v) => updateDefect('animal', v)} />
-          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.rotten')} value={scores.defects.rotten} onChange={(v) => updateDefect('rotten', v)} />
-          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.smoke')} value={scores.defects.smoke} onChange={(v) => updateDefect('smoke', v)} />
-          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.humid')} value={scores.defects.humid} onChange={(v) => updateDefect('humid', v)} />
-          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.moldy')} value={scores.defects.moldy} onChange={(v) => updateDefect('moldy', v)} />
-          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.overfermented')} value={scores.defects.overfermented} onChange={(v) => updateDefect('overfermented', v)} />
-          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.other')} value={scores.defects.other} onChange={(v) => updateDefect('other', v)} />
+          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.dirty')} value={scores.defects.dirty} onChange={(v) => updateDefect('dirty', v)} tooltip={subAttributeTooltips.dirty} />
+          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.animal')} value={scores.defects.animal} onChange={(v) => updateDefect('animal', v)} tooltip={subAttributeTooltips.animal} />
+          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.rotten')} value={scores.defects.rotten} onChange={(v) => updateDefect('rotten', v)} tooltip={subAttributeTooltips.rotten} />
+          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.smoke')} value={scores.defects.smoke} onChange={(v) => updateDefect('smoke', v)} tooltip={subAttributeTooltips.smoke} />
+          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.humid')} value={scores.defects.humid} onChange={(v) => updateDefect('humid', v)} tooltip={subAttributeTooltips.humid} />
+          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.moldy')} value={scores.defects.moldy} onChange={(v) => updateDefect('moldy', v)} tooltip={subAttributeTooltips.moldy} />
+          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.overfermented')} value={scores.defects.overfermented} onChange={(v) => updateDefect('overfermented', v)} tooltip={subAttributeTooltips.overfermented} />
+          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.other')} value={scores.defects.other} onChange={(v) => updateDefect('other', v)} tooltip={subAttributeTooltips.other} />
           
           {/* Defect Total and Alerts */}
           <div className="mt-4 pt-4 border-t">
@@ -1609,7 +1726,8 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </TooltipProvider>
   );
 };
 
