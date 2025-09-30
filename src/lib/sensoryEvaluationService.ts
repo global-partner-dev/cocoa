@@ -86,6 +86,54 @@ export interface SensoryEvaluationData {
   sweetness?: number;
   textureNotes?: string;
   
+  // Comprehensive chocolate evaluation data
+  chocolateData?: {
+    appearance: {
+      color: number;
+      gloss: number;
+      surfaceHomogeneity: number;
+    };
+    aroma: {
+      aromaIntensity: number;
+      aromaQuality: number;
+      specificNotes: {
+        floral: number;
+        fruity: number;
+        toasted: number;
+        hazelnut: number;
+        earthy: number;
+        spicy: number;
+        milky: number;
+        woody: number;
+      };
+    };
+    texture: {
+      smoothness: number;
+      melting: number;
+      body: number;
+    };
+    flavor: {
+      sweetness: number;
+      bitterness: number;
+      acidity: number;
+      flavorIntensity: number;
+      flavorNotes: {
+        citrus: number;
+        redFruits: number;
+        nuts: number;
+        caramel: number;
+        malt: number;
+        wood: number;
+        spices: number;
+      };
+    };
+    aftertaste: {
+      persistence: number;
+      aftertasteQuality: number;
+      finalBalance: number;
+    };
+  };
+  
   // Odor fields
   typicalOdors?: {
     cleanCacao: boolean;
@@ -356,6 +404,9 @@ export class SensoryEvaluationService {
         sweetness: evaluationResult.scores.sweetness || null,
         texture_notes: evaluationResult.scores.textureNotes || null,
         
+        // Comprehensive chocolate evaluation data
+        chocolate_data: evaluationResult.scores.chocolate ? JSON.stringify(evaluationResult.scores.chocolate) : null,
+        
         // Overall
         overall_quality: evaluationResult.scores.overallQuality || 0,
         
@@ -587,6 +638,9 @@ export class SensoryEvaluationService {
       // Chocolate-specific
       sweetness: dbRecord.sweetness ? parseFloat(dbRecord.sweetness) : undefined,
       textureNotes: dbRecord.texture_notes,
+      
+      // Comprehensive chocolate evaluation data
+      chocolateData: dbRecord.chocolate_data ? JSON.parse(dbRecord.chocolate_data) : undefined,
       
       // Odor fields
       typicalOdors: dbRecord.typical_odors || {},
