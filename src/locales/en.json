@@ -278,10 +278,10 @@
         "slatyBeans": "Slaty Beans (%)",
         "moldyBeans": "Internal Moldy Beans (%)",
         "overFermented": "Over Fermented Beans (%)",
-        "undesirableAromas": "Undesirable Aromas?",
+        "undesirableAromas": "Undesirable Smells?",
         "yes": "Yes",
         "no": "None",
-        "aromasList": "Undesirable Aromas List",
+        "aromasList": "Undesirable Smells List",
         "disqualificationReasons": "Disqualification Reasons",
         "warnings": "Warnings",
         "sensoryEvaluation": "Sensory Evaluation",
@@ -340,7 +340,7 @@
         "sampleInfo": "Sample: {{code}} - {{participant}}",
         "odorChecklist": {
           "title": "1. Odor Checklist",
-          "description": "Select observed odors. Any Atypical odor will mark \"undesirable aromas\" and cause disqualification.",
+          "description": "Select observed odors. Any Atypical odor will mark \"undesirable smells\" and cause disqualification.",
           "typical": "Typical",
           "atypical": "Atypical",
           "typicalOdors": [
@@ -1102,8 +1102,8 @@
     },
     "physical": {
       "undesirableAromas": {
-        "title": "Undesirable Aromas",
-        "has": "Has Undesirable Aromas",
+        "title": "Undesirable Smells",
+        "has": "Has Undesirable Smells",
         "list": "List"
       },
       "humidity": {

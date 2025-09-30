@@ -278,10 +278,10 @@
         "slatyBeans": "Granos Grises (%)",
         "moldyBeans": "Granos Mohosos Internos (%)",
         "overFermented": "Granos Sobre-fermentados (%)",
-        "undesirableAromas": "¿Aromas Indeseables?",
+        "undesirableAromas": "¿Oleres Indeseables?",
         "yes": "Sí",
         "no": "Ninguno",
-        "aromasList": "Lista de Aromas Indeseables",
+        "aromasList": "Lista de Oleres Indeseables",
         "disqualificationReasons": "Razones de Descalificación",
         "warnings": "Advertencias",
         "sensoryEvaluation": "Evaluación Sensorial",
@@ -340,7 +340,7 @@
         "sampleInfo": "Muestra: {{code}} - {{participant}}",
         "odorChecklist": {
           "title": "1. Lista de Verificación de Olores",
-          "description": "Selecciona los olores observados. Cualquier olor Atípico marcará \"aromas indeseables\" y causará descalificación.",
+          "description": "Selecciona los olores observados. Cualquier olor Atípico marcará \"oleres indeseables\" y causará descalificación.",
           "typical": "Típico",
           "atypical": "Atípico",
           "typicalOdors": [
@@ -1102,8 +1102,8 @@
     },
     "physical": {
       "undesirableAromas": {
-        "title": "Aromas indeseables",
-        "has": "Tiene aromas indeseables",
+        "title": "Oleres indeseables",
+        "has": "Tiene oleres indeseables",
         "list": "Lista"
       },
       "humidity": {
