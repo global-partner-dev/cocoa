@@ -103,7 +103,7 @@ serve(async (req) => {
     if (role === 'evaluator') {
       // Fetch contest and expected amount for evaluator payment
       const { data: sampleRow, error: sampleErr } = await admin
-        .from('samples')
+        .from('sample')
         .select('contest_id')
         .eq('id', sampleId)
         .single();
@@ -119,7 +119,7 @@ serve(async (req) => {
     } else if (role === 'director') {
       // For director payments, calculate expected amount based on sample price
       const { data: sampleRows, error: sampleErr } = await admin
-        .from('samples')
+        .from('sample')
         .select('contest_id')
         .in('id', sampleIds);
       if (sampleErr || !sampleRows || sampleRows.length === 0) return json(400, { error: 'Invalid samples' });
@@ -187,6 +187,22 @@ serve(async (req) => {
         console.error('Evaluator payment insert failed:', insertErr);
         return json(500, { error: 'DB insert failed: ' + insertErr.message });
       }
+
+      // Update sample payment fields
+      const { error: updateErr } = await admin
+        .from('sample')
+        .update({
+          payment_method: 'paypal',
+          payment_status: 'completed',
+          payment_reference: orderId,
+        })
+        .eq('id', sampleId);
+
+      if (updateErr) {
+        console.error('Sample payment fields update failed:', updateErr);
+        // Don't fail the entire transaction, just log the error
+        // The payment record was already created successfully
+      }
     } else if (role === 'director') {
       // For director payments, create one payment record per sample
       // This maintains the current schema while supporting bulk payments
@@ -213,6 +229,22 @@ serve(async (req) => {
       }
       
       console.log('Director payment insert successful');
+
+      // Update sample payment fields for all paid samples
+      const { error: updateErr } = await admin
+        .from('sample')
+        .update({
+          payment_method: 'paypal',
+          payment_status: 'completed',
+          payment_reference: orderId,
+        })
+        .in('id', sampleIds);
+
+      if (updateErr) {
+        console.error('Samples payment fields update failed:', updateErr);
+        // Don't fail the entire transaction, just log the error
+        // The payment records were already created successfully
+      }
     }
 
 
