@@ -31,8 +31,6 @@ const getRoleMenuItems = (t: any): Record<UserRole, Array<{ icon: React.Componen
   admin: [
     { icon: LayoutDashboard, label: t('dashboard.sidebar.menuItems.dashboard'), path: "/dashboard" },
     { icon: Users, label: t('dashboard.sidebar.menuItems.userManagement'), path: "/dashboard/users" },
-    { icon: Calendar, label: t('dashboard.sidebar.menuItems.contestManagement'), path: "/dashboard/contests" },
-    { icon: FileText, label: t('dashboard.sidebar.menuItems.sampleManagement'), path: "/dashboard/samples" },
     { icon: BarChart, label: t('dashboard.sidebar.menuItems.initialResults'), path: "/dashboard/results" },
     { icon: Award, label: t('dashboard.sidebar.menuItems.finalResults'), path: "/dashboard/final-results" },
     { icon: DollarSign, label: t('dashboard.sidebar.menuItems.financeManagement'), path: "/dashboard/finance" },
