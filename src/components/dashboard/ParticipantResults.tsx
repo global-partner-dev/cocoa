@@ -25,6 +25,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { ResultsService, SampleResult, ResultsStats } from "@/lib/resultsService";
 import { generateParticipantReport } from "@/lib/pdfReport";
 import { useTranslation } from "react-i18next";
+import { ContestsService, type ContestDisplay } from "@/lib/contestsService";
 
 const ParticipantResults = () => {
   const { t, i18n } = useTranslation();
@@ -39,26 +40,44 @@ const ParticipantResults = () => {
   const [myResultsLoading, setMyResultsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showMyResults, setShowMyResults] = useState(false);
+  const [contests, setContests] = useState<ContestDisplay[]>([]);
+  const [selectedContestId, setSelectedContestId] = useState<string>('all');
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Load results data on component mount
+  // Load contests on component mount
+  useEffect(() => {
+    loadContests();
+  }, []);
+
+  // Load results data when contest selection changes
   useEffect(() => {
     loadResultsData();
     if (user?.id) {
       loadMyResults();
     }
-  }, [user?.id]);
+  }, [user?.id, selectedContestId]);
+
+  const loadContests = async () => {
+    try {
+      const allContests = await ContestsService.getAllContests();
+      setContests(allContests);
+    } catch (err) {
+      console.error('Failed to load contests:', err);
+    }
+  };
 
   const loadResultsData = async () => {
     try {
       setLoading(true);
       setError(null);
 
+      const contestId = selectedContestId === 'all' ? undefined : selectedContestId;
+
       // Load top samples and stats in parallel
       const [topSamplesResponse, statsResponse] = await Promise.all([
-        ResultsService.getTopSamplesByScore(10),
-        ResultsService.getResultsStats()
+        ResultsService.getTopSamplesByScore(10, contestId),
+        ResultsService.getResultsStats(contestId)
       ]);
 
       if (!topSamplesResponse.success) {
@@ -92,7 +111,8 @@ const ParticipantResults = () => {
     try {
       setMyResultsLoading(true);
       
-      const response = await ResultsService.getSamplesByUser(user.id);
+      const contestId = selectedContestId === 'all' ? undefined : selectedContestId;
+      const response = await ResultsService.getSamplesByUser(user.id, contestId);
       
       if (!response.success) {
         throw new Error(response.error || 'Failed to load your results');
@@ -786,7 +806,20 @@ const ParticipantResults = () => {
             {showMyResults ? t('dashboard.participantResults.subtitle.myResults') : t('dashboard.participantResults.subtitle.topSamples')}
           </p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <Select value={selectedContestId} onValueChange={setSelectedContestId}>
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectValue placeholder="Select Contest" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Contests</SelectItem>
+              {contests.map((contest) => (
+                <SelectItem key={contest.id} value={contest.id}>
+                  {contest.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button 
             onClick={() => {
               loadResultsData();

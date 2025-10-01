@@ -3,11 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { RefreshCw, Trophy, Star, Eye, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/lib/supabase'
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip as ReTooltip } from 'recharts'
 import { generateParticipantReport } from '@/lib/pdfReport'
 import { useTranslation } from 'react-i18next'
+import { ContestsService, type ContestDisplay } from '@/lib/contestsService'
 
 // Aggregates final evaluations and provides a details panel with radar + PDF like ParticipantResults
 
@@ -78,21 +80,41 @@ const FinalResults = () => {
     raw: any
   }>(null)
   const [sensoryDetail, setSensoryDetail] = useState<null | any>(null)
+  const [contests, setContests] = useState<ContestDisplay[]>([])
+  const [selectedContestId, setSelectedContestId] = useState<string>('all')
   const radarRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    loadContests()
+  }, [])
+
+  useEffect(() => {
+    load()
+  }, [selectedContestId])
+
+  const loadContests = async () => {
+    try {
+      const allContests = await ContestsService.getAllContests()
+      setContests(allContests)
+    } catch (err) {
+      console.error('Failed to load contests:', err)
+    }
+  }
 
   const load = async () => {
     try {
       setLoading(true)
-      const { data, error } = await supabase
+      let query = supabase
         .from('final_evaluations')
         .select(`
           sample_id,
           overall_quality,
           evaluation_date,
-          sample:sample_id (
+          sample:sample_id!inner (
             id,
             tracking_code,
             created_at,
+            contest_id,
             contests (
               id,
               name
@@ -102,6 +124,12 @@ const FinalResults = () => {
             )
           )
         `)
+      
+      if (selectedContestId !== 'all') {
+        query = query.eq('sample.contest_id', selectedContestId)
+      }
+      
+      const { data, error } = await query
       if (error) throw error
 
       const map = new Map<string, { sum: number; count: number; latest: string; row: any }>()
@@ -287,9 +315,24 @@ const FinalResults = () => {
           <h2 className="text-xl sm:text-2xl font-bold text-[hsl(var(--chocolate-dark))]">{t('finalResults.header.title')}</h2>
           <p className="text-muted-foreground">{t('finalResults.header.subtitle')}</p>
         </div>
-        <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-2 w-full sm:w-auto">
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> {t('finalResults.header.refresh')}
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Select value={selectedContestId} onValueChange={setSelectedContestId}>
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectValue placeholder={t('participantResults.contestFilter.placeholder')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t('participantResults.contestFilter.all')}</SelectItem>
+              {contests.map((contest) => (
+                <SelectItem key={contest.id} value={contest.id}>
+                  {contest.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-2 w-full sm:w-auto">
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> {t('finalResults.header.refresh')}
+          </Button>
+        </div>
       </div>
 
       <Card>

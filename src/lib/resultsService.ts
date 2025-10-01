@@ -55,13 +55,15 @@ export class ResultsService {
   
   /**
    * Get top 10 samples based on sensory evaluation scores
+   * @param limit - Maximum number of results to return (default: 10)
+   * @param contestId - Optional contest ID to filter results by specific contest
    */
-  static async getTopSamplesByScore(limit: number = 10): Promise<ResultsServiceResponse> {
+  static async getTopSamplesByScore(limit: number = 10, contestId?: string): Promise<ResultsServiceResponse> {
     try {
-      console.log(`Fetching top ${limit} samples by averaged scores (top_results)...`);
+      console.log(`Fetching top ${limit} samples by averaged scores (top_results)${contestId ? ` for contest ${contestId}` : ''}...`);
       
       // Fetch from materialized top_results, already averaged across judges per sample
-      const { data: top, error: terr } = await supabase
+      let query = supabase
         .from('top_results')
         .select(`
           sample_id,
@@ -69,6 +71,7 @@ export class ResultsService {
           evaluations_count,
           latest_evaluation_date,
           rank,
+          contest_id,
           sample:sample_id (
             id,
             tracking_code,
@@ -87,6 +90,13 @@ export class ResultsService {
         `)
         .order('rank', { ascending: true })
         .limit(limit);
+      
+      // Apply contest filter if provided
+      if (contestId) {
+        query = query.eq('contest_id', contestId);
+      }
+      
+      const { data: top, error: terr } = await query;
       if (terr) throw terr;
 
       if (!top || top.length === 0) {
@@ -151,12 +161,13 @@ export class ResultsService {
 
   /**
    * Get all evaluated samples with their results
+   * @param contestId - Optional contest ID to filter results by specific contest
    */
-  static async getAllEvaluatedSamples(): Promise<ResultsServiceResponse> {
+  static async getAllEvaluatedSamples(contestId?: string): Promise<ResultsServiceResponse> {
     try {
-      console.log('Fetching all evaluated samples...');
+      console.log(`Fetching all evaluated samples${contestId ? ` for contest ${contestId}` : ''}...`);
       
-      const { data: results, error } = await supabase
+      let query = supabase
         .from('sensory_evaluations')
         .select(`
           id,
@@ -181,12 +192,14 @@ export class ResultsService {
           nut_total,
           roast_degree,
           defects_total,
-          sample (
+          sample!inner (
             id,
             tracking_code,
             status,
             created_at,
+            contest_id,
             contests (
+              id,
               name,
               description
             ),
@@ -198,6 +211,13 @@ export class ResultsService {
         .eq('verdict', 'Approved')
         .not('overall_quality', 'is', null)
         .order('overall_quality', { ascending: false });
+      
+      // Apply contest filter if provided
+      if (contestId) {
+        query = query.eq('sample.contest_id', contestId);
+      }
+
+      const { data: results, error } = await query;
 
       if (error) {
         console.error('Error fetching all evaluated samples:', error);
@@ -283,13 +303,15 @@ export class ResultsService {
 
   /**
    * Get samples and results for a specific user
+   * @param userId - User ID to fetch samples for
+   * @param contestId - Optional contest ID to filter results by specific contest
    */
-  static async getSamplesByUser(userId: string): Promise<ResultsServiceResponse> {
+  static async getSamplesByUser(userId: string, contestId?: string): Promise<ResultsServiceResponse> {
     try {
-      console.log(`Fetching samples for user: ${userId}`);
+      console.log(`Fetching samples for user: ${userId}${contestId ? ` in contest ${contestId}` : ''}`);
       
       // Get samples for the specific user with their evaluations
-      const { data: results, error } = await supabase
+      let query = supabase
         .from('sensory_evaluations')
         .select(`
           id,
@@ -320,7 +342,9 @@ export class ResultsService {
             status,
             created_at,
             user_id,
+            contest_id,
             contests (
+              id,
               name,
               description
             ),
@@ -333,6 +357,13 @@ export class ResultsService {
         .eq('verdict', 'Approved')
         .not('overall_quality', 'is', null)
         .order('overall_quality', { ascending: false });
+      
+      // Apply contest filter if provided
+      if (contestId) {
+        query = query.eq('sample.contest_id', contestId);
+      }
+
+      const { data: results, error } = await query;
 
       if (error) {
         console.error('Database error:', error);
@@ -588,26 +619,39 @@ export class ResultsService {
 
   /**
    * Get results statistics
+   * @param contestId - Optional contest ID to filter statistics by specific contest
    */
-  static async getResultsStats(): Promise<{ success: boolean; data?: ResultsStats; error?: string }> {
+  static async getResultsStats(contestId?: string): Promise<{ success: boolean; data?: ResultsStats; error?: string }> {
     try {
-      console.log('Fetching results statistics...');
+      console.log(`Fetching results statistics${contestId ? ` for contest ${contestId}` : ''}...`);
       
       // Get total samples count
-      const { count: totalSamples, error: samplesError } = await supabase
-        .from('sample')
+      let samplesQuery = supabase
+        .from('samples')
         .select('*', { count: 'exact', head: true });
+      
+      if (contestId) {
+        samplesQuery = samplesQuery.eq('contest_id', contestId);
+      }
+      
+      const { count: totalSamples, error: samplesError } = await samplesQuery;
 
       if (samplesError) {
         throw samplesError;
       }
 
       // Fetch approved evaluations with sample_id to aggregate per-sample
-      const { data: evalRows, error: evaluatedError } = await supabase
+      let evalQuery = supabase
         .from('sensory_evaluations')
-        .select('sample_id, overall_quality')
+        .select('sample_id, overall_quality, sample!inner(contest_id)')
         .eq('verdict', 'Approved')
         .not('overall_quality', 'is', null);
+      
+      if (contestId) {
+        evalQuery = evalQuery.eq('sample.contest_id', contestId);
+      }
+
+      const { data: evalRows, error: evaluatedError } = await evalQuery;
 
       if (evaluatedError) {
         throw evaluatedError;

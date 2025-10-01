@@ -6,7 +6,7 @@ create extension if not exists pgcrypto;
 
 -- 1) Table to store top results (overall, not per-contest; extend later if needed)
 create table if not exists public.top_results (
-  sample_id uuid primary key references public.samples(id) on delete cascade,
+  sample_id uuid primary key references public.sample(id) on delete cascade,
   contest_id uuid references public.contests(id) on delete set null,
   average_score numeric(4,2) not null,
   evaluations_count integer not null default 0,
@@ -28,7 +28,7 @@ DO $$ BEGIN
     );
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- 2) Recompute function to refresh Top 10 (overall)
+-- 2) Recompute function to refresh Top 10 (per contest)
 create or replace function public.recompute_top_results()
 returns void
 language plpgsql
@@ -55,9 +55,9 @@ begin
            a.eval_count,
            a.latest_date,
            s.contest_id,
-           row_number() over (order by a.avg_score desc, a.latest_date desc) as rk
+           row_number() over (partition by s.contest_id order by a.avg_score desc, a.latest_date desc) as rk
     from aggregated a
-    join public.samples s on s.id = a.sample_id
+    join public.sample s on s.id = a.sample_id
   )
   insert into public.top_results (sample_id, contest_id, average_score, evaluations_count, latest_evaluation_date, rank, updated_at)
   select sample_id, contest_id, avg_score, eval_count, latest_date, rk, now()
