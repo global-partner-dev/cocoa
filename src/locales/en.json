@@ -916,6 +916,7 @@
         "dashboard": "Dashboard",
         "userManagement": "User Management",
         "contestManagement": "Contest Management",
+        "contestCleanup": "Contest Cleanup",
         "sampleManagement": "Sample Management",
         "physicalEvaluation": "Physical Evaluation",
         "judgeAssignment": "Judge Assignment",

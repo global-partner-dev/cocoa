@@ -39,7 +39,8 @@ const ContestManagement = () => {
   const loadContests = async () => {
     try {
       setLoading(true);
-      const contestsData = await ContestsService.getAllContests();
+      // Use getDirectorContests which automatically handles admin vs director filtering
+      const contestsData = await ContestsService.getDirectorContests();
       setContests(contestsData);
     } catch (error) {
       console.error('Error loading contests:', error);

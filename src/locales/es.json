@@ -916,6 +916,7 @@
         "dashboard": "Panel de Control",
         "userManagement": "Gestión de Usuarios",
         "contestManagement": "Gestión de Concursos",
+        "contestCleanup": "Limpieza de Concursos",
         "sampleManagement": "Gestión de Muestras",
         "physicalEvaluation": "Evaluación Física",
         "judgeAssignment": "Asignación de Jueces",

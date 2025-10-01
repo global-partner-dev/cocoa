@@ -12,6 +12,7 @@ import LoginPage from "./components/auth/LoginPage";
 const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
 const UserManagement = lazy(() => import("./components/dashboard/UserManagement"));
 const ContestManagement = lazy(() => import("./components/dashboard/ContestManagement"));
+const ContestCleanupPage = lazy(() => import("./components/dashboard/ContestCleanupPage"));
 const SampleManagement = lazy(() => import("./components/dashboard/SampleManagement"));
 const PlaceholderPage = lazy(() => import("./components/dashboard/PlaceholderPage"));
 const FinanceManagement = lazy(() => import("./components/dashboard/FinanceManagement"));
@@ -116,6 +117,16 @@ const App = () => (
                 <ProtectedRoute>
                   <DashboardLayout>
                     <ContestManagement />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/contest-cleanup"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <ContestCleanupPage />
                   </DashboardLayout>
                 </ProtectedRoute>
               }

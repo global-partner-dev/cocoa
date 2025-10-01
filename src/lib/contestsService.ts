@@ -103,6 +103,27 @@ export class ContestsService {
         throw new Error('User not authenticated');
       }
 
+      // Check if user is a director and already has an active contest
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (profile?.role === 'director') {
+        const { data: hasActive, error: checkError } = await supabase
+          .rpc('director_has_active_contest', { director_id: user.id });
+
+        if (checkError) {
+          console.error('Error checking active contests:', checkError);
+          throw new Error('Failed to validate contest creation');
+        }
+
+        if (hasActive) {
+          throw new Error('You already have an active contest. Only one active contest per director is allowed.');
+        }
+      }
+
       const contestData = transformDisplayToContest(contest, user.id);
 
       const { data, error } = await supabase
@@ -113,6 +134,10 @@ export class ContestsService {
 
       if (error) {
         console.error('Error creating contest:', error);
+        // Check if error is from the trigger
+        if (error.message.includes('already has an active contest')) {
+          throw new Error('You already have an active contest. Only one active contest per director is allowed.');
+        }
         throw new Error(`Failed to create contest: ${error.message}`);
       }
 
@@ -239,6 +264,97 @@ export class ContestsService {
     } catch (error) {
       console.error('Error checking permissions:', error);
       return false;
+    }
+  }
+
+  // Get contests created by the current director
+  static async getDirectorContests(): Promise<ContestDisplay[]> {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('User not authenticated');
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      // If admin, return all contests
+      if (profile?.role === 'admin') {
+        return this.getAllContests();
+      }
+
+      // If director, return only their contests (RLS will handle this automatically)
+      const { data, error } = await supabase
+        .from('contests')
+        .select('*')
+        .eq('created_by', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching director contests:', error);
+        throw new Error(`Failed to fetch contests: ${error.message}`);
+      }
+
+      return data?.map(transformContestToDisplay) || [];
+    } catch (error) {
+      console.error('Error in getDirectorContests:', error);
+      throw error;
+    }
+  }
+
+  // Check if director has an active contest
+  static async directorHasActiveContest(): Promise<boolean> {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        return false;
+      }
+
+      const { data, error } = await supabase
+        .rpc('director_has_active_contest', { director_id: user.id });
+
+      if (error) {
+        console.error('Error checking active contest:', error);
+        return false;
+      }
+
+      return data || false;
+    } catch (error) {
+      console.error('Error in directorHasActiveContest:', error);
+      return false;
+    }
+  }
+
+  // Cleanup expired contests (admin only)
+  static async cleanupExpiredContests(): Promise<void> {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('User not authenticated');
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (profile?.role !== 'admin') {
+        throw new Error('Only admins can cleanup expired contests');
+      }
+
+      const { error } = await supabase.rpc('cleanup_expired_contests');
+
+      if (error) {
+        console.error('Error cleaning up expired contests:', error);
+        throw new Error(`Failed to cleanup expired contests: ${error.message}`);
+      }
+    } catch (error) {
+      console.error('Error in cleanupExpiredContests:', error);
+      throw error;
     }
   }
 }
