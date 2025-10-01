@@ -2213,5 +2213,24 @@
         "errorDesc": "Ocurrió un error inesperado. Por favor intenta de nuevo."
       }
     }
+  },
+  "contestCleanup": {
+    "pageTitle": "Limpieza de Datos de Concursos",
+    "pageDescription": "Gestiona y limpia los datos de concursos expirados para mantener el rendimiento y organización de la base de datos.",
+    "info": {
+      "title": "Información Importante",
+      "item1": "Solo los concursos con fecha de finalización en el pasado serán afectados",
+      "item2": "Todos los datos asociados (muestras, evaluaciones, clasificaciones) serán eliminados permanentemente",
+      "item3": "Esta acción no se puede deshacer - considera hacer una copia de seguridad de los datos antes de la limpieza",
+      "item4": "Los concursos activos (dentro de fecha de inicio y fin) nunca son afectados",
+      "item5": "La limpieza regular ayuda a mantener un rendimiento óptimo de la base de datos"
+    },
+    "bestPractices": {
+      "title": "Mejores Prácticas",
+      "item1": "Ejecuta la limpieza después de que los resultados del concurso hayan sido archivados o exportados",
+      "item2": "Programa limpiezas regulares (por ejemplo, mensual o trimestralmente)",
+      "item3": "Notifica a los directores antes de limpiar sus concursos expirados",
+      "item4": "Mantén una copia de seguridad de los datos importantes del concurso antes de la limpieza"
+    }
   }
 }

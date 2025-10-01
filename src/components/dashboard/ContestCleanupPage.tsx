@@ -15,10 +15,10 @@ const ContestCleanupPage = () => {
       {/* Page Header */}
       <div className="bg-gradient-to-r from-[hsl(var(--chocolate-dark))] to-[hsl(var(--chocolate-medium))] rounded-lg p-6 text-[hsl(var(--chocolate-cream))]">
         <h1 className="text-2xl font-bold mb-2">
-          {t('contestCleanup.pageTitle', 'Contest Data Cleanup')}
+          {t('contestCleanup.pageTitle')}
         </h1>
         <p className="text-[hsl(var(--chocolate-cream)_/_0.9)]">
-          {t('contestCleanup.pageDescription', 'Manage and cleanup expired contest data to maintain database performance and organization.')}
+          {t('contestCleanup.pageDescription')}
         </p>
       </div>
 

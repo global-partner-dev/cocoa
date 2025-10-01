@@ -2213,5 +2213,24 @@
         "errorDesc": "An unexpected error occurred. Please try again."
       }
     }
+  },
+  "contestCleanup": {
+    "pageTitle": "Contest Data Cleanup",
+    "pageDescription": "Manage and cleanup expired contest data to maintain database performance and organization.",
+    "info": {
+      "title": "Important Information",
+      "item1": "Only contests with end_date in the past will be affected",
+      "item2": "All associated data (samples, evaluations, rankings) will be permanently deleted",
+      "item3": "This action cannot be undone - consider backing up data before cleanup",
+      "item4": "Active contests (within start_date and end_date) are never affected",
+      "item5": "Regular cleanup helps maintain optimal database performance"
+    },
+    "bestPractices": {
+      "title": "Best Practices",
+      "item1": "Run cleanup after contest results have been archived or exported",
+      "item2": "Schedule regular cleanups (e.g., monthly or quarterly)",
+      "item3": "Notify directors before cleaning up their expired contests",
+      "item4": "Keep a backup of important contest data before cleanup"
+    }
   }
 }
