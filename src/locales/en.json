@@ -2217,6 +2217,33 @@
   "contestCleanup": {
     "pageTitle": "Contest Data Cleanup",
     "pageDescription": "Manage and cleanup expired contest data to maintain database performance and organization.",
+    "title": "Contest Data Cleanup",
+    "description": "Remove expired contests and their associated data (samples, rankings, evaluations)",
+    "whatHappens": {
+      "title": "What happens during cleanup?",
+      "item1": "Contests with end_date in the past are identified",
+      "item2": "All samples associated with expired contests are deleted",
+      "item3": "All rankings for expired contests are removed",
+      "item4": "The expired contest records are deleted"
+    },
+    "lastCleanup": "Last cleanup: {{date}}",
+    "cleaning": "Cleaning up...",
+    "button": "Cleanup Expired Contests",
+    "confirm": {
+      "title": "Are you sure?",
+      "description": "This action will permanently delete all expired contests and their associated data. This cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Yes, cleanup expired contests"
+    },
+    "adminOnly": "This action is only available to administrators",
+    "success": {
+      "title": "Cleanup Successful",
+      "description": "Expired contests and their data have been removed."
+    },
+    "error": {
+      "title": "Cleanup Failed",
+      "description": "Failed to cleanup expired contests. Please try again."
+    },
     "info": {
       "title": "Important Information",
       "item1": "Only contests with end_date in the past will be affected",

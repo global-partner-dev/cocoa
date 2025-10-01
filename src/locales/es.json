@@ -2217,6 +2217,33 @@
   "contestCleanup": {
     "pageTitle": "Limpieza de Datos de Concursos",
     "pageDescription": "Gestiona y limpia los datos de concursos expirados para mantener el rendimiento y organización de la base de datos.",
+    "title": "Limpieza de Datos de Concursos",
+    "description": "Eliminar concursos expirados y sus datos asociados (muestras, clasificaciones, evaluaciones)",
+    "whatHappens": {
+      "title": "¿Qué sucede durante la limpieza?",
+      "item1": "Se identifican los concursos con fecha de finalización en el pasado",
+      "item2": "Se eliminan todas las muestras asociadas con concursos expirados",
+      "item3": "Se eliminan todas las clasificaciones de concursos expirados",
+      "item4": "Se eliminan los registros de concursos expirados"
+    },
+    "lastCleanup": "Última limpieza: {{date}}",
+    "cleaning": "Limpiando...",
+    "button": "Limpiar Concursos Expirados",
+    "confirm": {
+      "title": "¿Estás seguro?",
+      "description": "Esta acción eliminará permanentemente todos los concursos expirados y sus datos asociados. Esta acción no se puede deshacer.",
+      "cancel": "Cancelar",
+      "confirm": "Sí, limpiar concursos expirados"
+    },
+    "adminOnly": "Esta acción solo está disponible para administradores",
+    "success": {
+      "title": "Limpieza Exitosa",
+      "description": "Los concursos expirados y sus datos han sido eliminados."
+    },
+    "error": {
+      "title": "Limpieza Fallida",
+      "description": "No se pudieron limpiar los concursos expirados. Por favor intenta de nuevo."
+    },
     "info": {
       "title": "Información Importante",
       "item1": "Solo los concursos con fecha de finalización en el pasado serán afectados",
