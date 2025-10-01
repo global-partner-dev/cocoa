@@ -124,8 +124,7 @@ const UserManagement = () => {
         variant: "destructive",
       });
     } finally {
-      setDeleteDialogOpen(false);
-      setUserToDelete(null);
+      closeDeleteDialog();
     }
   };
 
@@ -164,12 +163,22 @@ const UserManagement = () => {
     setDeleteDialogOpen(true);
   };
 
+  const closeDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setUserToDelete(null);
+  };
+
   const openDocumentsDialog = (user: UserWithDocuments) => {
     setSelectedUserDocuments({
       user,
       documents: user.documents || []
     });
     setDocumentsDialogOpen(true);
+  };
+
+  const closeDocumentsDialog = () => {
+    setDocumentsDialogOpen(false);
+    setSelectedUserDocuments(null);
   };
 
   const getRoleBadgeColor = (role: UserRole) => {
@@ -355,37 +364,39 @@ const UserManagement = () => {
       )}
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center space-x-2">
-              <AlertTriangle className="w-5 h-5 text-red-500" />
-              <span>{t('dashboard.userManagement.deleteDialog.title')}</span>
-            </DialogTitle>
-            <DialogDescription>
-              {t('dashboard.userManagement.deleteDialog.description', { userName: userToDelete?.name })}
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>{t('dashboard.userManagement.deleteDialog.items.userAccount')}</li>
-                <li>{t('dashboard.userManagement.deleteDialog.items.associatedData')}</li>
-                {userToDelete?.role === 'evaluator' && userToDelete.documents && userToDelete.documents.length > 0 && (
-                  <li>{t('dashboard.userManagement.deleteDialog.items.uploadedDocuments', { count: userToDelete.documents.length })}</li>
-                )}
-              </ul>
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-              {t('dashboard.userManagement.deleteDialog.cancel')}
-            </Button>
-            <Button variant="destructive" onClick={handleDeleteUser}>
-              {t('dashboard.userManagement.deleteDialog.deleteUser')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
+      <Dialog open={deleteDialogOpen} onOpenChange={(open) => !open && closeDeleteDialog()}>
+        {userToDelete && (
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2">
+                <AlertTriangle className="w-5 h-5 text-red-500" />
+                <span>{t('dashboard.userManagement.deleteDialog.title')}</span>
+              </DialogTitle>
+              <DialogDescription>
+                {t('dashboard.userManagement.deleteDialog.description', { userName: userToDelete.name })}
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  <li>{t('dashboard.userManagement.deleteDialog.items.userAccount')}</li>
+                  <li>{t('dashboard.userManagement.deleteDialog.items.associatedData')}</li>
+                  {userToDelete.role === 'evaluator' && userToDelete.documents && userToDelete.documents.length > 0 && (
+                    <li>{t('dashboard.userManagement.deleteDialog.items.uploadedDocuments', { count: userToDelete.documents.length })}</li>
+                  )}
+                </ul>
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={closeDeleteDialog}>
+                {t('dashboard.userManagement.deleteDialog.cancel')}
+              </Button>
+              <Button variant="destructive" onClick={handleDeleteUser}>
+                {t('dashboard.userManagement.deleteDialog.deleteUser')}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        )}
       </Dialog>
 
       {/* Documents Dialog */}
-      <Dialog open={documentsDialogOpen} onOpenChange={setDocumentsDialogOpen}>
+      <Dialog open={documentsDialogOpen} onOpenChange={(open) => !open && closeDocumentsDialog()}>
         <DialogContent className="max-w-4xl mx-4">
           <DialogHeader>
             <DialogTitle className="text-lg sm:text-xl">
@@ -438,7 +449,7 @@ const UserManagement = () => {
           </div>
           
           <DialogFooter>
-            <Button onClick={() => setDocumentsDialogOpen(false)} className="w-full sm:w-auto">
+            <Button onClick={closeDocumentsDialog} className="w-full sm:w-auto">
               {t('dashboard.userManagement.documentsDialog.close')}
             </Button>
           </DialogFooter>

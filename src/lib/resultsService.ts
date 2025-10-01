@@ -627,7 +627,7 @@ export class ResultsService {
       
       // Get total samples count
       let samplesQuery = supabase
-        .from('samples')
+        .from('sample')
         .select('*', { count: 'exact', head: true });
       
       if (contestId) {

@@ -215,9 +215,14 @@ The solution was implemented across three layers:
 
 1. `sqls/top-results-table.sql` - Database ranking function (updated)
 2. `sqls/fix-contest-specific-rankings.sql` - **Migration file to apply (NEW)**
-3. `src/lib/resultsService.ts` - Service layer filtering
+3. `src/lib/resultsService.ts` - Service layer filtering + **Fixed table name bug (line 630)**
 4. `src/components/dashboard/ParticipantResults.tsx` - UI with contest selector
 5. `src/components/dashboard/FinalResults.tsx` - UI with contest selector
+
+**Additional Documentation:**
+
+- `FIX-SAMPLES-TABLE-NAME.md` - Details about the table name bug fix
+- `sqls/README-CONTEST-RANKINGS.md` - Migration guide
 
 ## Deployment Notes
 
