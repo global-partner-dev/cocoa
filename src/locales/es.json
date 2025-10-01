@@ -1163,6 +1163,10 @@
       "subtitle": "Ranking agregado de puntajes de evaluadores finales",
       "refresh": "Actualizar"
     },
+    "contestFilter": {
+      "placeholder": "Seleccionar Concurso",
+      "all": "Todos los Concursos"
+    },
     "topRanking": {
       "title": "Ranking Superior",
       "description": "Promedio de evaluaciones finales por muestra",

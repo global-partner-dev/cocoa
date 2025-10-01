@@ -318,10 +318,10 @@ const FinalResults = () => {
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Select value={selectedContestId} onValueChange={setSelectedContestId}>
             <SelectTrigger className="w-full sm:w-[200px]">
-              <SelectValue placeholder={t('participantResults.contestFilter.placeholder')} />
+              <SelectValue placeholder={t('finalResults.contestFilter.placeholder')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t('participantResults.contestFilter.all')}</SelectItem>
+              <SelectItem value="all">{t('finalResults.contestFilter.all')}</SelectItem>
               {contests.map((contest) => (
                 <SelectItem key={contest.id} value={contest.id}>
                   {contest.name}

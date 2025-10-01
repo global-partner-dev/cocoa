@@ -1163,6 +1163,10 @@
       "subtitle": "Aggregated ranking from final evaluator scores",
       "refresh": "Refresh"
     },
+    "contestFilter": {
+      "placeholder": "Select Contest",
+      "all": "All Contests"
+    },
     "topRanking": {
       "title": "Top Ranking",
       "description": "Average of final evaluations per sample",
