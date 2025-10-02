@@ -333,8 +333,8 @@ const getLabelMap = (t: any): AttributeItem[] => [
   { key: 'cacao', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.cacao'), category: 'main' },
   { key: 'bitterness', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.bitterness'), category: 'main' },
   { key: 'astringency', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.astringency'), category: 'main' },
-  { key: 'roastDegree', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.roastDegree'), category: 'main' },
-  { key: 'acidityTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.acidityTotal'), category: 'main' },
+  { key: 'roastDegree', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.acidityTotal'), category: 'main' },
+  { key: 'acidityTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.roastDegree'), category: 'main' },
   
   // Complementary attributes (may or may not be present) - in specified order
   { key: 'freshFruitTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.freshFruitTotal'), category: 'complementary' },
@@ -619,7 +619,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
       // TOTAL_SCORE = (MAIN_ATTRIBUTES_SCORE × 0.60) + (COMPLEMENTARY_ATTRIBUTES_SCORE × 0.40) − DEFECT_PENALTY
       
       // 1. Main Attributes (60% of Total)
-      // Cocoa (40%), Bitterness (25%), Astringency (20%), Roasting Degree (15%)
+      // Cocoa (40%), Bitterness (25%), Astringency (20%), Acidity (15%)
       const mainScore = (
         scores.cacao * 0.40 +
         scores.bitterness * 0.25 +
@@ -852,7 +852,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
                   <span>{(scores.astringency * 0.20 ).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>• Roasting Degree (15%): {scores.roastDegree.toFixed(1)}</span>
+                  <span>• Total Acidity (15%): {scores.roastDegree.toFixed(1)}</span>
                   <span>{(scores.roastDegree * 0.15 ).toFixed(2)}</span>
                 </div>
               </div>
@@ -867,7 +867,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-1 text-xs text-green-700 dark:text-green-300">
-                <div>• Acidity: {scores.acidityTotal.toFixed(1)}</div>
+                <div>• Roasting Degree: {scores.acidityTotal.toFixed(1)}</div>
                 <div>• Fresh Fruit: {scores.freshFruitTotal.toFixed(1)}</div>
                 <div>• Brown Fruit: {scores.brownFruitTotal.toFixed(1)}</div>
                 <div>• Vegetal: {scores.vegetalTotal.toFixed(1)}</div>
