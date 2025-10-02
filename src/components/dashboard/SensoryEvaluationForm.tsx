@@ -624,13 +624,13 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
         scores.cacao * 0.40 +
         scores.bitterness * 0.25 +
         scores.astringency * 0.20 +
-        scores.roastDegree * 0.15
+        scores.acidityTotal * 0.15
       ); 
       
       // 2. Complementary Attributes (40% of Total)
       // Average of 9 complementary attributes, then multiply by 4
       const complementaryAttributes = [
-        scores.acidityTotal,
+        scores.roastDegree,
         scores.freshFruitTotal,
         scores.brownFruitTotal,
         scores.vegetalTotal,
@@ -835,7 +835,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
               <div className="flex items-center justify-between mb-2">
                 <span className="font-semibold text-blue-800 dark:text-blue-200">Main Attributes (60%)</span>
                 <span className="text-lg font-bold text-blue-900 dark:text-blue-100">
-                  {((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.roastDegree * 0.15)).toFixed(2)}/10
+                  {((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.acidityTotal * 0.15)).toFixed(2)}/10
                 </span>
               </div>
               <div className="space-y-1 text-sm text-blue-700 dark:text-blue-300">
@@ -863,7 +863,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
               <div className="flex items-center justify-between mb-2">
                 <span className="font-semibold text-green-800 dark:text-green-200">Complementary Attributes (40%)</span>
                 <span className="text-lg font-bold text-green-900 dark:text-green-100">
-                  {(([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9)).toFixed(2)}/10
+                  {(([scores.roastDegree, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9)).toFixed(2)}/10
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-1 text-xs text-green-700 dark:text-green-300">
