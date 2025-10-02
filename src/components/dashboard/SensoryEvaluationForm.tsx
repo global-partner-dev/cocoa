@@ -334,7 +334,7 @@ const getLabelMap = (t: any): AttributeItem[] => [
   { key: 'bitterness', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.bitterness'), category: 'main' },
   { key: 'astringency', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.astringency'), category: 'main' },
   { key: 'roastDegree', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.acidityTotal'), category: 'main' },
-  { key: 'acidityTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.roastDegree'), category: 'main' },
+  { key: 'acidityTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.roastDegree'), category: 'complementary' },
   
   // Complementary attributes (may or may not be present) - in specified order
   { key: 'freshFruitTotal', label: t('dashboard.sensoryEvaluation.intensityScale.attributes.freshFruitTotal'), category: 'complementary' },
