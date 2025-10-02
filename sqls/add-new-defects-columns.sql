@@ -7,13 +7,27 @@ ADD COLUMN IF NOT EXISTS defects_excessive_astringency DECIMAL(3,1) NOT NULL DEF
 ADD COLUMN IF NOT EXISTS defects_unbalanced_bitterness DECIMAL(3,1) NOT NULL DEFAULT 0;
 
 -- Add constraints to ensure values are within 0-10 range
-ALTER TABLE public.sensory_evaluations 
-ADD CONSTRAINT IF NOT EXISTS check_defects_excessive_astringency 
-    CHECK (defects_excessive_astringency >= 0 AND defects_excessive_astringency <= 10);
-
-ALTER TABLE public.sensory_evaluations 
-ADD CONSTRAINT IF NOT EXISTS check_defects_unbalanced_bitterness 
-    CHECK (defects_unbalanced_bitterness >= 0 AND defects_unbalanced_bitterness <= 10);
+-- Note: Using DO block for idempotent constraint creation
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'check_defects_excessive_astringency'
+    ) THEN
+        ALTER TABLE public.sensory_evaluations 
+        ADD CONSTRAINT check_defects_excessive_astringency 
+            CHECK (defects_excessive_astringency >= 0 AND defects_excessive_astringency <= 10);
+    END IF;
+    
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'check_defects_unbalanced_bitterness'
+    ) THEN
+        ALTER TABLE public.sensory_evaluations 
+        ADD CONSTRAINT check_defects_unbalanced_bitterness 
+            CHECK (defects_unbalanced_bitterness >= 0 AND defects_unbalanced_bitterness <= 10);
+    END IF;
+END $$;
 
 -- Add comments to document the new columns
 COMMENT ON COLUMN public.sensory_evaluations.defects_excessive_astringency IS 
