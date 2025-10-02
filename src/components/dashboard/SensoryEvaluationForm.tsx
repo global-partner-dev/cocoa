@@ -852,7 +852,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
                   <span>{(scores.astringency * 0.20 ).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>• Total Acidity (15%): {scores.roastDegree.toFixed(1)}</span>
+                  <span>• Total Acidity (15%): {scores.acidityTotal.toFixed(1)}</span>
                   <span>{(scores.roastDegree * 0.15 ).toFixed(2)}</span>
                 </div>
               </div>
@@ -867,7 +867,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-1 text-xs text-green-700 dark:text-green-300">
-                <div>• Roasting Degree: {scores.acidityTotal.toFixed(1)}</div>
+                <div>• Roasting Degree: {scores.roastDegree.toFixed(1)}</div>
                 <div>• Fresh Fruit: {scores.freshFruitTotal.toFixed(1)}</div>
                 <div>• Brown Fruit: {scores.brownFruitTotal.toFixed(1)}</div>
                 <div>• Vegetal: {scores.vegetalTotal.toFixed(1)}</div>
