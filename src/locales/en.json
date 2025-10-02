@@ -834,7 +834,9 @@
           "smoke": "Contamination by any smoke. Can overpower other flavors.",
           "humid": "Old, wet, moldy, decomposed notes. Indicates poor storage conditions.",
           "moldy": "Characteristic of mold growth. Serious defect indicating contamination.",
-          "other": "Rancid, diesel, petroleum, tar, paint, tires, chemicals, burnt. Various severe defects."
+          "other": "Rancid, diesel, petroleum, tar, paint, tires, chemicals, burnt. Various severe defects.",
+          "excessiveAstringency": "Unwanted Astringency: Evaluate whether the astringency interferes with flavor appreciation, lingers uncomfortably, or dominates the sensory profile. Do not confuse it with mild or structural astringency, which may be acceptable.",
+          "unbalancedBitterness": "Unwanted Bitterness: Determine whether the bitterness is aggressive, sharp, or unpleasant, and whether it negatively impacts the overall product experience. Do not penalize if the bitterness is integrated and adds complexity."
         }
       },
       "defects": {
@@ -847,7 +849,9 @@
           "humid": "Humidity",
           "moldy": "Moldy",
           "overfermented": "Over-fermented / Rotten fruit",
-          "other": "Others"
+          "other": "Others",
+          "excessiveAstringency": "Excessive Astringency",
+          "unbalancedBitterness": "Unbalanced Bitterness"
         },
         "note": "Note: The defects total is a sum, not an average."
       },

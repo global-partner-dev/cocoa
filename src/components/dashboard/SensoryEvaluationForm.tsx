@@ -53,7 +53,7 @@ export interface SensoryScores {
 
   // Defects (0-10) - for cocoa bean/liquor
   defects: {
-    dirty: number; animal: number; rotten: number; smoke: number; humid: number; moldy: number; overfermented: number; other: number;
+    dirty: number; animal: number; rotten: number; smoke: number; humid: number; moldy: number; overfermented: number; other: number; excessiveAstringency: number; unbalancedBitterness: number;
   };
   
   // Typical and Atypical Odors (cocoa_liquor only)
@@ -186,7 +186,7 @@ const defaultScores: SensoryScores = {
   wood: { light: 0, dark: 0, resin: 0 },
   spice: { spices: 0, tobacco: 0, umami: 0 },
   nut: { kernel: 0, skin: 0 },
-  defects: { dirty: 0, animal: 0, rotten: 0, smoke: 0, humid: 0, moldy: 0, overfermented: 0, other: 0 },
+  defects: { dirty: 0, animal: 0, rotten: 0, smoke: 0, humid: 0, moldy: 0, overfermented: 0, other: 0, excessiveAstringency: 0, unbalancedBitterness: 0 },
   typicalOdors: {
     cleanCacao: false, chocolate: false, ripeFruit: false, floral: false, spicy: false, caramelSweet: false,
     honeyMolasses: false, driedFruits: false, citrus: false, freshHerbal: false, butterySoftDairy: false, lightSmoky: false
@@ -326,6 +326,8 @@ const getSubAttributeTooltips = (t: any): Record<string, string> => ({
   humid: t('dashboard.sensoryEvaluation.tooltips.subAttributes.humid'),
   moldy: t('dashboard.sensoryEvaluation.tooltips.subAttributes.moldy'),
   other: t('dashboard.sensoryEvaluation.tooltips.subAttributes.other'),
+  excessiveAstringency: t('dashboard.sensoryEvaluation.tooltips.subAttributes.excessiveAstringency'),
+  unbalancedBitterness: t('dashboard.sensoryEvaluation.tooltips.subAttributes.unbalancedBitterness'),
 });
 
 const getLabelMap = (t: any): AttributeItem[] => [
@@ -540,7 +542,8 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
   const recalcTotals = (s: SensoryScores): SensoryScores => {
     const defectsSum = (
       s.defects.dirty + s.defects.animal + s.defects.rotten + s.defects.smoke +
-      s.defects.humid + s.defects.moldy + s.defects.overfermented + s.defects.other
+      s.defects.humid + s.defects.moldy + s.defects.overfermented + s.defects.other +
+      s.defects.excessiveAstringency + s.defects.unbalancedBitterness
     );
 
     // NEW SCORING: Complementary attributes use SUM (not weighted average), capped at 10
@@ -1560,6 +1563,8 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
           <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.moldy')} value={scores.defects.moldy} onChange={(v) => updateDefect('moldy', v)} tooltip={subAttributeTooltips.moldy} />
           <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.overfermented')} value={scores.defects.overfermented} onChange={(v) => updateDefect('overfermented', v)} tooltip={subAttributeTooltips.overfermented} />
           <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.other')} value={scores.defects.other} onChange={(v) => updateDefect('other', v)} tooltip={subAttributeTooltips.other} />
+          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.excessiveAstringency')} value={scores.defects.excessiveAstringency} onChange={(v) => updateDefect('excessiveAstringency', v)} tooltip={subAttributeTooltips.excessiveAstringency} />
+          <DefectRow label={t('dashboard.sensoryEvaluation.defects.labels.unbalancedBitterness')} value={scores.defects.unbalancedBitterness} onChange={(v) => updateDefect('unbalancedBitterness', v)} tooltip={subAttributeTooltips.unbalancedBitterness} />
           
           {/* Defect Total and Alerts */}
           <div className="mt-4 pt-4 border-t">

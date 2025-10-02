@@ -80,6 +80,8 @@ export interface SensoryEvaluationData {
     moldy: number;
     overfermented: number;
     other: number;
+    excessiveAstringency: number;
+    unbalancedBitterness: number;
   };
   
   // Chocolate-specific
@@ -399,6 +401,8 @@ export class SensoryEvaluationService {
         defects_moldy: evaluationResult.scores.defects.moldy,
         defects_overfermented: evaluationResult.scores.defects.overfermented,
         defects_other: evaluationResult.scores.defects.other,
+        defects_excessive_astringency: evaluationResult.scores.defects.excessiveAstringency,
+        defects_unbalanced_bitterness: evaluationResult.scores.defects.unbalancedBitterness,
         
         // Chocolate-specific
         sweetness: evaluationResult.scores.sweetness || null,
@@ -633,6 +637,8 @@ export class SensoryEvaluationService {
         moldy: parseFloat(dbRecord.defects_moldy) || 0,
         overfermented: parseFloat(dbRecord.defects_overfermented) || 0,
         other: parseFloat(dbRecord.defects_other) || 0,
+        excessiveAstringency: parseFloat(dbRecord.defects_excessive_astringency) || 0,
+        unbalancedBitterness: parseFloat(dbRecord.defects_unbalanced_bitterness) || 0,
       },
       
       // Chocolate-specific

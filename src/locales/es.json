@@ -834,7 +834,9 @@
           "smoke": "Contaminación por cualquier humo. Puede dominar otros sabores.",
           "humid": "Notas viejas, húmedas, mohosas, descompuestas. Indica malas condiciones de almacenamiento.",
           "moldy": "Característico del crecimiento de moho. Defecto grave que indica contaminación.",
-          "other": "Rancio, diesel, petróleo, alquitrán, pintura, neumáticos, químicos, quemado. Varios defectos graves."
+          "other": "Rancio, diesel, petróleo, alquitrán, pintura, neumáticos, químicos, quemado. Varios defectos graves.",
+          "excessiveAstringency": "Astringencia No Deseada: Evalúe si la astringencia interfiere con la apreciación del sabor, persiste incómodamente o domina el perfil sensorial. No la confunda con astringencia leve o estructural, que puede ser aceptable.",
+          "unbalancedBitterness": "Amargor No Deseado: Determine si el amargor es agresivo, punzante o desagradable, y si impacta negativamente la experiencia general del producto. No penalice si el amargor está integrado y añade complejidad."
         }
       },
       "defects": {
@@ -847,7 +849,9 @@
           "humid": "Humedad",
           "moldy": "Moho",
           "overfermented": "Sobre fermentado / Fruta podrida",
-          "other": "Otros"
+          "other": "Otros",
+          "excessiveAstringency": "Astringencia Excesiva",
+          "unbalancedBitterness": "Amargor Desequilibrado"
         },
         "note": "Nota: El total de defectos es una suma, no un promedio."
       },
