@@ -656,7 +656,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
       }
       // If defectsTotal < 3, no penalty
       
-      const totalScore = mainScore * 0.6 + complementaryScore * 0.4 - defectPenalty;
+      const totalScore = mainScore + complementaryScore - defectPenalty;
       return clamp01(totalScore);
     }
   }, [scores, selectedCategory]);
@@ -911,7 +911,7 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
               <div className="mt-2 text-sm text-purple-700 dark:text-purple-300">
                 {scores.defectsTotal >= 7 ? 
                   t('dashboard.sensoryEvaluation.scoring.disqualificationMessage') :
-                  `${t('dashboard.sensoryEvaluation.scoring.mainScore', { weight: '0.6', score: ((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.roastDegree * 0.15)).toFixed(2) })} + ${t('dashboard.sensoryEvaluation.scoring.complementaryScore', { weight: '0.4', score: (([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9)).toFixed(2) })}${scores.defectsTotal >= 3 ? ` - ${t('dashboard.sensoryEvaluation.scoring.penalty', { value: ((scores.defectsTotal / 10) * ((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.roastDegree * 0.15) + ([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9))).toFixed(2) })}` : ''}`
+                  `${t('dashboard.sensoryEvaluation.scoring.mainScore', { score: ((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.roastDegree * 0.15)).toFixed(2) })} + ${t('dashboard.sensoryEvaluation.scoring.complementaryScore', { score: (([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9)).toFixed(2) })}${scores.defectsTotal >= 3 ? ` - ${t('dashboard.sensoryEvaluation.scoring.penalty', { value: ((scores.defectsTotal / 10) * ((scores.cacao * 0.40 + scores.bitterness * 0.25 + scores.astringency * 0.20 + scores.roastDegree * 0.15) + ([scores.acidityTotal, scores.freshFruitTotal, scores.brownFruitTotal, scores.vegetalTotal, scores.floralTotal, scores.woodTotal, scores.spiceTotal, scores.nutTotal, scores.caramelPanela].reduce((a, b) => a + b, 0) / 9))).toFixed(2) })}` : ''}`
                 }
               </div>
             </div>

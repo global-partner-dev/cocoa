@@ -883,8 +883,8 @@
         "autoDisqualification": "(≥7: Auto-disqualification)",
         "proportionalPenalty": "(3-6: Proportional penalty)",
         "noPenalty": "(<3: No penalty)",
-        "mainScore": "Main {{weight}} × ({{score}})",
-        "complementaryScore": "Complementary {{weight}} × ({{score}})",
+        "mainScore": "Main ({{score}})",
+        "complementaryScore": "Complementary ({{score}})",
         "penalty": "Penalty ({{value}})",
         "average": "Average: {{value}} × 4"
       },
