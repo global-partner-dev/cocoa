@@ -782,7 +782,8 @@
           "main": "Elementos Clave",
           "complementary": "Características Complementarias",
           "defects": "Sabores Atípicos/Defectos"
-        }
+        },
+        "odorSection": "OLOR"
       },
       "tooltips": {
         "cacao": "El sabor típico del cacao refleja granos bien fermentados y tostados adecuadamente sin defectos. Evalúe si la muestra coincide con este perfil o muestra fermentación limitada o características Criollo.",

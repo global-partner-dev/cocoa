@@ -782,7 +782,8 @@
           "main": "Key Elements",
           "complementary": "Complementary Characteristics",
           "defects": "Atypical Flavors/Defects"
-        }
+        },
+        "odorSection": "ODOR"
       },
       "tooltips": {
         "cacao": "Typical cocoa flavor reflects well-fermented, properly roasted beans without defects. Evaluate if the sample matches this profile or shows limited fermentation or Criollo characteristics.",

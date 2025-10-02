@@ -1178,6 +1178,9 @@ const SensoryEvaluationForm: React.FC<SensoryEvaluationFormProps> = ({ metaDefau
 
           <Separator className="my-2" />
 
+            <div>
+              - {t('dashboard.sensoryEvaluation.intensityScale.odorSection')} -
+            </div>
           {category === 'cocoa_liquor' && (
             <div className="grid md:grid-cols-2 gap-6">
               {/* Typical Odors */}
