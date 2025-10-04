@@ -1095,14 +1095,4 @@ export class SamplesService {
       throw error;
     }
   }
-
-  // Helper method to generate tracking code
-  private static async generateTrackingCode(): Promise<string> {
-    const { data, error } = await supabase.rpc('generate_tracking_code');
-    if (error) {
-      console.error('Error generating tracking code:', error);
-      throw error;
-    }
-    return data;
-  }
 }
