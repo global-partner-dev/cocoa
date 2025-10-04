@@ -2233,6 +2233,7 @@
     "evaluationType": "Evaluation Type",
     "evaluationTypes": {
       "cocoa": "Cocoa Mass",
+      "cocoa_mass": "Cocoa Mass",
       "chocolate": "Chocolate"
     },
     "verdict": "Verdict",
