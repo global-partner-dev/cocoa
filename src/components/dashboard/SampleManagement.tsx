@@ -367,7 +367,7 @@ const SampleManagement = () => {
       (sample.ownerFullName && sample.ownerFullName.toLowerCase().includes(term)) ||
       (sample.notes && sample.notes.toLowerCase().includes(term)) ||
       (sample.weight && sample.weight.toString().includes(term)) ||
-      (sample.liquorName && sample.liquorName.toLowerCase().includes(term)) ||
+      (sample.productName && sample.productName.toLowerCase().includes(term)) ||
       (sample.lotNumber && sample.lotNumber.toLowerCase().includes(term));
 
     const matchesTracking = trackingCodeSearch

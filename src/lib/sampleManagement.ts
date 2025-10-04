@@ -19,9 +19,9 @@ export interface SampleManagement {
   ownerFullName?: string;
   contestId: string;
   userId: string;
-  // Cocoa liquor specific fields
-  liquorName?: string; // name from cocoa_liquor table
-  lotNumber?: string; // lot_number from cocoa_liquor table
+  // Product specific fields (from cocoa_bean, cocoa_liquor, or chocolate tables)
+  productName?: string; // name from cocoa_liquor/chocolate, or variety from cocoa_bean
+  lotNumber?: string; // lot_number from cocoa_bean/cocoa_liquor/chocolate tables
 }
 
 export interface SampleManagementResult {
@@ -58,7 +58,15 @@ export class SampleManagementService {
           profiles:user_id (
             name
           ),
+          cocoa_bean (
+            variety,
+            lot_number
+          ),
           cocoa_liquor (
+            name,
+            lot_number
+          ),
+          chocolate (
             name,
             lot_number
           )
@@ -91,6 +99,24 @@ export class SampleManagementService {
         // Determine category based on sample data (default to cocoa for now)
         const category: 'cocoa' | 'chocolate' | 'powder' = 'cocoa';
         
+        // Extract product name and lot number based on category
+        let productName: string | undefined;
+        let lotNumber: string | undefined;
+
+        if (sample.cocoa_bean?.[0]) {
+          // For cocoa bean, use variety as the product name
+          productName = sample.cocoa_bean[0].variety;
+          lotNumber = sample.cocoa_bean[0].lot_number;
+        } else if (sample.cocoa_liquor?.[0]) {
+          // For cocoa liquor, use name
+          productName = sample.cocoa_liquor[0].name;
+          lotNumber = sample.cocoa_liquor[0].lot_number;
+        } else if (sample.chocolate?.[0]) {
+          // For chocolate, use name
+          productName = sample.chocolate[0].name;
+          lotNumber = sample.chocolate[0].lot_number;
+        }
+
         return {
           id: sample.id,
           externalCode: sample.tracking_code,
@@ -108,8 +134,8 @@ export class SampleManagementService {
           ownerFullName: sample.owner_full_name,
           contestId: sample.contest_id,
           userId: sample.user_id,
-          liquorName: sample.cocoa_liquor?.[0]?.name || undefined,
-          lotNumber: sample.cocoa_liquor?.[0]?.lot_number || undefined
+          productName,
+          lotNumber
         };
       });
 
