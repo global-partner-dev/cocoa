@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Download, 
@@ -22,7 +22,7 @@ import {
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip as ReTooltip } from "recharts";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { ResultsService, SampleResult, ResultsStats } from "@/lib/resultsService";
+import { ResultsService, SampleResult, ResultsStats, JudgeComment } from "@/lib/resultsService";
 import { generateParticipantReport } from "@/lib/pdfReport";
 import { useTranslation } from "react-i18next";
 import { ContestsService, type ContestDisplay } from "@/lib/contestsService";
@@ -35,6 +35,8 @@ const ParticipantResults = () => {
   const [selectedResult, setSelectedResult] = useState<SampleResult | null>(null);
   const [detailedSensoryData, setDetailedSensoryData] = useState<any>(null);
   const [detailedDataLoading, setDetailedDataLoading] = useState(false);
+  const [judgeComments, setJudgeComments] = useState<JudgeComment[]>([]);
+  const [judgeCommentsLoading, setJudgeCommentsLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [myResultsLoading, setMyResultsLoading] = useState(true);
@@ -158,10 +160,33 @@ const ParticipantResults = () => {
     }
   };
 
+  const loadJudgeComments = async (sampleId: string) => {
+    try {
+      setJudgeCommentsLoading(true);
+      
+      const response = await ResultsService.getAllJudgeComments(sampleId);
+      
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to load judge comments');
+      }
+
+      setJudgeComments(response.data || []);
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load judge comments';
+      console.error('Error loading judge comments:', errorMessage);
+      // Don't show error toast as it's not critical
+    } finally {
+      setJudgeCommentsLoading(false);
+    }
+  };
+
   const handleResultSelect = (result: SampleResult) => {
     setSelectedResult(result);
     setDetailedSensoryData(null); // Clear previous data
+    setJudgeComments([]); // Clear previous comments
     loadDetailedSensoryData(result.id);
+    loadJudgeComments(result.id);
   };
 
   const getStatusColor = (status: SampleResult['status']) => {
@@ -768,6 +793,78 @@ const ParticipantResults = () => {
               <div className="p-3 bg-gray-50 rounded text-xs">
                 <strong>{t('dashboard.participantResults.detailedResults.sensoryNotes')}:</strong> {detailedSensoryData?.flavor_comments || selectedResult.sensoryEvaluation.notes}
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Judge Comments Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>All Judge Comments</CardTitle>
+              <CardDescription>Comments from all judges who evaluated this sample</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {judgeCommentsLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                  <span className="ml-2 text-sm text-muted-foreground">Loading judge comments...</span>
+                </div>
+              ) : judgeComments.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">No comments from judges yet.</p>
+              ) : (
+                <Accordion type="single" collapsible className="w-full">
+                  {judgeComments.map((judge, index) => (
+                    <AccordionItem key={index} value={`judge-${index}`}>
+                      <AccordionTrigger className="hover:no-underline">
+                        <div className="flex items-center justify-between w-full pr-4">
+                          <span className="font-medium">Judge {judge.judgeNumber}</span>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <span>Quality: {judge.overall_quality.toFixed(1)}/10</span>
+                            <span>{new Date(judge.evaluationDate).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="space-y-3 pt-2">
+                          {judge.sample_notes && (
+                            <div className="p-3 bg-gray-50 rounded">
+                              <div className="text-xs font-semibold text-muted-foreground mb-1">Sample Notes</div>
+                              <div className="text-sm">{judge.sample_notes}</div>
+                            </div>
+                          )}
+                          {judge.texture_notes && (
+                            <div className="p-3 bg-gray-50 rounded">
+                              <div className="text-xs font-semibold text-muted-foreground mb-1">Texture Notes</div>
+                              <div className="text-sm">{judge.texture_notes}</div>
+                            </div>
+                          )}
+                          {judge.flavor_comments && (
+                            <div className="p-3 bg-gray-50 rounded">
+                              <div className="text-xs font-semibold text-muted-foreground mb-1">Flavor Comments</div>
+                              <div className="text-sm">{judge.flavor_comments}</div>
+                            </div>
+                          )}
+                          {judge.producer_recommendations && (
+                            <div className="p-3 bg-gray-50 rounded">
+                              <div className="text-xs font-semibold text-muted-foreground mb-1">Producer Recommendations</div>
+                              <div className="text-sm">{judge.producer_recommendations}</div>
+                            </div>
+                          )}
+                          {judge.additional_positive && (
+                            <div className="p-3 bg-gray-50 rounded">
+                              <div className="text-xs font-semibold text-muted-foreground mb-1">Additional Positive Notes</div>
+                              <div className="text-sm">{judge.additional_positive}</div>
+                            </div>
+                          )}
+                          {!judge.sample_notes && !judge.texture_notes && !judge.flavor_comments && 
+                           !judge.producer_recommendations && !judge.additional_positive && (
+                            <p className="text-sm text-muted-foreground italic">No comments provided by this judge.</p>
+                          )}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              )}
             </CardContent>
           </Card>
         </div>

@@ -51,6 +51,17 @@ export interface ResultsStats {
   totalAwards: number;
 }
 
+export interface JudgeComment {
+  judgeNumber: number;
+  evaluationDate: string;
+  sample_notes: string;
+  texture_notes: string;
+  flavor_comments: string;
+  producer_recommendations: string;
+  additional_positive: string;
+  overall_quality: number;
+}
+
 export class ResultsService {
   
   /**
@@ -694,6 +705,69 @@ export class ResultsService {
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Failed to fetch results statistics' 
+      };
+    }
+  }
+
+  /**
+   * Get all judge comments for a specific sample
+   * @param sampleId - Sample ID to fetch comments for
+   */
+  static async getAllJudgeComments(sampleId: string): Promise<{ 
+    success: boolean; 
+    data?: JudgeComment[]; 
+    error?: string 
+  }> {
+    try {
+      console.log(`Fetching all judge comments for sample: ${sampleId}`);
+
+      const { data: evaluations, error } = await supabase
+        .from('sensory_evaluations')
+        .select(`
+          id,
+          evaluation_date,
+          sample_notes,
+          texture_notes,
+          flavor_comments,
+          producer_recommendations,
+          additional_positive,
+          overall_quality,
+          created_at
+        `)
+        .eq('sample_id', sampleId)
+        .eq('verdict', 'Approved')
+        .order('evaluation_date', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching judge comments:', error);
+        throw error;
+      }
+
+      if (!evaluations || evaluations.length === 0) {
+        console.log('No judge comments found for sample');
+        return { success: true, data: [] };
+      }
+
+      // Transform to anonymized judge comments
+      const comments = evaluations.map((evaluation, index) => ({
+        judgeNumber: index + 1,
+        evaluationDate: evaluation.evaluation_date || evaluation.created_at,
+        sample_notes: evaluation.sample_notes || '',
+        texture_notes: evaluation.texture_notes || '',
+        flavor_comments: evaluation.flavor_comments || '',
+        producer_recommendations: evaluation.producer_recommendations || '',
+        additional_positive: evaluation.additional_positive || '',
+        overall_quality: evaluation.overall_quality || 0,
+      }));
+
+      console.log(`Successfully fetched ${comments.length} judge comments`);
+      return { success: true, data: comments };
+
+    } catch (error) {
+      console.error('Error in getAllJudgeComments:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch judge comments'
       };
     }
   }
