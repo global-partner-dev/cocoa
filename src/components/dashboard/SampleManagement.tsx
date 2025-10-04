@@ -24,6 +24,7 @@ const SampleManagement = () => {
   const [samples, setSamples] = useState<SampleManagement[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterContest, setFilterContest] = useState<string>('all');
   const [trackingCodeSearch, setTrackingCodeSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -355,6 +356,9 @@ const SampleManagement = () => {
     }
   };
 
+  // Get unique contests for filter dropdown
+  const uniqueContests = Array.from(new Set(samples.map(s => s.contest))).sort();
+
   const filteredSamples = samples.filter(sample => {
     const term = searchTerm.toLowerCase();
     const matchesSearch =
@@ -376,8 +380,9 @@ const SampleManagement = () => {
       : true;
 
     const matchesStatus = filterStatus === 'all' || sample.status === filterStatus;
+    const matchesContest = filterContest === 'all' || sample.contest === filterContest;
 
-    return matchesSearch && matchesTracking && matchesStatus;
+    return matchesSearch && matchesTracking && matchesStatus && matchesContest;
   });
 
   const stats = {
@@ -500,7 +505,7 @@ const SampleManagement = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
               <Input
@@ -517,7 +522,7 @@ const SampleManagement = () => {
                 onChange={(e) => setTrackingCodeSearch(e.target.value)}
               />
             </div>
-            <div className="sm:col-span-2 lg:col-span-1">
+            <div>
               <Select value={filterStatus} onValueChange={setFilterStatus}>
                 <SelectTrigger>
                   <SelectValue placeholder={t('dashboard.sampleManagement.filters.statusPlaceholder')} />
@@ -529,6 +534,21 @@ const SampleManagement = () => {
                   <SelectItem value="physical_evaluation">{t('dashboard.sampleManagement.filters.status.evaluated')}</SelectItem>
                   <SelectItem value="approved">{t('dashboard.sampleManagement.filters.status.approved')}</SelectItem>
                   <SelectItem value="disqualified">{t('dashboard.sampleManagement.filters.status.disqualified')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Select value={filterContest} onValueChange={setFilterContest}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by contest" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Contests</SelectItem>
+                  {uniqueContests.map((contestName) => (
+                    <SelectItem key={contestName} value={contestName}>
+                      {contestName}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
