@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Bell, AlertTriangle, TrendingUp, CheckCircle, Check, Trash2, Mail, Info, Award, FileText, UserPlus, Package, Gavel } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
@@ -79,6 +80,8 @@ const Notifications = () => {
   const [typeFilter, setTypeFilter] = useState<NotificationType | 'all'>('all');
   const [priorityFilter, setPriorityFilter] = useState<NotificationPriority | 'all'>('all');
   const [selected, setSelected] = useState<DbNotificationRow | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -154,6 +157,17 @@ const Notifications = () => {
     t(`notificationsPage.types.${type}`, { defaultValue: notificationPrettyType(type) });
   const tPriority = (p: NotificationPriority) =>
     t(`notificationsPage.priority.${p}`, { defaultValue: p });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(notifications.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedNotifications = notifications.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [typeFilter, priorityFilter]);
 
   if (selected) {
     return (
@@ -356,8 +370,9 @@ const Notifications = () => {
           ) : notifications.length === 0 ? (
             <div className="py-8 text-center text-muted-foreground">{t('notificationsPage.inbox.empty', 'No notifications')}</div>
           ) : (
-            <div className="divide-y">
-              {notifications.map((n) => (
+            <>
+              <div className="divide-y">
+                {paginatedNotifications.map((n) => (
                 <div key={n.id} className="py-4 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                   <div className="flex items-start space-x-3 flex-1 min-w-0">
                     <div className="flex-shrink-0 mt-1">
@@ -422,7 +437,44 @@ const Notifications = () => {
                   </div>
                 </div>
               ))}
-            </div>
+              </div>
+
+              {/* Pagination */}
+              {!isLoading && notifications.length > 0 && totalPages > 1 && (
+                <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-sm text-muted-foreground">
+                    Showing {startIndex + 1} to {Math.min(endIndex, notifications.length)} of {notifications.length} notifications
+                  </div>
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                          className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                      </PaginationItem>
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(page)}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))}
+                      <PaginationItem>
+                        <PaginationNext 
+                          onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                          className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
