@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Bell, Clock, CheckCircle, AlertCircle, Eye, Star, RefreshCw } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Bell, Clock, CheckCircle, AlertCircle, Eye, Star, RefreshCw, Search, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import SensoryEvaluationForm from "./SensoryEvaluationForm";
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +22,9 @@ interface AssignedSample {
   evaluationProgress?: number;
   scores?: SensoryScores;
   hasEvaluation?: boolean;
+  productName?: string;
+  lotNumber?: string;
+  participantName?: string;
 }
 
 interface SensoryScores {
@@ -65,6 +70,10 @@ const JudgeDashboard = () => {
   const [existingEvaluation, setExistingEvaluation] = useState<any>(null);
   const { toast } = useToast();
   const { t } = useTranslation();
+  
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'in_progress' | 'completed'>('all');
 
   const getStatusColor = (status: AssignedSample['status']) => {
     switch (status) {
@@ -105,6 +114,21 @@ const JudgeDashboard = () => {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
+
+  // Filter samples based on search term and status
+  const filteredSamples = samples.filter(sample => {
+    const term = searchTerm.toLowerCase();
+    const matchesSearch = !searchTerm || 
+      sample.internalCode.toLowerCase().includes(term) ||
+      sample.contestName.toLowerCase().includes(term) ||
+      (sample.productName && sample.productName.toLowerCase().includes(term)) ||
+      (sample.lotNumber && sample.lotNumber.toLowerCase().includes(term)) ||
+      (sample.participantName && sample.participantName.toLowerCase().includes(term));
+    
+    const matchesStatus = statusFilter === 'all' || sample.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
 
   const unreadNotifications = (recentNotifications as any[]).filter((n: any) => !n.read).length;
   const totalSamples = samples.length;
@@ -510,8 +534,43 @@ const JudgeDashboard = () => {
               <CardDescription className="text-xs sm:text-sm">{t('judgeDashboard.assigned.description')}</CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Filter Section */}
+              <div className="mb-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Filters</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search by code, name, product, lot number..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                  <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               <div className="space-y-3 sm:space-y-4">
-                {samples.map((sample) => (
+                {filteredSamples.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>No samples found matching your filters.</p>
+                  </div>
+                ) : (
+                  filteredSamples.map((sample) => (
                   <div
                     key={sample.id}
                     className="p-3 sm:p-4 border rounded-lg hover:shadow-[var(--shadow-chocolate)] transition-[var(--transition-smooth)] cursor-pointer"
@@ -567,7 +626,8 @@ const JudgeDashboard = () => {
                       </div>
                     )}
                   </div>
-                ))}
+                ))
+                )}
               </div>
             </CardContent>
           </Card>

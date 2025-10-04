@@ -30,6 +30,9 @@ export interface JudgeAssignedSample {
   status: 'pending' | 'in_progress' | 'completed';
   evaluationProgress?: number;
   category?: 'cocoa_bean' | 'cocoa_liquor' | 'chocolate';
+  productName?: string; // name from cocoa_liquor/chocolate, or variety from cocoa_bean
+  lotNumber?: string; // lot_number from cocoa_bean/cocoa_liquor/chocolate tables
+  participantName?: string; // participant name for filtering
 }
 
 export interface JudgeActiveContest {
@@ -191,10 +194,20 @@ export class JudgeAssignmentService {
 
     const sampleIds = assigns.map(a => a.sample_id);
 
-    // 2) Fetch samples + contest relation
+    // 2) Fetch samples + contest relation + product details
     const { data: samples, error: serr } = await supabase
       .from('sample')
-      .select('id, created_at, contest_id, category, contests:contest_id ( name, end_date )')
+      .select(`
+        id, 
+        created_at, 
+        contest_id, 
+        category,
+        contests:contest_id ( name, end_date ),
+        profiles:user_id ( name ),
+        cocoa_bean ( variety, lot_number ),
+        cocoa_liquor ( name, lot_number ),
+        chocolate ( name, lot_number )
+      `)
       .in('id', sampleIds);
     if (serr) throw serr;
 
@@ -214,6 +227,21 @@ export class JudgeAssignmentService {
       const mappedStatus: 'pending' | 'in_progress' | 'completed' =
         rawStatus === 'completed' ? 'completed' : rawStatus === 'evaluating' ? 'in_progress' : 'pending';
 
+      // Extract product name and lot number based on category
+      let productName: string | undefined;
+      let lotNumber: string | undefined;
+
+      if ((s as any).cocoa_bean?.[0]) {
+        productName = (s as any).cocoa_bean[0].variety;
+        lotNumber = (s as any).cocoa_bean[0].lot_number;
+      } else if ((s as any).cocoa_liquor?.[0]) {
+        productName = (s as any).cocoa_liquor[0].name;
+        lotNumber = (s as any).cocoa_liquor[0].lot_number;
+      } else if ((s as any).chocolate?.[0]) {
+        productName = (s as any).chocolate[0].name;
+        lotNumber = (s as any).chocolate[0].lot_number;
+      }
+
       return {
         id: s.id,
         internalCode: internal,
@@ -223,6 +251,9 @@ export class JudgeAssignmentService {
         status: mappedStatus,
         evaluationProgress: statusToProgress(rawStatus),
         category: (s as any).category || undefined,
+        productName,
+        lotNumber,
+        participantName: (s as any).profiles?.name || 'Unknown',
       } as JudgeAssignedSample;
     });
   }
