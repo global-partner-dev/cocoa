@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { AlertTriangle, CheckCircle, XCircle, Eye, Save, Send, AlertCircle, RefreshCw, Package, Search, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -41,6 +42,10 @@ const PhysicalEvaluation = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterContest, setFilterContest] = useState<string>('all');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Utility to toggle items in a list
   const toggleFromList = (
@@ -172,6 +177,11 @@ const PhysicalEvaluation = () => {
       checkPaymentStatus();
     }
   }, [samples]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStatus, filterContest]);
 
   const handleEvaluationChange = <K extends keyof PhysicalEvaluationData>(
     field: K, 
@@ -832,33 +842,42 @@ const PhysicalEvaluation = () => {
                   {t('dashboard.physicalEvaluation.samplesList.noSamples.description')}
                 </p>
               </div>
-            ) : (
-              samples
-                .filter(sample => {
-                  // Show samples that are:
-                  // 1. Already in submitted, physical_evaluation, approved, or disqualified status
-                  // 2. In received status AND have been paid for
-                  const statusMatch = sample.status === 'submitted' ||
-                         sample.status === 'physical_evaluation' || 
-                         sample.status === 'approved' || 
-                         sample.status === 'disqualified' ||
-                         (sample.status === 'received' && paidSamples.includes(sample.id));
-                  
-                  if (!statusMatch) return false;
-                  
-                  // Apply filters
-                  const term = searchTerm.toLowerCase();
-                  const matchesSearch = !searchTerm || 
-                    sample.internalCode.toLowerCase().includes(term) ||
-                    sample.participantName.toLowerCase().includes(term) ||
-                    sample.contestName.toLowerCase().includes(term);
-                  
-                  const matchesStatus = filterStatus === 'all' || sample.status === filterStatus;
-                  const matchesContest = filterContest === 'all' || sample.contestName === filterContest;
-                  
-                  return matchesSearch && matchesStatus && matchesContest;
-                })
-                .map((sample) => (
+            ) : (() => {
+              // Filter samples
+              const filteredSamples = samples.filter(sample => {
+                // Show samples that are:
+                // 1. Already in submitted, physical_evaluation, approved, or disqualified status
+                // 2. In received status AND have been paid for
+                const statusMatch = sample.status === 'submitted' ||
+                       sample.status === 'physical_evaluation' || 
+                       sample.status === 'approved' || 
+                       sample.status === 'disqualified' ||
+                       (sample.status === 'received' && paidSamples.includes(sample.id));
+                
+                if (!statusMatch) return false;
+                
+                // Apply filters
+                const term = searchTerm.toLowerCase();
+                const matchesSearch = !searchTerm || 
+                  sample.internalCode.toLowerCase().includes(term) ||
+                  sample.participantName.toLowerCase().includes(term) ||
+                  sample.contestName.toLowerCase().includes(term);
+                
+                const matchesStatus = filterStatus === 'all' || sample.status === filterStatus;
+                const matchesContest = filterContest === 'all' || sample.contestName === filterContest;
+                
+                return matchesSearch && matchesStatus && matchesContest;
+              });
+
+              // Pagination calculations
+              const totalPages = Math.ceil(filteredSamples.length / itemsPerPage);
+              const startIndex = (currentPage - 1) * itemsPerPage;
+              const endIndex = startIndex + itemsPerPage;
+              const paginatedSamples = filteredSamples.slice(startIndex, endIndex);
+
+              return (
+                <>
+                  {paginatedSamples.map((sample) => (
               <div
                 key={sample.id}
                 className="p-3 sm:p-4 border rounded-lg hover:shadow-[var(--shadow-chocolate)] transition-[var(--transition-smooth)] cursor-pointer"
@@ -951,8 +970,46 @@ const PhysicalEvaluation = () => {
                   </div>
                 )}
               </div>
-              ))
-            )}
+                  ))}
+
+                  {/* Pagination */}
+                  {filteredSamples.length > 0 && totalPages > 1 && (
+                    <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <div className="text-sm text-muted-foreground">
+                        Showing {startIndex + 1} to {Math.min(endIndex, filteredSamples.length)} of {filteredSamples.length} samples
+                      </div>
+                      <Pagination>
+                        <PaginationContent>
+                          <PaginationItem>
+                            <PaginationPrevious 
+                              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                              className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                            />
+                          </PaginationItem>
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            <PaginationItem key={page}>
+                              <PaginationLink
+                                onClick={() => setCurrentPage(page)}
+                                isActive={currentPage === page}
+                                className="cursor-pointer"
+                              >
+                                {page}
+                              </PaginationLink>
+                            </PaginationItem>
+                          ))}
+                          <PaginationItem>
+                            <PaginationNext 
+                              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                            />
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </CardContent>
       </Card>

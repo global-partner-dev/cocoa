@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Users, UserCheck, Clock, CheckCircle, RefreshCw, Search, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { JudgeAssignmentService, UIJudge, UISample } from "@/lib/judgeAssignmentService";
@@ -25,6 +26,10 @@ const SampleAssignment = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterContest, setFilterContest] = useState<string>('all');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const loadData = async () => {
     try {
@@ -146,6 +151,32 @@ const SampleAssignment = () => {
 
   const availableJudges = judges.filter(judge => judge.available);
 
+  // Filter samples
+  const filteredSamples = samples.filter(sample => {
+    const uiStatus = deriveUIStatus(sample);
+    const term = searchTerm.toLowerCase();
+    const matchesSearch = !searchTerm || 
+      sample.internalCode.toLowerCase().includes(term) ||
+      sample.participantName.toLowerCase().includes(term) ||
+      sample.contestName.toLowerCase().includes(term);
+    
+    const matchesStatus = filterStatus === 'all' || uiStatus === filterStatus;
+    const matchesContest = filterContest === 'all' || sample.contestName === filterContest;
+    
+    return matchesSearch && matchesStatus && matchesContest;
+  });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredSamples.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedSamples = filteredSamples.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStatus, filterContest]);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -263,19 +294,7 @@ const SampleAssignment = () => {
             </div>
 
             <div className="space-y-3">
-              {samples.filter(sample => {
-                const uiStatus = deriveUIStatus(sample);
-                const term = searchTerm.toLowerCase();
-                const matchesSearch = !searchTerm || 
-                  sample.internalCode.toLowerCase().includes(term) ||
-                  sample.participantName.toLowerCase().includes(term) ||
-                  sample.contestName.toLowerCase().includes(term);
-                
-                const matchesStatus = filterStatus === 'all' || uiStatus === filterStatus;
-                const matchesContest = filterContest === 'all' || sample.contestName === filterContest;
-                
-                return matchesSearch && matchesStatus && matchesContest;
-              }).map((sample) => {
+              {paginatedSamples.map((sample) => {
                 const uiStatus = deriveUIStatus(sample);
                 return (
                   <div
@@ -338,6 +357,44 @@ const SampleAssignment = () => {
                 );
               })}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-6 space-y-4">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-sm text-muted-foreground">
+                    Showing {startIndex + 1} to {Math.min(endIndex, filteredSamples.length)} of {filteredSamples.length} samples
+                  </div>
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                          className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                      </PaginationItem>
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(page)}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))}
+                      <PaginationItem>
+                        <PaginationNext 
+                          onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                          className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 

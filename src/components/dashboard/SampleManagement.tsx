@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import PayPalButtonsMount from '@/components/payments/PayPalButtonsMount';
 import visa from "@/assets/visa.png";
 import nequi from "@/assets/nequi.png";
@@ -39,6 +40,10 @@ const SampleManagement = () => {
   const [paymentMethod, setPaymentMethod] = useState<'paypal' | 'card' | 'nequi' | null>(null);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [payingAmount, setPayingAmount] = useState<number | null>(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const { toast } = useToast();
 
@@ -385,6 +390,17 @@ const SampleManagement = () => {
     return matchesSearch && matchesTracking && matchesStatus && matchesContest;
   });
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredSamples.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedSamples = filteredSamples.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStatus, filterContest, trackingCodeSearch]);
+
   const stats = {
     total: samples.length,
     submitted: samples.filter(s => s.status === 'submitted').length,
@@ -580,7 +596,7 @@ const SampleManagement = () => {
                 </p>
               </div>
             ) : (
-              filteredSamples.map((sample) => (
+              paginatedSamples.map((sample) => (
               <div
                 key={sample.id}
                 className="p-4 border rounded-lg hover:shadow-[var(--shadow-chocolate)] transition-[var(--transition-smooth)]"
@@ -660,6 +676,42 @@ const SampleManagement = () => {
               ))
             )}
           </div>
+
+          {/* Pagination */}
+          {!loading && filteredSamples.length > 0 && totalPages > 1 && (
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-sm text-muted-foreground">
+                Showing {startIndex + 1} to {Math.min(endIndex, filteredSamples.length)} of {filteredSamples.length} samples
+              </div>
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(page)}
+                        isActive={currentPage === page}
+                        className="cursor-pointer"
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
         </CardContent>
       </Card>
 
