@@ -2225,6 +2225,191 @@
       }
     }
   },
+  "SensoryEvaluationDetails": {
+    "detailsTitle": "Detalles de Evaluación Sensorial",
+    "metaInfo": "Información Meta",
+    "evaluationDate": "Fecha de Evaluación",
+    "evaluationTime": "Hora de Evaluación",
+    "evaluationType": "Tipo de Evaluación",
+    "evaluationTypes": {
+      "cocoa": "Masa de Cacao",
+      "chocolate": "Chocolate"
+    },
+    "verdict": "Veredicto",
+    "verdicts": {
+      "approved": "Aprobado",
+      "disqualified": "Descalificado"
+    },
+    "sampleNotes": "Notas de Muestra",
+    "mainAttributes": "Atributos Principales",
+    "subAttributes": "Sub-atributos",
+    "defects": "Defectos",
+    "comments": "Comentarios",
+    "flavorComments": "Comentarios de Sabor",
+    "producerRecommendations": "Recomendaciones para el Productor",
+    "additionalPositive": "Cualidades Positivas Adicionales",
+    "disqualificationReasons": "Razones de Descalificación",
+    "otherReason": "Otra Razón",
+    "overallQuality": "Calidad General",
+    "outOf10": "de 10",
+    "typicalOdors": "Olores Típicos",
+    "atypicalOdors": "Olores Atípicos",
+    "intensityScale": {
+      "attributes": {
+        "cacao": "Cacao",
+        "acidityTotal": "Acidez (Total)",
+        "freshFruitTotal": "Fruta Fresca (Total)",
+        "brownFruitTotal": "Fruta Parda (Total)",
+        "vegetalTotal": "Vegetal (Total)",
+        "floralTotal": "Floral (Total)",
+        "woodTotal": "Madera (Total)",
+        "spiceTotal": "Especias (Total)",
+        "nutTotal": "Nuez (Total)",
+        "caramelPanela": "Caramelo/Panela",
+        "bitterness": "Amargor",
+        "astringency": "Astringencia",
+        "roastDegree": "Grado de Tostado",
+        "defectsTotal": "Defectos (Total)"
+      },
+      "subAttributes": {
+        "acidity": {
+          "frutal": "Afrutado",
+          "acetic": "Acético",
+          "lactic": "Láctico",
+          "mineralButyric": "Mineral/Butírico"
+        },
+        "freshFruit": {
+          "berries": "Bayas",
+          "citrus": "Cítrico",
+          "yellowPulp": "Pulpa Amarilla",
+          "dark": "Oscuro",
+          "tropical": "Tropical"
+        },
+        "brownFruit": {
+          "dry": "Seco",
+          "brown": "Pardo",
+          "overripe": "Sobre maduro"
+        },
+        "vegetal": {
+          "grassHerb": "Hierba/Pasto",
+          "earthy": "Terroso"
+        },
+        "floral": {
+          "orangeBlossom": "Flor de Azahar",
+          "flowers": "Flores"
+        },
+        "wood": {
+          "light": "Claro",
+          "dark": "Oscuro",
+          "resin": "Resina"
+        },
+        "spice": {
+          "spices": "Especias",
+          "tobacco": "Tabaco",
+          "umami": "Umami"
+        },
+        "nut": {
+          "kernel": "Almendra",
+          "skin": "Cáscara"
+        },
+        "defects": {
+          "dirty": "Sucio",
+          "animal": "Animal",
+          "rotten": "Podrido",
+          "smoke": "Humo",
+          "humid": "Húmedo",
+          "moldy": "Moho",
+          "overfermented": "Sobre fermentado",
+          "other": "Otro",
+          "excessiveAstringency": "Astringencia Excesiva",
+          "unbalancedBitterness": "Amargor Desequilibrado"
+        }
+      }
+    },
+    "chocolate": {
+      "appearance": {
+        "title": "Apariencia",
+        "color": "Color",
+        "gloss": "Brillo",
+        "surfaceHomogeneity": "Homogeneidad de Superficie"
+      },
+      "aroma": {
+        "title": "Aroma",
+        "aromaIntensity": "Intensidad de Aroma",
+        "aromaQuality": "Calidad de Aroma",
+        "specificNotes": "Notas Específicas",
+        "notes": {
+          "floral": "Floral",
+          "fruity": "Afrutado",
+          "toasted": "Tostado",
+          "hazelnut": "Avellana",
+          "earthy": "Terroso",
+          "spicy": "Picante",
+          "milky": "Lácteo",
+          "woody": "Madera"
+        }
+      },
+      "texture": {
+        "title": "Textura",
+        "smoothness": "Suavidad",
+        "melting": "Derretimiento",
+        "body": "Cuerpo"
+      },
+      "flavor": {
+        "title": "Sabor",
+        "sweetness": "Dulzura",
+        "bitterness": "Amargor",
+        "acidity": "Acidez",
+        "flavorIntensity": "Intensidad de Sabor",
+        "flavorNotes": "Notas de Sabor",
+        "notes": {
+          "citrus": "Cítrico",
+          "redFruits": "Frutas Rojas",
+          "nuts": "Nueces",
+          "caramel": "Caramelo",
+          "malt": "Malta",
+          "wood": "Madera",
+          "spices": "Especias"
+        }
+      },
+      "aftertaste": {
+        "title": "Retrogusto",
+        "persistence": "Persistencia",
+        "aftertasteQuality": "Calidad del Retrogusto",
+        "finalBalance": "Balance Final"
+      }
+    },
+    "odors": {
+      "typical": {
+        "cleanCacao": "Cacao limpio",
+        "chocolate": "Chocolate",
+        "ripeFruit": "Fruta madura",
+        "floral": "Floral",
+        "spicy": "Picante",
+        "caramelSweet": "Caramelo / dulce",
+        "honeyMolasses": "Miel / melaza",
+        "driedFruits": "Frutas secas",
+        "citrus": "Cítrico",
+        "freshHerbal": "Herbal fresco",
+        "butterySoftDairy": "Mantecoso / lácteo suave",
+        "lightSmoky": "Ahumado ligero"
+      },
+      "atypical": {
+        "excessFermentation": "Fermentación excesiva",
+        "moldDamp": "Moho / húmedo",
+        "earthClay": "Tierra / arcilla",
+        "intenseSmokeOrBurnt": "Humo intenso / quemado",
+        "rancidOxidized": "Rancio / oxidado",
+        "medicinalChemical": "Medicinal / químico",
+        "animalLeather": "Animal / cuero",
+        "soapDetergent": "Jabón / detergente",
+        "pronouncedTannicNote": "Nota tánica pronunciada",
+        "sulfurousRottenEgg": "Sulfuroso / huevo podrido",
+        "fuelGasolineDiesel": "Combustible (gasolina, diésel)",
+        "industrialSolvents": "Solventes industriales (pintura, pegamento, diluyente)"
+      }
+    }
+  },
   "contestCleanup": {
     "pageTitle": "Limpieza de Datos de Concursos",
     "pageDescription": "Gestiona y limpia los datos de concursos expirados para mantener el rendimiento y organización de la base de datos.",

@@ -2225,6 +2225,191 @@
       }
     }
   },
+  "SensoryEvaluationDetails": {
+    "detailsTitle": "Sensory Evaluation Details",
+    "metaInfo": "Meta Information",
+    "evaluationDate": "Evaluation Date",
+    "evaluationTime": "Evaluation Time",
+    "evaluationType": "Evaluation Type",
+    "evaluationTypes": {
+      "cocoa": "Cocoa Mass",
+      "chocolate": "Chocolate"
+    },
+    "verdict": "Verdict",
+    "verdicts": {
+      "approved": "Approved",
+      "disqualified": "Disqualified"
+    },
+    "sampleNotes": "Sample Notes",
+    "mainAttributes": "Main Attributes",
+    "subAttributes": "Sub-attributes",
+    "defects": "Defects",
+    "comments": "Comments",
+    "flavorComments": "Flavor Comments",
+    "producerRecommendations": "Producer Recommendations",
+    "additionalPositive": "Additional Positive Qualities",
+    "disqualificationReasons": "Disqualification Reasons",
+    "otherReason": "Other Reason",
+    "overallQuality": "Overall Quality",
+    "outOf10": "out of 10",
+    "typicalOdors": "Typical Odors",
+    "atypicalOdors": "Atypical Odors",
+    "intensityScale": {
+      "attributes": {
+        "cacao": "Cacao",
+        "acidityTotal": "Acidity (Total)",
+        "freshFruitTotal": "Fresh Fruit (Total)",
+        "brownFruitTotal": "Brown Fruit (Total)",
+        "vegetalTotal": "Vegetal (Total)",
+        "floralTotal": "Floral (Total)",
+        "woodTotal": "Wood (Total)",
+        "spiceTotal": "Spice (Total)",
+        "nutTotal": "Nut (Total)",
+        "caramelPanela": "Caramel/Panela",
+        "bitterness": "Bitterness",
+        "astringency": "Astringency",
+        "roastDegree": "Roast Degree",
+        "defectsTotal": "Defects (Total)"
+      },
+      "subAttributes": {
+        "acidity": {
+          "frutal": "Fruity",
+          "acetic": "Acetic",
+          "lactic": "Lactic",
+          "mineralButyric": "Mineral/Butyric"
+        },
+        "freshFruit": {
+          "berries": "Berries",
+          "citrus": "Citrus",
+          "yellowPulp": "Yellow Pulp",
+          "dark": "Dark",
+          "tropical": "Tropical"
+        },
+        "brownFruit": {
+          "dry": "Dry",
+          "brown": "Brown",
+          "overripe": "Overripe"
+        },
+        "vegetal": {
+          "grassHerb": "Grass/Herb",
+          "earthy": "Earthy"
+        },
+        "floral": {
+          "orangeBlossom": "Orange Blossom",
+          "flowers": "Flowers"
+        },
+        "wood": {
+          "light": "Light",
+          "dark": "Dark",
+          "resin": "Resin"
+        },
+        "spice": {
+          "spices": "Spices",
+          "tobacco": "Tobacco",
+          "umami": "Umami"
+        },
+        "nut": {
+          "kernel": "Kernel",
+          "skin": "Skin"
+        },
+        "defects": {
+          "dirty": "Dirty",
+          "animal": "Animal",
+          "rotten": "Rotten",
+          "smoke": "Smoke",
+          "humid": "Humid",
+          "moldy": "Moldy",
+          "overfermented": "Over-fermented",
+          "other": "Other",
+          "excessiveAstringency": "Excessive Astringency",
+          "unbalancedBitterness": "Unbalanced Bitterness"
+        }
+      }
+    },
+    "chocolate": {
+      "appearance": {
+        "title": "Appearance",
+        "color": "Color",
+        "gloss": "Gloss",
+        "surfaceHomogeneity": "Surface Homogeneity"
+      },
+      "aroma": {
+        "title": "Aroma",
+        "aromaIntensity": "Aroma Intensity",
+        "aromaQuality": "Aroma Quality",
+        "specificNotes": "Specific Notes",
+        "notes": {
+          "floral": "Floral",
+          "fruity": "Fruity",
+          "toasted": "Toasted",
+          "hazelnut": "Hazelnut",
+          "earthy": "Earthy",
+          "spicy": "Spicy",
+          "milky": "Milky",
+          "woody": "Woody"
+        }
+      },
+      "texture": {
+        "title": "Texture",
+        "smoothness": "Smoothness",
+        "melting": "Melting",
+        "body": "Body"
+      },
+      "flavor": {
+        "title": "Flavor",
+        "sweetness": "Sweetness",
+        "bitterness": "Bitterness",
+        "acidity": "Acidity",
+        "flavorIntensity": "Flavor Intensity",
+        "flavorNotes": "Flavor Notes",
+        "notes": {
+          "citrus": "Citrus",
+          "redFruits": "Red Fruits",
+          "nuts": "Nuts",
+          "caramel": "Caramel",
+          "malt": "Malt",
+          "wood": "Wood",
+          "spices": "Spices"
+        }
+      },
+      "aftertaste": {
+        "title": "Aftertaste",
+        "persistence": "Persistence",
+        "aftertasteQuality": "Aftertaste Quality",
+        "finalBalance": "Final Balance"
+      }
+    },
+    "odors": {
+      "typical": {
+        "cleanCacao": "Clean cacao",
+        "chocolate": "Chocolate",
+        "ripeFruit": "Ripe fruit",
+        "floral": "Floral",
+        "spicy": "Spicy",
+        "caramelSweet": "Caramel / sweet",
+        "honeyMolasses": "Honey / molasses",
+        "driedFruits": "Dried fruits",
+        "citrus": "Citrus",
+        "freshHerbal": "Fresh herbal",
+        "butterySoftDairy": "Buttery / soft dairy",
+        "lightSmoky": "Light smoky"
+      },
+      "atypical": {
+        "excessFermentation": "Excess fermentation",
+        "moldDamp": "Mold / damp",
+        "earthClay": "Earth / clay",
+        "intenseSmokeOrBurnt": "Intense smoke / burnt",
+        "rancidOxidized": "Rancid / oxidized",
+        "medicinalChemical": "Medicinal / chemical",
+        "animalLeather": "Animal / leather",
+        "soapDetergent": "Soap / detergent",
+        "pronouncedTannicNote": "Pronounced tannic note",
+        "sulfurousRottenEgg": "Sulfurous / rotten egg",
+        "fuelGasolineDiesel": "Fuel (gasoline, diesel)",
+        "industrialSolvents": "Industrial solvents (paint, glue, thinner)"
+      }
+    }
+  },
   "contestCleanup": {
     "pageTitle": "Contest Data Cleanup",
     "pageDescription": "Manage and cleanup expired contest data to maintain database performance and organization.",
