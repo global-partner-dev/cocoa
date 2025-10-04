@@ -89,7 +89,7 @@ export class JudgeAssignmentService {
     }));
   }
 
-  static async getAvailableJudges(maxAssignmentsPerJudge = 10): Promise<UIJudge[]> {
+  static async getAvailableJudges(maxAssignmentsPerJudge = 50): Promise<UIJudge[]> {
     const { data: judges, error } = await supabase
       .from('profiles')
       .select('id, name, email')

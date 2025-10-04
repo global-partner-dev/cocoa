@@ -25,7 +25,7 @@ const SampleAssignment = () => {
       setIsRefreshing(true);
       const [s, j] = await Promise.all([
         JudgeAssignmentService.getSamplesForAssignment(),
-        JudgeAssignmentService.getAvailableJudges(8),
+        JudgeAssignmentService.getAvailableJudges(50),
       ]);
       setSamples(s);
       setJudges(j);
