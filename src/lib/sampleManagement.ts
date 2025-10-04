@@ -19,6 +19,9 @@ export interface SampleManagement {
   ownerFullName?: string;
   contestId: string;
   userId: string;
+  // Cocoa liquor specific fields
+  liquorName?: string; // name from cocoa_liquor table
+  lotNumber?: string; // lot_number from cocoa_liquor table
 }
 
 export interface SampleManagementResult {
@@ -54,6 +57,10 @@ export class SampleManagementService {
           ),
           profiles:user_id (
             name
+          ),
+          cocoa_liquor (
+            name,
+            lot_number
           )
         `)
         .order('created_at', { ascending: false });
@@ -69,14 +76,14 @@ export class SampleManagementService {
 
       // Transform database samples to SampleManagement interface
       const transformedSamples: SampleManagement[] = samples.map((sample: any) => {
-        // Construct origin from location fields
+        // Construct origin from location fields, fallback to contest name
         const originParts = [
           sample.country,
           sample.department,
           sample.municipality
         ].filter(Boolean);
-        
-        const origin = originParts.length > 0 ? originParts.join(', ') : 'Unknown';
+
+        const origin = originParts.length > 0 ? originParts.join(', ') : sample.contests?.name || 'Unknown';
         
         // Generate internal code if not exists
         const internalCode = this.generateInternalCode(sample.created_at, sample.id);
@@ -100,7 +107,9 @@ export class SampleManagementService {
           farmName: sample.farm_name,
           ownerFullName: sample.owner_full_name,
           contestId: sample.contest_id,
-          userId: sample.user_id
+          userId: sample.user_id,
+          liquorName: sample.cocoa_liquor?.[0]?.name || undefined,
+          lotNumber: sample.cocoa_liquor?.[0]?.lot_number || undefined
         };
       });
 

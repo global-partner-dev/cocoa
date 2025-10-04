@@ -594,7 +594,7 @@
       },
       "filters": {
         "title": "Filtros",
-        "searchPlaceholder": "Buscar muestras...",
+        "searchPlaceholder": "Buscar por nombre, código, origen, concurso, finca, número de lote, nombre de licor, notas, etc...",
         "internalCodePlaceholder": "Buscar por código interno...",
         "statusPlaceholder": "Filtrar por estado",
         "allStatus": "Todos los Estados",

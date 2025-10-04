@@ -360,10 +360,19 @@ const SampleManagement = () => {
     const matchesSearch =
       sample.externalCode.toLowerCase().includes(term) ||
       sample.participantName.toLowerCase().includes(term) ||
-      sample.origin.toLowerCase().includes(term);
+      sample.origin.toLowerCase().includes(term) ||
+      sample.contest.toLowerCase().includes(term) ||
+      sample.category.toLowerCase().includes(term) ||
+      (sample.farmName && sample.farmName.toLowerCase().includes(term)) ||
+      (sample.ownerFullName && sample.ownerFullName.toLowerCase().includes(term)) ||
+      (sample.notes && sample.notes.toLowerCase().includes(term)) ||
+      (sample.weight && sample.weight.toString().includes(term)) ||
+      (sample.liquorName && sample.liquorName.toLowerCase().includes(term)) ||
+      (sample.lotNumber && sample.lotNumber.toLowerCase().includes(term));
 
     const matchesTracking = trackingCodeSearch
-      ? sample.internalCode.toLowerCase().includes(trackingCodeSearch.toLowerCase())
+      ? sample.internalCode.toLowerCase().includes(trackingCodeSearch.toLowerCase()) ||
+        sample.externalCode.toLowerCase().includes(trackingCodeSearch.toLowerCase())
       : true;
 
     const matchesStatus = filterStatus === 'all' || sample.status === filterStatus;

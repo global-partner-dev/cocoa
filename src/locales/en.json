@@ -594,7 +594,7 @@
       },
       "filters": {
         "title": "Filters",
-        "searchPlaceholder": "Search samples...",
+        "searchPlaceholder": "Search by name, code, origin, contest, farm, lot number, liquor name, notes, etc...",
         "internalCodePlaceholder": "Search by internal code...",
         "statusPlaceholder": "Filter by status",
         "allStatus": "All Status",
