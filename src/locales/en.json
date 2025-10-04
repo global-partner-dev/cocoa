@@ -1498,7 +1498,9 @@
       "title": "Judge Evaluations",
       "description": "Individual evaluations from assigned judges",
       "score": "Score",
-      "evaluatedOn": "Evaluated: {{date}}"
+      "evaluatedOn": "Evaluated: {{date}}",
+      "viewDetails": "View Details",
+      "loading": "Loading evaluations..."
     },
     "quickStats": {
       "title": "Evaluation Stats",

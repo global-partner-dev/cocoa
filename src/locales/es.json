@@ -1498,7 +1498,9 @@
       "title": "Evaluaciones de Jueces",
       "description": "Evaluaciones individuales de los jueces asignados",
       "score": "Puntaje",
-      "evaluatedOn": "Evaluado: {{date}}"
+      "evaluatedOn": "Evaluado: {{date}}",
+      "viewDetails": "Ver Detalles",
+      "loading": "Cargando evaluaciones de jueces..."
     },
     "quickStats": {
       "title": "Estadísticas de Evaluación",

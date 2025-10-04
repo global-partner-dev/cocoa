@@ -7,11 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Clock, Users, Search, Filter } from "lucide-react";
+import { Clock, Users, Search, Filter, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { DirectorSampleEvaluation, DirectorJudgeKpi } from "@/lib/directorSupervisionService";
 import { DirectorSupervisionService } from "@/lib/directorSupervisionService";
 import { useTranslation } from "react-i18next";
+import SensoryEvaluationDetails from "./SensoryEvaluationDetails";
+import type { SensoryEvaluationData } from "@/lib/sensoryEvaluationService";
 
 // Local helper for label styling
 const Label = ({ children, className }: { children: React.ReactNode; className?: string }) => (
@@ -22,6 +24,8 @@ const EvaluationSupervision = () => {
   const [evaluations, setEvaluations] = useState<DirectorSampleEvaluation[]>([]);
   const [judges, setJudges] = useState<DirectorJudgeKpi[]>([]);
   const [selectedEvaluation, setSelectedEvaluation] = useState<DirectorSampleEvaluation | null>(null);
+  const [selectedJudgeEvaluation, setSelectedJudgeEvaluation] = useState<SensoryEvaluationData | null>(null);
+  const [loadingDetails, setLoadingDetails] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterContest, setFilterContest] = useState<string>("all");
@@ -69,6 +73,23 @@ const EvaluationSupervision = () => {
       toast({ title: t('evaluationSupervision.toasts.refreshFailedTitle'), description: t('evaluationSupervision.toasts.refreshFailedDesc'), variant: "destructive" });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleViewJudgeEvaluation = async (sampleId: string, judgeId: string) => {
+    try {
+      setLoadingDetails(true);
+      const details = await DirectorSupervisionService.getSensoryEvaluationDetails(sampleId, judgeId);
+      setSelectedJudgeEvaluation(details);
+    } catch (e: any) {
+      console.error("Failed to load sensory evaluation details", e);
+      toast({ 
+        title: t('evaluationSupervision.toasts.errorTitle'), 
+        description: e?.message || t('evaluationSupervision.toasts.detailsLoadFailed'), 
+        variant: "destructive" 
+      });
+    } finally {
+      setLoadingDetails(false);
     }
   };
 
@@ -142,6 +163,16 @@ const EvaluationSupervision = () => {
         <p className="text-muted-foreground text-sm sm:text-base">{error}</p>
         <Button onClick={() => { setLoading(true); setError(null); setEvaluations([]); setJudges([]); setSelectedEvaluation(null); }} className="w-full sm:w-auto">{t('evaluationSupervision.retry')}</Button>
       </div>
+    );
+  }
+
+  // Show sensory evaluation details if a judge evaluation is selected
+  if (selectedJudgeEvaluation && selectedEvaluation) {
+    return (
+      <SensoryEvaluationDetails 
+        evaluation={selectedJudgeEvaluation} 
+        onBack={() => setSelectedJudgeEvaluation(null)} 
+      />
     );
   }
 
@@ -240,6 +271,18 @@ const EvaluationSupervision = () => {
                         <p className="text-xs sm:text-sm text-muted-foreground mb-2">
                           {t('evaluationSupervision.judges.evaluatedOn', { date: new Date(judge.evaluatedAt).toLocaleDateString() })}
                         </p>
+                      )}
+                      {judge.status === 'completed' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewJudgeEvaluation(selectedEvaluation.id, judge.judgeId)}
+                          disabled={loadingDetails}
+                          className="w-full sm:w-auto mt-2"
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          {loadingDetails ? t('evaluationSupervision.judges.loading') : t('evaluationSupervision.judges.viewDetails')}
+                        </Button>
                       )}
                     </div>
                   ))}

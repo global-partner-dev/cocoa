@@ -41,6 +41,132 @@ export class DirectorSupervisionService {
   }
 
   /**
+   * Fetch detailed sensory evaluation for a specific sample and judge
+   */
+  static async getSensoryEvaluationDetails(sampleId: string, judgeId: string): Promise<any> {
+    const { data, error } = await supabase
+      .from('sensory_evaluations')
+      .select('*')
+      .eq('sample_id', sampleId)
+      .eq('judge_id', judgeId)
+      .single();
+
+    if (error) throw error;
+    if (!data) throw new Error('Sensory evaluation not found');
+
+    // Transform database format to application format
+    return {
+      id: data.id,
+      sampleId: data.sample_id,
+      judgeId: data.judge_id,
+      evaluationDate: data.evaluation_date,
+      evaluationTime: data.evaluation_time,
+      evaluatorName: data.evaluator_name,
+      sampleCode: data.sample_code,
+      sampleNotes: data.sample_notes,
+      evaluationType: data.evaluation_type,
+      
+      // Main scores
+      cacao: data.cacao,
+      bitterness: data.bitterness,
+      astringency: data.astringency,
+      caramelPanela: data.caramel_panela,
+      
+      // Calculated totals
+      acidityTotal: data.acidity_total,
+      freshFruitTotal: data.fresh_fruit_total,
+      brownFruitTotal: data.brown_fruit_total,
+      vegetalTotal: data.vegetal_total,
+      floralTotal: data.floral_total,
+      woodTotal: data.wood_total,
+      spiceTotal: data.spice_total,
+      nutTotal: data.nut_total,
+      roastDegree: data.roast_degree,
+      defectsTotal: data.defects_total,
+      
+      // Sub-attributes
+      acidity: {
+        frutal: data.acidity_frutal,
+        acetic: data.acidity_acetic,
+        lactic: data.acidity_lactic,
+        mineralButyric: data.acidity_mineral_butyric,
+      },
+      freshFruit: {
+        berries: data.fresh_fruit_berries,
+        citrus: data.fresh_fruit_citrus,
+        yellowPulp: data.fresh_fruit_yellow_pulp,
+        dark: data.fresh_fruit_dark,
+        tropical: data.fresh_fruit_tropical,
+      },
+      brownFruit: {
+        dry: data.brown_fruit_dry,
+        brown: data.brown_fruit_brown,
+        overripe: data.brown_fruit_overripe,
+      },
+      vegetal: {
+        grassHerb: data.vegetal_grass_herb,
+        earthy: data.vegetal_earthy,
+      },
+      floral: {
+        orangeBlossom: data.floral_orange_blossom,
+        flowers: data.floral_flowers,
+      },
+      wood: {
+        light: data.wood_light,
+        dark: data.wood_dark,
+        resin: data.wood_resin,
+      },
+      spice: {
+        spices: data.spice_spices,
+        tobacco: data.spice_tobacco,
+        umami: data.spice_umami,
+      },
+      nut: {
+        kernel: data.nut_kernel,
+        skin: data.nut_skin,
+      },
+      defects: {
+        dirty: data.defects_dirty,
+        animal: data.defects_animal,
+        rotten: data.defects_rotten,
+        smoke: data.defects_smoke,
+        humid: data.defects_humid,
+        moldy: data.defects_moldy,
+        overfermented: data.defects_overfermented,
+        other: data.defects_other,
+        excessiveAstringency: data.defects_excessive_astringency || 0,
+        unbalancedBitterness: data.defects_unbalanced_bitterness || 0,
+      },
+      
+      // Chocolate-specific
+      sweetness: data.sweetness,
+      textureNotes: data.texture_notes,
+      chocolateData: data.chocolate_data,
+      
+      // Odors
+      typicalOdors: data.typical_odors,
+      atypicalOdors: data.atypical_odors,
+      
+      // Overall
+      overallQuality: data.overall_quality,
+      
+      // Comments
+      flavorComments: data.flavor_comments,
+      producerRecommendations: data.producer_recommendations,
+      additionalPositive: data.additional_positive,
+      
+      // Verdict
+      verdict: data.verdict,
+      disqualificationReasons: data.disqualification_reasons,
+      otherDisqualificationReason: data.other_disqualification_reason,
+      
+      // Timestamps
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+    };
+  }
+
+  /**
    * Fetch aggregated supervision overview for director
    * - Determines completion from sensory_evaluations presence
    * - Uses samples.status as authoritative when 'evaluated'
