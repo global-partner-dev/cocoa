@@ -74,6 +74,7 @@ const JudgeDashboard = () => {
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'in_progress' | 'completed'>('all');
+  const [contestFilter, setContestFilter] = useState<string>('all');
 
   const getStatusColor = (status: AssignedSample['status']) => {
     switch (status) {
@@ -115,7 +116,10 @@ const JudgeDashboard = () => {
     return diffDays;
   };
 
-  // Filter samples based on search term and status
+  // Get unique contests for filter dropdown
+  const uniqueContests = Array.from(new Set(samples.map(s => s.contestName))).sort();
+
+  // Filter samples based on search term, status, and contest
   const filteredSamples = samples.filter(sample => {
     const term = searchTerm.toLowerCase();
     const matchesSearch = !searchTerm || 
@@ -126,8 +130,9 @@ const JudgeDashboard = () => {
       (sample.participantName && sample.participantName.toLowerCase().includes(term));
     
     const matchesStatus = statusFilter === 'all' || sample.status === statusFilter;
+    const matchesContest = contestFilter === 'all' || sample.contestName === contestFilter;
     
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesStatus && matchesContest;
   });
 
   const unreadNotifications = (recentNotifications as any[]).filter((n: any) => !n.read).length;
@@ -540,7 +545,7 @@ const JudgeDashboard = () => {
                   <Filter className="w-4 h-4 text-muted-foreground" />
                   <span className="text-sm font-medium">Filters</span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
@@ -559,6 +564,19 @@ const JudgeDashboard = () => {
                       <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="in_progress">In Progress</SelectItem>
                       <SelectItem value="completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={contestFilter} onValueChange={(value: string) => setContestFilter(value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Filter by contest" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Contests</SelectItem>
+                      {uniqueContests.map((contestName) => (
+                        <SelectItem key={contestName} value={contestName}>
+                          {contestName}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
