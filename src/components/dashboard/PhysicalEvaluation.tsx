@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertTriangle, CheckCircle, XCircle, Eye, Save, Send, AlertCircle, RefreshCw, Package } from "lucide-react";
+import { AlertTriangle, CheckCircle, XCircle, Eye, Save, Send, AlertCircle, RefreshCw, Package, Search, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { 
   PhysicalEvaluationService, 
@@ -36,6 +36,11 @@ const PhysicalEvaluation = () => {
   // Local UI state for non-critical odor checklists
   const [odorTypical, setOdorTypical] = useState<string[]>([]);
   const [odorAtypical, setOdorAtypical] = useState<string[]>([]);
+  
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterContest, setFilterContest] = useState<string>('all');
 
   // Utility to toggle items in a list
   const toggleFromList = (
@@ -768,6 +773,51 @@ const PhysicalEvaluation = () => {
           <CardDescription className="text-xs sm:text-sm">{t('dashboard.physicalEvaluation.samplesList.description')}</CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Filter Section */}
+          <div className="mb-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Filters</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by code, participant..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="submitted">Submitted</SelectItem>
+                  <SelectItem value="received">Received</SelectItem>
+                  <SelectItem value="physical_evaluation">Under Evaluation</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="disqualified">Disqualified</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={filterContest} onValueChange={setFilterContest}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by contest" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Contests</SelectItem>
+                  {Array.from(new Set(samples.map(s => s.contestName))).sort().map((contestName) => (
+                    <SelectItem key={contestName} value={contestName}>
+                      {contestName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           <div className="space-y-3 sm:space-y-4">
             {loading ? (
               <div className="flex items-center justify-center py-8">
@@ -786,12 +836,27 @@ const PhysicalEvaluation = () => {
               samples
                 .filter(sample => {
                   // Show samples that are:
-                  // 1. Already in physical_evaluation, approved, or disqualified status
+                  // 1. Already in submitted, physical_evaluation, approved, or disqualified status
                   // 2. In received status AND have been paid for
-                  return sample.status === 'physical_evaluation' || 
+                  const statusMatch = sample.status === 'submitted' ||
+                         sample.status === 'physical_evaluation' || 
                          sample.status === 'approved' || 
                          sample.status === 'disqualified' ||
                          (sample.status === 'received' && paidSamples.includes(sample.id));
+                  
+                  if (!statusMatch) return false;
+                  
+                  // Apply filters
+                  const term = searchTerm.toLowerCase();
+                  const matchesSearch = !searchTerm || 
+                    sample.internalCode.toLowerCase().includes(term) ||
+                    sample.participantName.toLowerCase().includes(term) ||
+                    sample.contestName.toLowerCase().includes(term);
+                  
+                  const matchesStatus = filterStatus === 'all' || sample.status === filterStatus;
+                  const matchesContest = filterContest === 'all' || sample.contestName === filterContest;
+                  
+                  return matchesSearch && matchesStatus && matchesContest;
                 })
                 .map((sample) => (
               <div

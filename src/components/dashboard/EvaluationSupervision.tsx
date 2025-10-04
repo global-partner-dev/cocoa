@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Clock, Users } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Clock, Users, Search, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { DirectorSampleEvaluation, DirectorJudgeKpi } from "@/lib/directorSupervisionService";
 import { DirectorSupervisionService } from "@/lib/directorSupervisionService";
@@ -20,7 +21,9 @@ const EvaluationSupervision = () => {
   const [evaluations, setEvaluations] = useState<DirectorSampleEvaluation[]>([]);
   const [judges, setJudges] = useState<DirectorJudgeKpi[]>([]);
   const [selectedEvaluation, setSelectedEvaluation] = useState<DirectorSampleEvaluation | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterContest, setFilterContest] = useState<string>("all");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -82,10 +85,20 @@ const EvaluationSupervision = () => {
     }
   };
 
+  const uniqueContests = useMemo(() => {
+    return Array.from(new Set(evaluations.map(e => e.contestName))).sort();
+  }, [evaluations]);
+
   const filteredEvaluations = useMemo(() => {
-    if (filterStatus === "all") return evaluations;
-    return evaluations.filter(e => e.status === filterStatus);
-  }, [evaluations, filterStatus]);
+    return evaluations.filter(e => {
+      const matchesSearch = searchTerm === "" || 
+        e.internalCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        e.participantName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = filterStatus === "all" || e.status === filterStatus;
+      const matchesContest = filterContest === "all" || e.contestName === filterContest;
+      return matchesSearch && matchesStatus && matchesContest;
+    });
+  }, [evaluations, searchTerm, filterStatus, filterContest]);
 
   const overallStats = useMemo(() => {
     const total = evaluations.length || 1;
@@ -265,20 +278,69 @@ const EvaluationSupervision = () => {
           <h2 className="text-xl sm:text-2xl font-bold text-[hsl(var(--chocolate-dark))]">{t('evaluationSupervision.title')}</h2>
           <p className="text-muted-foreground text-sm sm:text-base">{t('evaluationSupervision.subtitle')}</p>
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-2">
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t('evaluationSupervision.filters.all')}</SelectItem>
-              <SelectItem value="assigned">{t('evaluationSupervision.filters.assigned')}</SelectItem>
-              <SelectItem value="evaluated">{t('evaluationSupervision.filters.evaluated')}</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="outline" onClick={handleRefresh} className="w-full sm:w-auto">{t('evaluationSupervision.actions.refresh')}</Button>
-        </div>
+        <Button variant="outline" onClick={handleRefresh} className="w-full sm:w-auto">{t('evaluationSupervision.actions.refresh')}</Button>
       </div>
+
+      {/* Filters */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+            <Filter className="h-4 w-4" />
+            Filters
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Search */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Search</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by code or participant..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+            </div>
+
+            {/* Status Filter */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Status</label>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('evaluationSupervision.filters.all')}</SelectItem>
+                  <SelectItem value="assigned">{t('evaluationSupervision.filters.assigned')}</SelectItem>
+                  <SelectItem value="evaluating">Evaluating</SelectItem>
+                  <SelectItem value="evaluated">{t('evaluationSupervision.filters.evaluated')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Contest Filter */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Contest</label>
+              <Select value={filterContest} onValueChange={setFilterContest}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Contests" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Contests</SelectItem>
+                  {uniqueContests.map((contest) => (
+                    <SelectItem key={contest} value={contest}>
+                      {contest}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Overview Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">

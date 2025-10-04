@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Users, UserCheck, Clock, CheckCircle, RefreshCw } from "lucide-react";
+import { Users, UserCheck, Clock, CheckCircle, RefreshCw, Search, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { JudgeAssignmentService, UIJudge, UISample } from "@/lib/judgeAssignmentService";
 import { useTranslation } from "react-i18next";
@@ -19,6 +20,11 @@ const SampleAssignment = () => {
   const [selectedSamples, setSelectedSamples] = useState<string[]>([]);
   const { toast } = useToast();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterContest, setFilterContest] = useState<string>('all');
 
   const loadData = async () => {
     try {
@@ -212,8 +218,64 @@ const SampleAssignment = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Filter Section */}
+            <div className="mb-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium">Filters</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by code, participant..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="approved">Ready for Assignment</SelectItem>
+                    <SelectItem value="assigned">Assigned</SelectItem>
+                    <SelectItem value="evaluating">Under Evaluation</SelectItem>
+                    <SelectItem value="evaluated">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={filterContest} onValueChange={setFilterContest}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by contest" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Contests</SelectItem>
+                    {Array.from(new Set(samples.map(s => s.contestName))).sort().map((contestName) => (
+                      <SelectItem key={contestName} value={contestName}>
+                        {contestName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             <div className="space-y-3">
-              {samples.map((sample) => {
+              {samples.filter(sample => {
+                const uiStatus = deriveUIStatus(sample);
+                const term = searchTerm.toLowerCase();
+                const matchesSearch = !searchTerm || 
+                  sample.internalCode.toLowerCase().includes(term) ||
+                  sample.participantName.toLowerCase().includes(term) ||
+                  sample.contestName.toLowerCase().includes(term);
+                
+                const matchesStatus = filterStatus === 'all' || uiStatus === filterStatus;
+                const matchesContest = filterContest === 'all' || sample.contestName === filterContest;
+                
+                return matchesSearch && matchesStatus && matchesContest;
+              }).map((sample) => {
                 const uiStatus = deriveUIStatus(sample);
                 return (
                   <div
