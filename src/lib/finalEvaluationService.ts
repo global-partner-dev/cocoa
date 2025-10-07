@@ -3,6 +3,9 @@ import { supabase, type Database } from '@/lib/supabase';
 type FinalEvalRow = Database['public']['Tables']['final_evaluations']['Row']
 type FinalEvalInsert = Database['public']['Tables']['final_evaluations']['Insert']
 
+// Import the SensoryEvaluationResult type from the form
+import type { SensoryEvaluationResult } from '@/components/dashboard/SensoryEvaluationForm';
+
 type SaveFinalEvaluationPayload = {
   contestId: string
   sampleId: string
@@ -109,7 +112,11 @@ export class FinalEvaluationService {
         chocolate_aftertaste_final_balance: e.chocolate?.aftertaste?.finalBalance ?? null,
       }
 
-      const { error } = await supabase.from('final_evaluations').insert(insert)
+      const { error } = await supabase
+        .from('final_evaluations')
+        .upsert(insert, {
+          onConflict: 'sample_id,evaluator_id'
+        })
       if (error) throw error
       return { success: true } as const
     } catch (err: any) {
@@ -127,6 +134,21 @@ export class FinalEvaluationService {
       return { success: true, data } as const
     } catch (err: any) {
       return { success: false, error: err?.message || 'Failed to fetch final evaluations' } as const
+    }
+  }
+
+  static async getForSampleAndEvaluator(sampleId: string, evaluatorId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('final_evaluations')
+        .select('*')
+        .eq('sample_id', sampleId)
+        .eq('evaluator_id', evaluatorId)
+        .single()
+      if (error && error.code !== 'PGRST116') throw error // PGRST116 is "not found"
+      return { success: true, data: data || null } as const
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'Failed to fetch final evaluation' } as const
     }
   }
 }

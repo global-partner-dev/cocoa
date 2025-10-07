@@ -1454,6 +1454,7 @@
       "paid": "Pagado",
       "evaluated": "evaluado",
       "evaluate": "Evaluar",
+      "reEvaluate": "Re-evaluar",
       "filterByContest": "Filtrar por concurso",
       "allContests": "Todos los Concursos"
     },

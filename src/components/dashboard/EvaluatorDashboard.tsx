@@ -167,6 +167,73 @@ const EvaluatorDashboard = () => {
     }
   };
 
+  // Function to map database final evaluation row to SensoryEvaluationResult structure
+  const mapFinalEvalToFormData = (row: any): any => {
+    return {
+      meta: {
+        evaluationType: 'chocolate',
+      },
+      scores: {
+        overallQuality: row.overall_quality || 0,
+        defectsTotal: row.defects_total || 0,
+        chocolate: {
+          appearance: {
+            color: row.chocolate_appearance_color || 0,
+            gloss: row.chocolate_appearance_gloss || 0,
+            surfaceHomogeneity: row.chocolate_appearance_surface_homogeneity || 0,
+          },
+          aroma: {
+            aromaIntensity: row.chocolate_aroma_intensity || 0,
+            aromaQuality: row.chocolate_aroma_quality || 0,
+            specificNotes: {
+              floral: row.chocolate_aroma_floral || 0,
+              fruity: row.chocolate_aroma_fruity || 0,
+              toasted: row.chocolate_aroma_toasted || 0,
+              hazelnut: row.chocolate_aroma_hazelnut || 0,
+              earthy: row.chocolate_aroma_earthy || 0,
+              spicy: row.chocolate_aroma_spicy || 0,
+              milky: row.chocolate_aroma_milky || 0,
+              woody: row.chocolate_aroma_woody || 0,
+            },
+          },
+          texture: {
+            smoothness: row.chocolate_texture_smoothness || 0,
+            melting: row.chocolate_texture_melting || 0,
+            body: row.chocolate_texture_body || 0,
+          },
+          flavor: {
+            sweetness: row.chocolate_flavor_sweetness || 0,
+            bitterness: row.chocolate_flavor_bitterness || 0,
+            acidity: row.chocolate_flavor_acidity || 0,
+            flavorIntensity: row.chocolate_flavor_intensity || 0,
+            flavorNotes: {
+              citrus: row.chocolate_flavor_citrus || 0,
+              redFruits: row.chocolate_flavor_red_fruits || 0,
+              nuts: row.chocolate_flavor_nuts || 0,
+              caramel: row.chocolate_flavor_caramel || 0,
+              malt: row.chocolate_flavor_malt || 0,
+              wood: row.chocolate_flavor_wood || 0,
+              spices: row.chocolate_flavor_spices || 0,
+            },
+          },
+          aftertaste: {
+            persistence: row.chocolate_aftertaste_persistence || 0,
+            aftertasteQuality: row.chocolate_aftertaste_quality || 0,
+            finalBalance: row.chocolate_aftertaste_final_balance || 0,
+          },
+        },
+      },
+      comments: {
+        flavorComments: row.flavor_comments || '',
+        producerRecommendations: row.producer_recommendations || '',
+        additionalPositive: row.additional_positive || '',
+      },
+      verdict: {
+        result: 'Approved', // Default, as final evaluations are typically approved
+      },
+    };
+  };
+
   const startEvaluation = async (sample: SampleResult) => {
     if (!isPaid(sample.id)) {
       toast({ title: t('evaluatorDashboard.toasts.paymentRequiredTitle'), description: t('evaluatorDashboard.toasts.paymentRequiredDesc') });
@@ -179,11 +246,15 @@ const EvaluatorDashboard = () => {
     // In final evaluation stage, use the final evaluations table instead of regular sensory evaluations
     try {
       setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
       const { FinalEvaluationService } = await import('@/lib/finalEvaluationService');
-      const existing = await FinalEvaluationService.getForSample(sample.id);
-      if (existing.success && existing.data && existing.data.length > 0) {
-        // If needed, you can map to the SensoryEvaluationForm structure later
-        // For now we keep the form blank for final evaluation to be filled.
+      const existing = await FinalEvaluationService.getForSampleAndEvaluator(sample.id, user.id);
+      if (existing.success && existing.data) {
+        // Map the database row to the form structure
+        const formData = mapFinalEvalToFormData(existing.data);
+        setExistingEvaluation(formData);
       }
     } catch (error) {
       console.warn('Could not load existing final evaluation (may not exist yet).');
@@ -679,7 +750,9 @@ onSubmit={async (result) => {
                             <Badge className="bg-purple-100 text-purple-800 text-xs w-fit">{t('evaluatorDashboard.top10.evaluated')}</Badge>
                           )}
                           <Button onClick={() => startEvaluation(s)} disabled={!paid} className="gap-2 w-full sm:w-auto">
-                            <Clock className="w-4 h-4" /> <span className="text-xs sm:text-sm">{t('evaluatorDashboard.top10.evaluate')}</span>
+                            <Clock className="w-4 h-4" /> <span className="text-xs sm:text-sm">
+                              {evaluatedByMe.has(s.id) ? t('evaluatorDashboard.top10.reEvaluate') : t('evaluatorDashboard.top10.evaluate')}
+                            </span>
                           </Button>
                         </div>
                       </div>

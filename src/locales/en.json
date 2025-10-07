@@ -1454,6 +1454,7 @@
       "paid": "Paid",
       "evaluated": "evaluated",
       "evaluate": "Evaluate",
+      "reEvaluate": "Re-evaluate",
       "filterByContest": "Filter by contest",
       "allContests": "All Contests"
     },
