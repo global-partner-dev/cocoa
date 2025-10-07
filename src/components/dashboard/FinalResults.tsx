@@ -436,60 +436,85 @@ const FinalResults = () => {
                                 <div className="space-y-4 text-sm">
                                   {/* Full raw details */}
                                   {physicalDetail.raw && (
-                                    <div className="space-y-3 pt-3 border-t">
-                                      <h4 className="font-medium">{t('finalResults.details.fullPhysicalTitle')}</h4>
+                                    <Accordion type="multiple" className="w-full">
                                       {(() => {
                                         const r: any = physicalDetail.raw
                                         const fmt = (v: any) => (v === null || v === undefined ? '-' : Array.isArray(v) ? (v.length ? v.join(', ') : t('finalResults.common.none')) : String(v))
                                         const num = (v: any) => (v === null || v === undefined ? '-' : Number(v).toString())
                                         return (
-                                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                            <div className="space-y-4">
-                                              <div className="text-muted-foreground text-xs font-medium">{t('finalResults.physical.undesirableAromas.title')}</div>
-                                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.undesirableAromas.has')}</span><span className="font-medium">{r.has_undesirable_aromas ? t('finalResults.common.yes') : t('finalResults.common.no')}</span></div>
-                                                <div className="flex justify-between p-2 border rounded sm:col-span-2"><span>{t('finalResults.physical.undesirableAromas.list')}</span><span className="font-medium">{fmt(r.undesirable_aromas)}</span></div>
-                                              </div>
+                                          <>
+                                            <AccordionItem value="aromas-humidity">
+                                              <AccordionTrigger className="text-sm font-medium hover:no-underline">
+                                                {t('finalResults.physical.undesirableAromas.title')} & {t('finalResults.physical.humidity.title')}
+                                              </AccordionTrigger>
+                                              <AccordionContent>
+                                                <div className="space-y-4 pt-2">
+                                                  <div>
+                                                    <div className="text-muted-foreground text-xs font-medium mb-2">{t('finalResults.physical.undesirableAromas.title')}</div>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                                      <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.undesirableAromas.has')}</span><span className="font-medium">{r.has_undesirable_aromas ? t('finalResults.common.yes') : t('finalResults.common.no')}</span></div>
+                                                      <div className="flex justify-between p-2 border rounded sm:col-span-2"><span>{t('finalResults.physical.undesirableAromas.list')}</span><span className="font-medium">{fmt(r.undesirable_aromas)}</span></div>
+                                                    </div>
+                                                  </div>
+                                                  <div>
+                                                    <div className="text-muted-foreground text-xs font-medium mb-2">{t('finalResults.physical.humidity.title')}</div>
+                                                    <div className="grid grid-cols-1 gap-2 text-xs">
+                                                      <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.humidity.percentage')}</span><span className="font-medium">{num(r.percentage_humidity)}%</span></div>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              </AccordionContent>
+                                            </AccordionItem>
 
-                                              <div className="text-muted-foreground text-xs font-medium mt-4">{t('finalResults.physical.humidity.title')}</div>
-                                              <div className="grid grid-cols-1 gap-2 text-xs">
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.humidity.percentage')}</span><span className="font-medium">{num(r.percentage_humidity)}%</span></div>
-                                              </div>
+                                            <AccordionItem value="grains">
+                                              <AccordionTrigger className="text-sm font-medium hover:no-underline">
+                                                {t('finalResults.physical.grains.title')}
+                                              </AccordionTrigger>
+                                              <AccordionContent>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-2">
+                                                  <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.grains.broken')}</span><span className="font-medium">{num(r.broken_grains)}</span></div>
+                                                  <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.grains.violated')}</span><span className="font-medium">{r.violated_grains ? t('finalResults.common.yes') : t('finalResults.common.no')}</span></div>
+                                                  <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.grains.flat')}</span><span className="font-medium">{num(r.flat_grains)}</span></div>
+                                                  <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.grains.affectedInsects')}</span><span className="font-medium">{num(r.affected_grains_insects)}</span></div>
+                                                  <div className="flex justify-between p-2 border rounded sm:col-span-2"><span>{t('finalResults.physical.grains.hasAffected')}</span><span className="font-medium">{r.has_affected_grains ? t('finalResults.common.yes') : t('finalResults.common.no')}</span></div>
+                                                </div>
+                                              </AccordionContent>
+                                            </AccordionItem>
 
-                                              <div className="text-muted-foreground text-xs font-medium mt-4">{t('finalResults.physical.grains.title')}</div>
-                                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.grains.broken')}</span><span className="font-medium">{num(r.broken_grains)}</span></div>
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.grains.violated')}</span><span className="font-medium">{r.violated_grains ? t('finalResults.common.yes') : t('finalResults.common.no')}</span></div>
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.grains.flat')}</span><span className="font-medium">{num(r.flat_grains)}</span></div>
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.grains.affectedInsects')}</span><span className="font-medium">{num(r.affected_grains_insects)}</span></div>
-                                                <div className="flex justify-between p-2 border rounded sm:col-span-2"><span>{t('finalResults.physical.grains.hasAffected')}</span><span className="font-medium">{r.has_affected_grains ? t('finalResults.common.yes') : t('finalResults.common.no')}</span></div>
-                                              </div>
-                                            </div>
+                                            <AccordionItem value="fermentation">
+                                              <AccordionTrigger className="text-sm font-medium hover:no-underline">
+                                                {t('finalResults.physical.fermentation.title')}
+                                              </AccordionTrigger>
+                                              <AccordionContent>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-2">
+                                                  <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.fermentation.wellFermented')}</span><span className="font-medium">{num(r.well_fermented_beans)}</span></div>
+                                                  <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.fermentation.lightlyFermented')}</span><span className="font-medium">{num(r.lightly_fermented_beans)}</span></div>
+                                                  <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.fermentation.purple')}</span><span className="font-medium">{num(r.purple_beans)}</span></div>
+                                                  <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.fermentation.slaty')}</span><span className="font-medium">{num(r.slaty_beans)}</span></div>
+                                                  <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.fermentation.internalMoldy')}</span><span className="font-medium">{num(r.internal_moldy_beans)}</span></div>
+                                                  <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.fermentation.overFermented')}</span><span className="font-medium">{num(r.over_fermented_beans)}</span></div>
+                                                </div>
+                                              </AccordionContent>
+                                            </AccordionItem>
 
-                                            <div className="space-y-4">
-                                              <div className="text-muted-foreground text-xs font-medium">{t('finalResults.physical.fermentation.title')}</div>
-                                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.fermentation.wellFermented')}</span><span className="font-medium">{num(r.well_fermented_beans)}</span></div>
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.fermentation.lightlyFermented')}</span><span className="font-medium">{num(r.lightly_fermented_beans)}</span></div>
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.fermentation.purple')}</span><span className="font-medium">{num(r.purple_beans)}</span></div>
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.fermentation.slaty')}</span><span className="font-medium">{num(r.slaty_beans)}</span></div>
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.fermentation.internalMoldy')}</span><span className="font-medium">{num(r.internal_moldy_beans)}</span></div>
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.fermentation.overFermented')}</span><span className="font-medium">{num(r.over_fermented_beans)}</span></div>
-                                              </div>
-
-                                              <div className="text-muted-foreground text-xs font-medium mt-4">{t('finalResults.physical.meta.title')}</div>
-                                              <div className="grid grid-cols-1 gap-2 text-xs">
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.meta.evaluatedBy')}</span><span className="font-medium">{fmt(r.evaluated_by)}</span></div>
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.meta.evaluatedAt')}</span><span className="font-medium">{r.evaluated_at ? new Date(r.evaluated_at).toLocaleString() : '-'}</span></div>
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.meta.globalEvaluation')}</span><span className="font-medium capitalize">{fmt(r.global_evaluation)}</span></div>
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.meta.disqualificationReasons')}</span><span className="font-medium">{fmt(r.disqualification_reasons)}</span></div>
-                                                <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.meta.warnings')}</span><span className="font-medium">{fmt(r.warnings)}</span></div>
-                                              </div>
-                                            </div>
-                                          </div>
+                                            <AccordionItem value="meta">
+                                              <AccordionTrigger className="text-sm font-medium hover:no-underline">
+                                                {t('finalResults.physical.meta.title')}
+                                              </AccordionTrigger>
+                                              <AccordionContent>
+                                                <div className="grid grid-cols-1 gap-2 text-xs pt-2">
+                                                  <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.meta.evaluatedBy')}</span><span className="font-medium">{fmt(r.evaluated_by)}</span></div>
+                                                  <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.meta.evaluatedAt')}</span><span className="font-medium">{r.evaluated_at ? new Date(r.evaluated_at).toLocaleString() : '-'}</span></div>
+                                                  <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.meta.globalEvaluation')}</span><span className="font-medium capitalize">{fmt(r.global_evaluation)}</span></div>
+                                                  <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.meta.disqualificationReasons')}</span><span className="font-medium">{fmt(r.disqualification_reasons)}</span></div>
+                                                  <div className="flex justify-between p-2 border rounded"><span>{t('finalResults.physical.meta.warnings')}</span><span className="font-medium">{fmt(r.warnings)}</span></div>
+                                                </div>
+                                              </AccordionContent>
+                                            </AccordionItem>
+                                          </>
                                         )
                                       })()}
-                                    </div>
+                                    </Accordion>
                                   )}
                                 </div>
                               ) : (
@@ -507,179 +532,211 @@ const FinalResults = () => {
                               {detailLoading ? (
                                 <div className="text-sm text-muted-foreground">{t('finalResults.details.loadingSensory')}</div>
                               ) : sensoryDetail ? (
-                                <div className="space-y-4">
+                                <Accordion type="multiple" className="w-full">
                                   {/* Appearance Section */}
-                                  <div>
-                                    <h4 className="font-semibold text-sm mb-2">Appearance (5%)</h4>
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
-                                      <div className="flex items-center justify-between p-2 rounded border">
-                                        <span className="text-xs">Color</span>
-                                        <span className="font-semibold text-sm">{Number(sensoryDetail.appearance?.color || 0).toFixed(1)}/10</span>
+                                  <AccordionItem value="appearance">
+                                    <AccordionTrigger className="text-sm font-medium hover:no-underline">
+                                      Appearance (5%)
+                                    </AccordionTrigger>
+                                    <AccordionContent>
+                                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm pt-2">
+                                        <div className="flex items-center justify-between p-2 rounded border">
+                                          <span className="text-xs">Color</span>
+                                          <span className="font-semibold text-sm">{Number(sensoryDetail.appearance?.color || 0).toFixed(1)}/10</span>
+                                        </div>
+                                        <div className="flex items-center justify-between p-2 rounded border">
+                                          <span className="text-xs">Gloss</span>
+                                          <span className="font-semibold text-sm">{Number(sensoryDetail.appearance?.gloss || 0).toFixed(1)}/10</span>
+                                        </div>
+                                        <div className="flex items-center justify-between p-2 rounded border">
+                                          <span className="text-xs">Surface Homogeneity</span>
+                                          <span className="font-semibold text-sm">{Number(sensoryDetail.appearance?.surfaceHomogeneity || 0).toFixed(1)}/10</span>
+                                        </div>
                                       </div>
-                                      <div className="flex items-center justify-between p-2 rounded border">
-                                        <span className="text-xs">Gloss</span>
-                                        <span className="font-semibold text-sm">{Number(sensoryDetail.appearance?.gloss || 0).toFixed(1)}/10</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border">
-                                        <span className="text-xs">Surface Homogeneity</span>
-                                        <span className="font-semibold text-sm">{Number(sensoryDetail.appearance?.surfaceHomogeneity || 0).toFixed(1)}/10</span>
-                                      </div>
-                                    </div>
-                                  </div>
+                                    </AccordionContent>
+                                  </AccordionItem>
 
                                   {/* Aroma Section */}
-                                  <div>
-                                    <h4 className="font-semibold text-sm mb-2">Aroma (25%)</h4>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm mb-2">
-                                      <div className="flex items-center justify-between p-2 rounded border">
-                                        <span className="text-xs">Intensity</span>
-                                        <span className="font-semibold text-sm">{Number(sensoryDetail.aroma?.intensity || 0).toFixed(1)}/10</span>
+                                  <AccordionItem value="aroma">
+                                    <AccordionTrigger className="text-sm font-medium hover:no-underline">
+                                      Aroma (25%)
+                                    </AccordionTrigger>
+                                    <AccordionContent>
+                                      <div className="space-y-3 pt-2">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                                          <div className="flex items-center justify-between p-2 rounded border">
+                                            <span className="text-xs">Intensity</span>
+                                            <span className="font-semibold text-sm">{Number(sensoryDetail.aroma?.intensity || 0).toFixed(1)}/10</span>
+                                          </div>
+                                          <div className="flex items-center justify-between p-2 rounded border">
+                                            <span className="text-xs">Quality</span>
+                                            <span className="font-semibold text-sm">{Number(sensoryDetail.aroma?.quality || 0).toFixed(1)}/10</span>
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <div className="text-xs text-muted-foreground mb-2">Specific Notes:</div>
+                                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
+                                            <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                              <span className="text-xs">Floral</span>
+                                              <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.floral || 0).toFixed(1)}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                              <span className="text-xs">Fruity</span>
+                                              <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.fruity || 0).toFixed(1)}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                              <span className="text-xs">Toasted</span>
+                                              <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.toasted || 0).toFixed(1)}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                              <span className="text-xs">Hazelnut</span>
+                                              <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.hazelnut || 0).toFixed(1)}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                              <span className="text-xs">Earthy</span>
+                                              <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.earthy || 0).toFixed(1)}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                              <span className="text-xs">Spicy</span>
+                                              <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.spicy || 0).toFixed(1)}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                              <span className="text-xs">Milky</span>
+                                              <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.milky || 0).toFixed(1)}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                              <span className="text-xs">Woody</span>
+                                              <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.woody || 0).toFixed(1)}</span>
+                                            </div>
+                                          </div>
+                                        </div>
                                       </div>
-                                      <div className="flex items-center justify-between p-2 rounded border">
-                                        <span className="text-xs">Quality</span>
-                                        <span className="font-semibold text-sm">{Number(sensoryDetail.aroma?.quality || 0).toFixed(1)}/10</span>
-                                      </div>
-                                    </div>
-                                    <div className="text-xs text-muted-foreground mb-1">Specific Notes:</div>
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
-                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
-                                        <span className="text-xs">Floral</span>
-                                        <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.floral || 0).toFixed(1)}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
-                                        <span className="text-xs">Fruity</span>
-                                        <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.fruity || 0).toFixed(1)}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
-                                        <span className="text-xs">Toasted</span>
-                                        <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.toasted || 0).toFixed(1)}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
-                                        <span className="text-xs">Hazelnut</span>
-                                        <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.hazelnut || 0).toFixed(1)}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
-                                        <span className="text-xs">Earthy</span>
-                                        <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.earthy || 0).toFixed(1)}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
-                                        <span className="text-xs">Spicy</span>
-                                        <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.spicy || 0).toFixed(1)}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
-                                        <span className="text-xs">Milky</span>
-                                        <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.milky || 0).toFixed(1)}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
-                                        <span className="text-xs">Woody</span>
-                                        <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.woody || 0).toFixed(1)}</span>
-                                      </div>
-                                    </div>
-                                  </div>
+                                    </AccordionContent>
+                                  </AccordionItem>
 
                                   {/* Texture Section */}
-                                  <div>
-                                    <h4 className="font-semibold text-sm mb-2">Texture (20%)</h4>
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
-                                      <div className="flex items-center justify-between p-2 rounded border">
-                                        <span className="text-xs">Smoothness</span>
-                                        <span className="font-semibold text-sm">{Number(sensoryDetail.texture?.smoothness || 0).toFixed(1)}/10</span>
+                                  <AccordionItem value="texture">
+                                    <AccordionTrigger className="text-sm font-medium hover:no-underline">
+                                      Texture (20%)
+                                    </AccordionTrigger>
+                                    <AccordionContent>
+                                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm pt-2">
+                                        <div className="flex items-center justify-between p-2 rounded border">
+                                          <span className="text-xs">Smoothness</span>
+                                          <span className="font-semibold text-sm">{Number(sensoryDetail.texture?.smoothness || 0).toFixed(1)}/10</span>
+                                        </div>
+                                        <div className="flex items-center justify-between p-2 rounded border">
+                                          <span className="text-xs">Melting</span>
+                                          <span className="font-semibold text-sm">{Number(sensoryDetail.texture?.melting || 0).toFixed(1)}/10</span>
+                                        </div>
+                                        <div className="flex items-center justify-between p-2 rounded border">
+                                          <span className="text-xs">Body</span>
+                                          <span className="font-semibold text-sm">{Number(sensoryDetail.texture?.body || 0).toFixed(1)}/10</span>
+                                        </div>
                                       </div>
-                                      <div className="flex items-center justify-between p-2 rounded border">
-                                        <span className="text-xs">Melting</span>
-                                        <span className="font-semibold text-sm">{Number(sensoryDetail.texture?.melting || 0).toFixed(1)}/10</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border">
-                                        <span className="text-xs">Body</span>
-                                        <span className="font-semibold text-sm">{Number(sensoryDetail.texture?.body || 0).toFixed(1)}/10</span>
-                                      </div>
-                                    </div>
-                                  </div>
+                                    </AccordionContent>
+                                  </AccordionItem>
 
                                   {/* Flavor Section */}
-                                  <div>
-                                    <h4 className="font-semibold text-sm mb-2">Flavor (40%)</h4>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm mb-2">
-                                      <div className="flex items-center justify-between p-2 rounded border">
-                                        <span className="text-xs">Sweetness</span>
-                                        <span className="font-semibold text-sm">{Number(sensoryDetail.flavor?.sweetness || 0).toFixed(1)}/10</span>
+                                  <AccordionItem value="flavor">
+                                    <AccordionTrigger className="text-sm font-medium hover:no-underline">
+                                      Flavor (40%)
+                                    </AccordionTrigger>
+                                    <AccordionContent>
+                                      <div className="space-y-3 pt-2">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+                                          <div className="flex items-center justify-between p-2 rounded border">
+                                            <span className="text-xs">Sweetness</span>
+                                            <span className="font-semibold text-sm">{Number(sensoryDetail.flavor?.sweetness || 0).toFixed(1)}/10</span>
+                                          </div>
+                                          <div className="flex items-center justify-between p-2 rounded border">
+                                            <span className="text-xs">Bitterness</span>
+                                            <span className="font-semibold text-sm">{Number(sensoryDetail.flavor?.bitterness || 0).toFixed(1)}/10</span>
+                                          </div>
+                                          <div className="flex items-center justify-between p-2 rounded border">
+                                            <span className="text-xs">Acidity</span>
+                                            <span className="font-semibold text-sm">{Number(sensoryDetail.flavor?.acidity || 0).toFixed(1)}/10</span>
+                                          </div>
+                                          <div className="flex items-center justify-between p-2 rounded border">
+                                            <span className="text-xs">Intensity</span>
+                                            <span className="font-semibold text-sm">{Number(sensoryDetail.flavor?.intensity || 0).toFixed(1)}/10</span>
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <div className="text-xs text-muted-foreground mb-2">Flavor Notes:</div>
+                                          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 text-sm">
+                                            <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                              <span className="text-xs">Citrus</span>
+                                              <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.citrus || 0).toFixed(1)}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                              <span className="text-xs">Red Fruits</span>
+                                              <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.redFruits || 0).toFixed(1)}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                              <span className="text-xs">Nuts</span>
+                                              <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.nuts || 0).toFixed(1)}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                              <span className="text-xs">Caramel</span>
+                                              <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.caramel || 0).toFixed(1)}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                              <span className="text-xs">Malt</span>
+                                              <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.malt || 0).toFixed(1)}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                              <span className="text-xs">Wood</span>
+                                              <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.wood || 0).toFixed(1)}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                              <span className="text-xs">Spices</span>
+                                              <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.spices || 0).toFixed(1)}</span>
+                                            </div>
+                                          </div>
+                                        </div>
                                       </div>
-                                      <div className="flex items-center justify-between p-2 rounded border">
-                                        <span className="text-xs">Bitterness</span>
-                                        <span className="font-semibold text-sm">{Number(sensoryDetail.flavor?.bitterness || 0).toFixed(1)}/10</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border">
-                                        <span className="text-xs">Acidity</span>
-                                        <span className="font-semibold text-sm">{Number(sensoryDetail.flavor?.acidity || 0).toFixed(1)}/10</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border">
-                                        <span className="text-xs">Intensity</span>
-                                        <span className="font-semibold text-sm">{Number(sensoryDetail.flavor?.intensity || 0).toFixed(1)}/10</span>
-                                      </div>
-                                    </div>
-                                    <div className="text-xs text-muted-foreground mb-1">Flavor Notes:</div>
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 text-sm">
-                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
-                                        <span className="text-xs">Citrus</span>
-                                        <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.citrus || 0).toFixed(1)}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
-                                        <span className="text-xs">Red Fruits</span>
-                                        <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.redFruits || 0).toFixed(1)}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
-                                        <span className="text-xs">Nuts</span>
-                                        <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.nuts || 0).toFixed(1)}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
-                                        <span className="text-xs">Caramel</span>
-                                        <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.caramel || 0).toFixed(1)}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
-                                        <span className="text-xs">Malt</span>
-                                        <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.malt || 0).toFixed(1)}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
-                                        <span className="text-xs">Wood</span>
-                                        <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.wood || 0).toFixed(1)}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
-                                        <span className="text-xs">Spices</span>
-                                        <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.spices || 0).toFixed(1)}</span>
-                                      </div>
-                                    </div>
-                                  </div>
+                                    </AccordionContent>
+                                  </AccordionItem>
 
                                   {/* Aftertaste Section */}
-                                  <div>
-                                    <h4 className="font-semibold text-sm mb-2">Aftertaste (10%)</h4>
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
-                                      <div className="flex items-center justify-between p-2 rounded border">
-                                        <span className="text-xs">Persistence</span>
-                                        <span className="font-semibold text-sm">{Number(sensoryDetail.aftertaste?.persistence || 0).toFixed(1)}/10</span>
+                                  <AccordionItem value="aftertaste">
+                                    <AccordionTrigger className="text-sm font-medium hover:no-underline">
+                                      Aftertaste (10%)
+                                    </AccordionTrigger>
+                                    <AccordionContent>
+                                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm pt-2">
+                                        <div className="flex items-center justify-between p-2 rounded border">
+                                          <span className="text-xs">Persistence</span>
+                                          <span className="font-semibold text-sm">{Number(sensoryDetail.aftertaste?.persistence || 0).toFixed(1)}/10</span>
+                                        </div>
+                                        <div className="flex items-center justify-between p-2 rounded border">
+                                          <span className="text-xs">Quality</span>
+                                          <span className="font-semibold text-sm">{Number(sensoryDetail.aftertaste?.quality || 0).toFixed(1)}/10</span>
+                                        </div>
+                                        <div className="flex items-center justify-between p-2 rounded border">
+                                          <span className="text-xs">Final Balance</span>
+                                          <span className="font-semibold text-sm">{Number(sensoryDetail.aftertaste?.finalBalance || 0).toFixed(1)}/10</span>
+                                        </div>
                                       </div>
-                                      <div className="flex items-center justify-between p-2 rounded border">
-                                        <span className="text-xs">Quality</span>
-                                        <span className="font-semibold text-sm">{Number(sensoryDetail.aftertaste?.quality || 0).toFixed(1)}/10</span>
-                                      </div>
-                                      <div className="flex items-center justify-between p-2 rounded border">
-                                        <span className="text-xs">Final Balance</span>
-                                        <span className="font-semibold text-sm">{Number(sensoryDetail.aftertaste?.finalBalance || 0).toFixed(1)}/10</span>
-                                      </div>
-                                    </div>
-                                  </div>
+                                    </AccordionContent>
+                                  </AccordionItem>
 
                                   {/* Defects Section */}
-                                  <div>
-                                    <h4 className="font-semibold text-sm mb-2">Defects</h4>
-                                    <div className="grid grid-cols-1 gap-2 text-sm">
-                                      <div className="flex items-center justify-between p-2 rounded border bg-destructive/10">
-                                        <span className="text-xs">Total Defects</span>
-                                        <span className="font-semibold text-sm">{Number(sensoryDetail.defects?.total || 0).toFixed(1)}/10</span>
+                                  <AccordionItem value="defects">
+                                    <AccordionTrigger className="text-sm font-medium hover:no-underline">
+                                      Defects
+                                    </AccordionTrigger>
+                                    <AccordionContent>
+                                      <div className="grid grid-cols-1 gap-2 text-sm pt-2">
+                                        <div className="flex items-center justify-between p-2 rounded border bg-destructive/10">
+                                          <span className="text-xs">Total Defects</span>
+                                          <span className="font-semibold text-sm">{Number(sensoryDetail.defects?.total || 0).toFixed(1)}/10</span>
+                                        </div>
                                       </div>
-                                    </div>
-                                  </div>
-                                </div>
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                </Accordion>
                               ) : (
                                 <div className="text-sm text-muted-foreground">No sensory evaluation found.</div>
                               )}

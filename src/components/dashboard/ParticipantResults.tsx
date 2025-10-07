@@ -696,32 +696,38 @@ const ParticipantResults = () => {
                       </div>
 
                       {/* Raw physical evaluation data (for future report completeness) */}
-                      <div className="mt-3">
-                        <div className="text-sm font-medium mb-2">{t('dashboard.participantResults.detailedResults.physicalDetails')}</div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                          <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.evaluatedBy')}</span><span>{p.raw.evaluated_by}</span></div>
-                          <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.evaluatedAt')}</span><span>{new Date(p.raw.evaluated_at).toLocaleString()}</span></div>
-                          <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.globalEvaluation')}</span><span className="capitalize">{p.raw.global_evaluation}</span></div>
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="physical-details">
+                          <AccordionTrigger className="text-sm font-medium hover:no-underline">
+                            {t('dashboard.participantResults.detailedResults.physicalDetails')}
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-2">
+                              <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.evaluatedBy')}</span><span>{p.raw.evaluated_by}</span></div>
+                              <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.evaluatedAt')}</span><span>{new Date(p.raw.evaluated_at).toLocaleString()}</span></div>
+                              <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.globalEvaluation')}</span><span className="capitalize">{p.raw.global_evaluation}</span></div>
 
-                          <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.humidity')}</span><span>{p.raw.percentage_humidity}</span></div>
-                          <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.brokenGrains')}</span><span>{p.raw.broken_grains}</span></div>
-                          <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.flatGrains')}</span><span>{p.raw.flat_grains}</span></div>
-                          <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.affectedGrains')}</span><span>{p.raw.affected_grains_insects}</span></div>
+                              <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.humidity')}</span><span>{p.raw.percentage_humidity}</span></div>
+                              <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.brokenGrains')}</span><span>{p.raw.broken_grains}</span></div>
+                              <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.flatGrains')}</span><span>{p.raw.flat_grains}</span></div>
+                              <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.affectedGrains')}</span><span>{p.raw.affected_grains_insects}</span></div>
 
-                          <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.wellFermented')}</span><span>{p.raw.well_fermented_beans}</span></div>
-                          <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.lightlyFermented')}</span><span>{p.raw.lightly_fermented_beans}</span></div>
-                          <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.purpleBeans')}</span><span>{p.raw.purple_beans}</span></div>
-                          <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.slatyBeans')}</span><span>{p.raw.slaty_beans}</span></div>
-                          <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.moldyBeans')}</span><span>{p.raw.internal_moldy_beans}</span></div>
-                          <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.overFermented')}</span><span>{p.raw.over_fermented_beans}</span></div>
+                              <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.wellFermented')}</span><span>{p.raw.well_fermented_beans}</span></div>
+                              <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.lightlyFermented')}</span><span>{p.raw.lightly_fermented_beans}</span></div>
+                              <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.purpleBeans')}</span><span>{p.raw.purple_beans}</span></div>
+                              <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.slatyBeans')}</span><span>{p.raw.slaty_beans}</span></div>
+                              <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.moldyBeans')}</span><span>{p.raw.internal_moldy_beans}</span></div>
+                              <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.overFermented')}</span><span>{p.raw.over_fermented_beans}</span></div>
 
-                          <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.undesirableAromas')}</span><span>{p.raw.has_undesirable_aromas ? t('dashboard.participantResults.detailedResults.yes') : t('dashboard.participantResults.detailedResults.no')}</span></div>
-                          <div className="sm:col-span-2 border rounded p-3"><div className="font-medium mb-1">{t('dashboard.participantResults.detailedResults.aromasList')}</div><div className="text-muted-foreground">{p.raw.undesirable_aromas.length ? p.raw.undesirable_aromas.join(', ') : t('dashboard.participantResults.detailedResults.no')}</div></div>
+                              <div className="flex justify-between border rounded p-3"><span>{t('dashboard.participantResults.detailedResults.undesirableAromas')}</span><span>{p.raw.has_undesirable_aromas ? t('dashboard.participantResults.detailedResults.yes') : t('dashboard.participantResults.detailedResults.no')}</span></div>
+                              <div className="sm:col-span-2 border rounded p-3"><div className="font-medium mb-1">{t('dashboard.participantResults.detailedResults.aromasList')}</div><div className="text-muted-foreground">{p.raw.undesirable_aromas.length ? p.raw.undesirable_aromas.join(', ') : t('dashboard.participantResults.detailedResults.no')}</div></div>
 
-                          <div className="sm:col-span-2 border rounded p-3"><div className="font-medium mb-1">{t('dashboard.participantResults.detailedResults.disqualificationReasons')}</div><div className="text-muted-foreground">{p.raw.disqualification_reasons.length ? p.raw.disqualification_reasons.join('; ') : t('dashboard.participantResults.detailedResults.no')}</div></div>
-                          <div className="sm:col-span-2 border rounded p-3"><div className="font-medium mb-1">{t('dashboard.participantResults.detailedResults.warnings')}</div><div className="text-muted-foreground">{p.raw.warnings.length ? p.raw.warnings.join('; ') : t('dashboard.participantResults.detailedResults.no')}</div></div>
-                        </div>
-                      </div>
+                              <div className="sm:col-span-2 border rounded p-3"><div className="font-medium mb-1">{t('dashboard.participantResults.detailedResults.disqualificationReasons')}</div><div className="text-muted-foreground">{p.raw.disqualification_reasons.length ? p.raw.disqualification_reasons.join('; ') : t('dashboard.participantResults.detailedResults.no')}</div></div>
+                              <div className="sm:col-span-2 border rounded p-3"><div className="font-medium mb-1">{t('dashboard.participantResults.detailedResults.warnings')}</div><div className="text-muted-foreground">{p.raw.warnings.length ? p.raw.warnings.join('; ') : t('dashboard.participantResults.detailedResults.no')}</div></div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
                     </>
                   );
                 })()
@@ -739,44 +745,60 @@ const ParticipantResults = () => {
                 // Use real data if available, otherwise fall back to demo data
                 const sensoryData = detailedSensoryData || buildDemoSensoryData();
                 const entries = Object.entries(sensoryData.attributes);
+                
+                // Separate leaf nodes (simple values) from parent nodes (with children)
+                const leafNodes = entries.filter(([_, node]) => 'value' in node);
+                const parentNodes = entries.filter(([_, node]) => !('value' in node));
+                
                 return (
                   <div className="space-y-4">
-                    {entries.map(([groupKey, node]) => {
-                      const isLeaf = (n: any): n is { value: number } => 'value' in n;
+                    {/* Display simple attributes first */}
+                    {leafNodes.map(([groupKey, node]) => {
+                      const val = (node as any).value as number;
                       const title = formatLabel(groupKey);
-                      if (isLeaf(node)) {
-                        const val = (node as any).value as number;
-                        return (
-                          <div key={groupKey} className="flex items-center justify-between p-2 rounded border">
-                            <span className="text-sm">{title}</span>
-                            <span className={`text-sm font-semibold ${getScoreColor(val)}`}>{val.toFixed(1)}/10</span>
-                          </div>
-                        );
-                      }
-                      const n = node as { total?: number; children?: Record<string, number> };
-                      const total = (n.total ?? 0) as number;
                       return (
-                        <div key={groupKey} className="rounded border">
-                          <div className="flex items-center justify-between p-2">
-                            <span className="font-medium">{title}</span>
-                            <span className={`font-semibold ${getScoreColor(total)}`}>{total.toFixed(1)}/10</span>
-                          </div>
-                          {n.children && (
-                            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 p-2 pt-0">
-                              {Object.entries(n.children).map(([k, v]) => (
-                                <li key={k} className="flex items-center justify-between text-sm p-3 rounded border">
-                                  <div className="flex items-center gap-2">
-                                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-[hsl(var(--chocolate-medium))]" />
-                                    <span className="text-xs sm:text-sm">{formatLabel(k)}</span>
-                                  </div>
-                                  <span className={`font-semibold text-sm ${getScoreColor(v)}`}>{v.toFixed(1)}/10</span>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
+                        <div key={groupKey} className="flex items-center justify-between p-3 rounded border bg-muted/30">
+                          <span className="text-sm font-medium">{title}</span>
+                          <span className={`text-sm font-semibold ${getScoreColor(val)}`}>{val.toFixed(1)}/10</span>
                         </div>
                       );
                     })}
+                    
+                    {/* Display complex attributes in accordion */}
+                    {parentNodes.length > 0 && (
+                      <Accordion type="multiple" className="w-full">
+                        {parentNodes.map(([groupKey, node]) => {
+                          const n = node as { total?: number; children?: Record<string, number> };
+                          const total = (n.total ?? 0) as number;
+                          const title = formatLabel(groupKey);
+                          return (
+                            <AccordionItem key={groupKey} value={groupKey}>
+                              <AccordionTrigger className="hover:no-underline">
+                                <div className="flex items-center justify-between w-full pr-4">
+                                  <span className="font-medium text-sm">{title}</span>
+                                  <span className={`font-semibold text-sm ${getScoreColor(total)}`}>{total.toFixed(1)}/10</span>
+                                </div>
+                              </AccordionTrigger>
+                              <AccordionContent>
+                                {n.children && (
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-2">
+                                    {Object.entries(n.children).map(([k, v]) => (
+                                      <div key={k} className="flex items-center justify-between text-sm p-3 rounded border">
+                                        <div className="flex items-center gap-2">
+                                          <span className="inline-block w-1.5 h-1.5 rounded-full bg-[hsl(var(--chocolate-medium))]" />
+                                          <span className="text-xs sm:text-sm">{formatLabel(k)}</span>
+                                        </div>
+                                        <span className={`font-semibold text-sm ${getScoreColor(v)}`}>{v.toFixed(1)}/10</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </AccordionContent>
+                            </AccordionItem>
+                          );
+                        })}
+                      </Accordion>
+                    )}
                   </div>
                 );
               })()}
