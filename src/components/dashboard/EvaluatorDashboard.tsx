@@ -341,7 +341,7 @@ const EvaluatorDashboard = () => {
                 referenceImageUrl="/sensory_wheel.jpg"
                 category="chocolate"
                 onCancel={() => { setSelectedSample(null); setExistingEvaluation(null); }}
-                onSubmit={async (result) => {
+onSubmit={async (result) => {
                   try {
                     setLoading(true);
                     const { FinalEvaluationService } = await import('@/lib/finalEvaluationService');
@@ -353,7 +353,7 @@ const EvaluatorDashboard = () => {
                       flavorComments: result?.comments?.flavorComments ?? null,
                       producerRecommendations: result?.comments?.producerRecommendations ?? null,
                       additionalPositive: result?.comments?.additionalPositive ?? null,
-                      // Optional breakdowns (map only if present)
+                      // Optional breakdowns for cocoa bean/liquor (map only if present)
                       cacao: result?.scores?.cacao ?? null,
                       bitterness: result?.scores?.bitterness ?? null,
                       astringency: result?.scores?.astringency ?? null,
@@ -368,7 +368,54 @@ const EvaluatorDashboard = () => {
                       nutTotal: result?.scores?.nutTotal ?? null,
                       roastDegree: result?.scores?.roastDegree ?? null,
                       defectsTotal: result?.scores?.defectsTotal ?? null,
-                    } as const;
+                      // Chocolate-specific attributes (for evaluators)
+                      chocolate: result?.scores?.chocolate ? {
+                        appearance: {
+                          color: result.scores.chocolate.appearance?.color ?? null,
+                          gloss: result.scores.chocolate.appearance?.gloss ?? null,
+                          surfaceHomogeneity: result.scores.chocolate.appearance?.surfaceHomogeneity ?? null,
+                        },
+                        aroma: {
+                          aromaIntensity: result.scores.chocolate.aroma?.aromaIntensity ?? null,
+                          aromaQuality: result.scores.chocolate.aroma?.aromaQuality ?? null,
+                          specificNotes: {
+                            floral: result.scores.chocolate.aroma?.specificNotes?.floral ?? null,
+                            fruity: result.scores.chocolate.aroma?.specificNotes?.fruity ?? null,
+                            toasted: result.scores.chocolate.aroma?.specificNotes?.toasted ?? null,
+                            hazelnut: result.scores.chocolate.aroma?.specificNotes?.hazelnut ?? null,
+                            earthy: result.scores.chocolate.aroma?.specificNotes?.earthy ?? null,
+                            spicy: result.scores.chocolate.aroma?.specificNotes?.spicy ?? null,
+                            milky: result.scores.chocolate.aroma?.specificNotes?.milky ?? null,
+                            woody: result.scores.chocolate.aroma?.specificNotes?.woody ?? null,
+                          },
+                        },
+                        texture: {
+                          smoothness: result.scores.chocolate.texture?.smoothness ?? null,
+                          melting: result.scores.chocolate.texture?.melting ?? null,
+                          body: result.scores.chocolate.texture?.body ?? null,
+                        },
+                        flavor: {
+                          sweetness: result.scores.chocolate.flavor?.sweetness ?? null,
+                          bitterness: result.scores.chocolate.flavor?.bitterness ?? null,
+                          acidity: result.scores.chocolate.flavor?.acidity ?? null,
+                          flavorIntensity: result.scores.chocolate.flavor?.flavorIntensity ?? null,
+                          flavorNotes: {
+                            citrus: result.scores.chocolate.flavor?.flavorNotes?.citrus ?? null,
+                            redFruits: result.scores.chocolate.flavor?.flavorNotes?.redFruits ?? null,
+                            nuts: result.scores.chocolate.flavor?.flavorNotes?.nuts ?? null,
+                            caramel: result.scores.chocolate.flavor?.flavorNotes?.caramel ?? null,
+                            malt: result.scores.chocolate.flavor?.flavorNotes?.malt ?? null,
+                            wood: result.scores.chocolate.flavor?.flavorNotes?.wood ?? null,
+                            spices: result.scores.chocolate.flavor?.flavorNotes?.spices ?? null,
+                          },
+                        },
+                        aftertaste: {
+                          persistence: result.scores.chocolate.aftertaste?.persistence ?? null,
+                          aftertasteQuality: result.scores.chocolate.aftertaste?.aftertasteQuality ?? null,
+                          finalBalance: result.scores.chocolate.aftertaste?.finalBalance ?? null,
+                        },
+                      } : undefined,
+                    };
                     const saveResult = await FinalEvaluationService.save(payload);
                     if (!saveResult.success) throw new Error(saveResult.error || t('evaluatorDashboard.toasts.saveFailedTitle'));
                     // Mark as evaluated for this evaluator immediately (optimistic)

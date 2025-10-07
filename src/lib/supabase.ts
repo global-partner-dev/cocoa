@@ -265,6 +265,37 @@ export interface Database {
           nut_total: number | null
           roast_degree: number | null
           defects_total: number | null
+          // Chocolate-specific fields
+          chocolate_appearance_color: number | null
+          chocolate_appearance_gloss: number | null
+          chocolate_appearance_surface_homogeneity: number | null
+          chocolate_aroma_intensity: number | null
+          chocolate_aroma_quality: number | null
+          chocolate_aroma_floral: number | null
+          chocolate_aroma_fruity: number | null
+          chocolate_aroma_toasted: number | null
+          chocolate_aroma_hazelnut: number | null
+          chocolate_aroma_earthy: number | null
+          chocolate_aroma_spicy: number | null
+          chocolate_aroma_milky: number | null
+          chocolate_aroma_woody: number | null
+          chocolate_texture_smoothness: number | null
+          chocolate_texture_melting: number | null
+          chocolate_texture_body: number | null
+          chocolate_flavor_sweetness: number | null
+          chocolate_flavor_bitterness: number | null
+          chocolate_flavor_acidity: number | null
+          chocolate_flavor_intensity: number | null
+          chocolate_flavor_citrus: number | null
+          chocolate_flavor_red_fruits: number | null
+          chocolate_flavor_nuts: number | null
+          chocolate_flavor_caramel: number | null
+          chocolate_flavor_malt: number | null
+          chocolate_flavor_wood: number | null
+          chocolate_flavor_spices: number | null
+          chocolate_aftertaste_persistence: number | null
+          chocolate_aftertaste_quality: number | null
+          chocolate_aftertaste_final_balance: number | null
           created_at: string
           updated_at: string
         }
@@ -292,6 +323,37 @@ export interface Database {
           nut_total?: number | null
           roast_degree?: number | null
           defects_total?: number | null
+          // Chocolate-specific fields
+          chocolate_appearance_color?: number | null
+          chocolate_appearance_gloss?: number | null
+          chocolate_appearance_surface_homogeneity?: number | null
+          chocolate_aroma_intensity?: number | null
+          chocolate_aroma_quality?: number | null
+          chocolate_aroma_floral?: number | null
+          chocolate_aroma_fruity?: number | null
+          chocolate_aroma_toasted?: number | null
+          chocolate_aroma_hazelnut?: number | null
+          chocolate_aroma_earthy?: number | null
+          chocolate_aroma_spicy?: number | null
+          chocolate_aroma_milky?: number | null
+          chocolate_aroma_woody?: number | null
+          chocolate_texture_smoothness?: number | null
+          chocolate_texture_melting?: number | null
+          chocolate_texture_body?: number | null
+          chocolate_flavor_sweetness?: number | null
+          chocolate_flavor_bitterness?: number | null
+          chocolate_flavor_acidity?: number | null
+          chocolate_flavor_intensity?: number | null
+          chocolate_flavor_citrus?: number | null
+          chocolate_flavor_red_fruits?: number | null
+          chocolate_flavor_nuts?: number | null
+          chocolate_flavor_caramel?: number | null
+          chocolate_flavor_malt?: number | null
+          chocolate_flavor_wood?: number | null
+          chocolate_flavor_spices?: number | null
+          chocolate_aftertaste_persistence?: number | null
+          chocolate_aftertaste_quality?: number | null
+          chocolate_aftertaste_final_balance?: number | null
           created_at?: string
           updated_at?: string
         }
@@ -319,6 +381,37 @@ export interface Database {
           nut_total?: number | null
           roast_degree?: number | null
           defects_total?: number | null
+          // Chocolate-specific fields
+          chocolate_appearance_color?: number | null
+          chocolate_appearance_gloss?: number | null
+          chocolate_appearance_surface_homogeneity?: number | null
+          chocolate_aroma_intensity?: number | null
+          chocolate_aroma_quality?: number | null
+          chocolate_aroma_floral?: number | null
+          chocolate_aroma_fruity?: number | null
+          chocolate_aroma_toasted?: number | null
+          chocolate_aroma_hazelnut?: number | null
+          chocolate_aroma_earthy?: number | null
+          chocolate_aroma_spicy?: number | null
+          chocolate_aroma_milky?: number | null
+          chocolate_aroma_woody?: number | null
+          chocolate_texture_smoothness?: number | null
+          chocolate_texture_melting?: number | null
+          chocolate_texture_body?: number | null
+          chocolate_flavor_sweetness?: number | null
+          chocolate_flavor_bitterness?: number | null
+          chocolate_flavor_acidity?: number | null
+          chocolate_flavor_intensity?: number | null
+          chocolate_flavor_citrus?: number | null
+          chocolate_flavor_red_fruits?: number | null
+          chocolate_flavor_nuts?: number | null
+          chocolate_flavor_caramel?: number | null
+          chocolate_flavor_malt?: number | null
+          chocolate_flavor_wood?: number | null
+          chocolate_flavor_spices?: number | null
+          chocolate_aftertaste_persistence?: number | null
+          chocolate_aftertaste_quality?: number | null
+          chocolate_aftertaste_final_balance?: number | null
           created_at?: string
           updated_at?: string
         }
