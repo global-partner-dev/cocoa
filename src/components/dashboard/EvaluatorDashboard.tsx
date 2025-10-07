@@ -743,7 +743,7 @@ onSubmit={async (result) => {
                         <div className="space-y-1 flex-1">
                           <div className="flex items-center gap-2">
                             <Star className="w-4 h-4 text-yellow-600 flex-shrink-0" />
-                            <span className="font-medium text-[hsl(var(--chocolate-dark))] text-sm sm:text-base">{s.internalCode}</span>
+                            <span className="font-medium text-[hsl(var(--chocolate-dark))] text-sm sm:text-base">{s.sampleName}</span>
                             <Badge variant="secondary" className="text-xs">{t('evaluatorDashboard.top10.rank')}#{s.ranking ?? '-'}</Badge>
                           </div>
                           <div className="text-xs sm:text-sm text-muted-foreground truncate">{s.contestName}</div>
