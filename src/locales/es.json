@@ -1205,7 +1205,8 @@
       "loadingPhysical": "Cargando detalles físicos...",
       "noPhysical": "No se encontró evaluación física.",
       "loadingSensory": "Cargando detalles sensoriales...",
-      "noSensory": "No se encontró evaluación sensorial."
+      "noSensory": "No se encontró evaluación sensorial.",
+      "fullPhysicalTitle": "Evaluación Física Completa"
     },
     "physical": {
       "undesirableAromas": {

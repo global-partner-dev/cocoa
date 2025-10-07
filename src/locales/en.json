@@ -1205,7 +1205,8 @@
       "loadingPhysical": "Loading physical details...",
       "noPhysical": "No physical evaluation found.",
       "loadingSensory": "Loading sensory details...",
-      "noSensory": "No sensory evaluation found."
+      "noSensory": "No sensory evaluation found.",
+      "fullPhysicalTitle": "Full Physical Evaluation Details"
     },
     "physical": {
       "undesirableAromas": {
