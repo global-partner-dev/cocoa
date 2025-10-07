@@ -10,20 +10,7 @@ type SaveFinalEvaluationPayload = {
   flavorComments?: string | null
   producerRecommendations?: string | null
   additionalPositive?: string | null
-  // optional breakdowns (for cocoa bean/liquor)
-  cacao?: number | null
-  bitterness?: number | null
-  astringency?: number | null
-  caramelPanela?: number | null
-  acidityTotal?: number | null
-  freshFruitTotal?: number | null
-  brownFruitTotal?: number | null
-  vegetalTotal?: number | null
-  floralTotal?: number | null
-  woodTotal?: number | null
-  spiceTotal?: number | null
-  nutTotal?: number | null
-  roastDegree?: number | null
+  // defects are relevant for chocolate evaluation too
   defectsTotal?: number | null
   // chocolate-specific attributes
   chocolate?: {
@@ -88,20 +75,6 @@ export class FinalEvaluationService {
         flavor_comments: e.flavorComments ?? null,
         producer_recommendations: e.producerRecommendations ?? null,
         additional_positive: e.additionalPositive ?? null,
-        // Cocoa bean/liquor attributes
-        cacao: e.cacao ?? null,
-        bitterness: e.bitterness ?? null,
-        astringency: e.astringency ?? null,
-        caramel_panela: e.caramelPanela ?? null,
-        acidity_total: e.acidityTotal ?? null,
-        fresh_fruit_total: e.freshFruitTotal ?? null,
-        brown_fruit_total: e.brownFruitTotal ?? null,
-        vegetal_total: e.vegetalTotal ?? null,
-        floral_total: e.floralTotal ?? null,
-        wood_total: e.woodTotal ?? null,
-        spice_total: e.spiceTotal ?? null,
-        nut_total: e.nutTotal ?? null,
-        roast_degree: e.roastDegree ?? null,
         defects_total: e.defectsTotal ?? null,
         // Chocolate-specific attributes
         chocolate_appearance_color: e.chocolate?.appearance?.color ?? null,
