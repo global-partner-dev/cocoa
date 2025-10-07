@@ -249,21 +249,39 @@ const EvaluatorDashboard = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      console.log('[DEBUG] Loading existing evaluation for sample:', sample.id, 'evaluator:', user.id);
       const { FinalEvaluationService } = await import('@/lib/finalEvaluationService');
       const existing = await FinalEvaluationService.getForSampleAndEvaluator(sample.id, user.id);
+      console.log('[DEBUG] Existing evaluation result:', existing);
+      
       if (existing.success && existing.data) {
         // Map the database row to the form structure
         const formData = mapFinalEvalToFormData(existing.data);
+        console.log('[DEBUG] Mapped form data:', formData);
         setExistingEvaluation(formData);
+      } else {
+        console.log('[DEBUG] No existing evaluation found or error occurred');
       }
     } catch (error) {
-      console.warn('Could not load existing final evaluation (may not exist yet).');
+      console.warn('Could not load existing final evaluation (may not exist yet):', error);
     } finally {
       setLoading(false);
     }
   };
 
   if (selectedSample) {
+    // Show loading while fetching existing evaluation data
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[hsl(var(--chocolate-dark))] mx-auto"></div>
+            <p className="text-muted-foreground">{t('evaluatorDashboard.sensory.loadingEvaluation', 'Loading evaluation...')}</p>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <>
         {/* Payment Modal (visible from list too) */}
@@ -407,6 +425,7 @@ const EvaluatorDashboard = () => {
             </CardHeader>
             <CardContent>
               <SensoryEvaluationForm
+                key={existingEvaluation ? 'edit' : 'new'}
                 metaDefaults={{ evaluatorName: t('evaluatorDashboard.sensory.currentEvaluator'), sampleCode: selectedSample.internalCode }}
                 initialData={existingEvaluation}
                 referenceImageUrl="/sensory_wheel.jpg"
