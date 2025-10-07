@@ -6,12 +6,12 @@ import { RefreshCw, Trophy, Star, Eye, Download, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
-import { supabase } from '@/lib/supabase'
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip as ReTooltip } from 'recharts'
 import { generateParticipantReport } from '@/lib/pdfReport'
 import { useTranslation } from 'react-i18next'
 import { ContestsService, type ContestDisplay } from '@/lib/contestsService'
 import { ResultsService, JudgeComment } from '@/lib/resultsService'
+import { FinalResultsService } from '@/lib/finalResultsService'
 
 // Aggregates final evaluations and provides a details panel with radar + PDF like ParticipantResults
 
@@ -112,66 +112,14 @@ const FinalResults = () => {
   const load = async () => {
     try {
       setLoading(true)
-      let query = supabase
-        .from('final_evaluations')
-        .select(`
-          sample_id,
-          overall_quality,
-          evaluation_date,
-          sample:sample_id!inner (
-            id,
-            tracking_code,
-            created_at,
-            contest_id,
-            category,
-            contests (
-              id,
-              name
-            ),
-            profiles (
-              name
-            ),
-            cocoa_bean (
-              farm_name
-            ),
-            cocoa_liquor (
-              name
-            ),
-            chocolate (
-              name
-            )
-          )
-        `)
+      const contestIdFilter = selectedContestId !== 'all' ? selectedContestId : undefined
+      const response = await FinalResultsService.getAggregatedResults(contestIdFilter)
       
-      if (selectedContestId !== 'all') {
-        query = query.eq('sample.contest_id', selectedContestId)
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to load results')
       }
       
-      const { data, error } = await query
-      if (error) throw error
-
-      const map = new Map<string, { sum: number; count: number; latest: string; row: any }>()
-      for (const r of (data || [])) {
-        const key = (r as any).sample_id as string
-        const prev = map.get(key)
-        const score = Number((r as any).overall_quality || 0)
-        const date = (r as any).evaluation_date || (r as any).created_at
-        if (!prev) {
-          map.set(key, { sum: score, count: 1, latest: date, row: r })
-        } else {
-          const latest = new Date(date) > new Date(prev.latest) ? date : prev.latest
-          map.set(key, { sum: prev.sum + score, count: prev.count + 1, latest, row: r })
-        }
-      }
-      const arr: Row[] = Array.from(map.entries()).map(([sample_id, v]) => ({
-        sample_id,
-        avg_score: v.count ? v.sum / v.count : 0,
-        count: v.count,
-        latest: v.latest,
-        samples: (v.row as any).sample,
-      }))
-      arr.sort((a, b) => b.avg_score - a.avg_score)
-      setRows(arr)
+      setRows(response.data || [])
     } catch (e: any) {
       console.error(e)
       toast({ title: t('finalResults.toasts.loadFailedTitle'), description: e?.message || t('finalResults.toasts.unknownError'), variant: 'destructive' })
@@ -183,23 +131,11 @@ const FinalResults = () => {
   useEffect(() => { load() }, [])
 
   const getProductName = (sample: Row['samples']): string => {
-    const category = sample.category
-    
-    if (category === 'cocoa_bean' && sample.cocoa_bean && sample.cocoa_bean.length > 0) {
-      return sample.cocoa_bean[0].farm_name || 'Unknown Bean'
-    } else if (category === 'cocoa_liquor' && sample.cocoa_liquor && sample.cocoa_liquor.length > 0) {
-      return sample.cocoa_liquor[0].name || 'Unknown Liquor'
-    } else if (category === 'chocolate' && sample.chocolate && sample.chocolate.length > 0) {
-      return sample.chocolate[0].name || 'Unknown Chocolate'
-    }
-    
-    // Fallback to internal code if no product name found
-    const internalCode = generateInternalCode(sample.created_at, sample.id)
-    return `Sample ${internalCode}`
+    return FinalResultsService.getProductName(sample)
   }
 
   const toSampleResultLike = (r: Row, rank: number, total: number): SampleResultLike => {
-    const internalCode = generateInternalCode(r.samples.created_at, r.samples.id)
+    const internalCode = FinalResultsService.generateInternalCode(r.samples.created_at, r.samples.id)
     const productName = getProductName(r.samples)
     
     return {
@@ -231,23 +167,8 @@ const FinalResults = () => {
     }
   }
 
-  const generateInternalCode = (createdAt: string, id: string) => {
-    const date = new Date(createdAt)
-    const y = date.getFullYear().toString().slice(-2)
-    const m = (date.getMonth() + 1).toString().padStart(2, '0')
-    const d = date.getDate().toString().padStart(2, '0')
-    const shortId = id.replace(/[^a-f0-9]/gi, '').slice(0, 6).toUpperCase()
-    return `${y}${m}${d}-${shortId}`
-  }
-
   const computePhysicalFromRow = (row: any) => {
-    const appearance = Math.max(0, Math.min(10, (Number(row.well_fermented_beans || 0) / 10) - 0.1 * (Number(row.slaty_beans || 0) + Number(row.purple_beans || 0))))
-    const aroma = Math.max(0, Math.min(10, 7.5 - Math.max(0, Number(row.percentage_humidity || 0) - 7) * 0.5 - (row.has_undesirable_aromas ? 2 : 0)))
-    const defectsRaw = Number(row.broken_grains || 0) + Number(row.affected_grains_insects || 0) + Number(row.internal_moldy_beans || 0) + Number(row.over_fermented_beans || 0) + Number(row.slaty_beans || 0) + Number(row.purple_beans || 0)
-    const defects = Math.min(10, Math.round(defectsRaw * 10) / 10)
-    const moisture = Math.max(0, Math.min(10, 10 - Math.abs(7 - Number(row.percentage_humidity || 0)) * 2))
-    const overall = Math.max(0, Math.min(10, (appearance * 0.45 + aroma * 0.25 + moisture * 0.3) - defects * 0.1))
-    return { appearance, aroma, defects, moisture, overall, notes: String(row.notes || ''), raw: row }
+    return FinalResultsService.computePhysicalScores(row)
   }
 
   const loadJudgeComments = async (sampleId: string) => {
@@ -278,46 +199,24 @@ const FinalResults = () => {
       setSensoryDetail(null)
       setJudgeComments([])
 
-      const [phys, sens] = await Promise.all([
-        supabase
-          .from('physical_evaluations')
-          .select('*')
-          .eq('sample_id', sampleId)
-          .order('evaluated_at', { ascending: false })
-          .limit(1),
-        supabase
-          .from('final_evaluations')
-          .select('*')
-          .eq('sample_id', sampleId)
-          .order('evaluation_date', { ascending: false })
-          .limit(1)
+      // Load physical evaluation and final evaluation using the service
+      const [physResponse, finalEvalResponse] = await Promise.all([
+        FinalResultsService.getPhysicalEvaluation(sampleId),
+        FinalResultsService.getLatestEvaluationForSample(sampleId)
       ])
 
-      if (phys.error) throw phys.error
-      if (sens.error) throw sens.error
-
-      if (phys.data && phys.data.length) {
-        setPhysicalDetail(computePhysicalFromRow(phys.data[0]))
+      if (!physResponse.success) {
+        console.warn('Failed to load physical evaluation:', physResponse.error)
+      } else if (physResponse.data) {
+        setPhysicalDetail(computePhysicalFromRow(physResponse.data))
       }
 
-      if (sens.data && sens.data.length) {
-        const e = sens.data[0] as any
-        setSensoryDetail({
-          cacao: { value: e.cacao || 0 },
-          acidity: { total: e.acidity_total || 0, children: { frutal: e.acidity_frutal || 0, acetic: e.acidity_acetic || 0, lactic: e.acidity_lactic || 0, mineral_butyric: e.acidity_mineral_butyric || 0 } },
-          fresh_fruit: { total: e.fresh_fruit_total || 0, children: { berries: e.fresh_fruit_berries || 0, citrus: e.fresh_fruit_citrus || 0, yellow_pulp: e.fresh_fruit_yellow_pulp || 0, dark: e.fresh_fruit_dark || 0, tropical: e.fresh_fruit_tropical || 0 } },
-          brown_fruit: { total: e.brown_fruit_total || 0, children: { dry: e.brown_fruit_dry || 0, brown: e.brown_fruit_brown || 0, overripe: e.brown_fruit_overripe || 0 } },
-          vegetal: { total: e.vegetal_total || 0, children: { grass_herb: e.vegetal_grass_herb || 0, earthy: e.vegetal_earthy || 0 } },
-          floral: { total: e.floral_total || 0, children: { orange_blossom: e.floral_orange_blossom || 0, flowers: e.floral_flowers || 0 } },
-          wood: { total: e.wood_total || 0, children: { light: e.wood_light || 0, dark: e.wood_dark || 0, resin: e.wood_resin || 0 } },
-          spice: { total: e.spice_total || 0, children: { spices: e.spice_spices || 0, tobacco: e.spice_tobacco || 0, umami: e.spice_umami || 0 } },
-          nut: { total: e.nut_total || 0, children: { kernel: e.nut_kernel || 0, skin: e.nut_skin || 0 } },
-          caramel_panela: { value: e.caramel_panela || 0 },
-          bitterness: { value: e.bitterness || 0 },
-          astringency: { value: e.astringency || 0 },
-          roast_degree: { total: e.roast_degree || 0, children: { lactic: e.roast_lactic || 0, mineral_butyric: e.roast_mineral_butyric || 0 } },
-          defects: { total: e.defects_total || 0, children: { dirty: e.defects_dirty || 0, animal: e.defects_animal || 0, rotten: e.defects_rotten || 0, smoke: e.defects_smoke || 0, humid: e.defects_humid || 0, moldy: e.defects_moldy || 0, overfermented: e.defects_overfermented || 0, other: e.defects_other || 0 } },
-        })
+      if (!finalEvalResponse.success) {
+        console.warn('Failed to load final evaluation:', finalEvalResponse.error)
+      } else if (finalEvalResponse.data) {
+        // Transform final evaluation data to sensory detail format
+        const transformed = FinalResultsService.transformToSensoryDetail(finalEvalResponse.data)
+        setSensoryDetail(transformed)
       }
 
       // Load judge comments in parallel
@@ -331,24 +230,25 @@ const FinalResults = () => {
   }
 
   // Build radar chart data from sensory evaluation (0–10)
+  // Now uses chocolate-specific data from final_evaluations table
   const getSensoryRadarData = () => {
     const s = sensoryDetail as any
     if (!s) return [] as any[]
+    
+    // Calculate average values for each category
+    const appearanceAvg = ((s.appearance?.color ?? 0) + (s.appearance?.gloss ?? 0) + (s.appearance?.surfaceHomogeneity ?? 0)) / 3
+    const aromaAvg = ((s.aroma?.intensity ?? 0) + (s.aroma?.quality ?? 0)) / 2
+    const textureAvg = ((s.texture?.smoothness ?? 0) + (s.texture?.melting ?? 0) + (s.texture?.body ?? 0)) / 3
+    const flavorAvg = ((s.flavor?.sweetness ?? 0) + (s.flavor?.bitterness ?? 0) + (s.flavor?.acidity ?? 0) + (s.flavor?.intensity ?? 0)) / 4
+    const aftertasteAvg = ((s.aftertaste?.persistence ?? 0) + (s.aftertaste?.quality ?? 0) + (s.aftertaste?.finalBalance ?? 0)) / 3
+    
     return [
-      { subject: 'Cacao', value: s.cacao?.value ?? 0 },
-      { subject: 'Acidity (Total)', value: s.acidity?.total ?? 0 },
-      { subject: 'Fresh Fruit (Total)', value: s.fresh_fruit?.total ?? 0 },
-      { subject: 'Brown Fruit (Total)', value: s.brown_fruit?.total ?? 0 },
-      { subject: 'Vegetal (Total)', value: s.vegetal?.total ?? 0 },
-      { subject: 'Floral (Total)', value: s.floral?.total ?? 0 },
-      { subject: 'Wood (Total)', value: s.wood?.total ?? 0 },
-      { subject: 'Spice (Total)', value: s.spice?.total ?? 0 },
-      { subject: 'Nut (Total)', value: s.nut?.total ?? 0 },
-      { subject: 'Caramel/Panela', value: s.caramel_panela?.value ?? 0 },
-      { subject: 'Bitterness', value: s.bitterness?.value ?? 0 },
-      { subject: 'Astringency', value: s.astringency?.value ?? 0 },
-      { subject: 'Roast Degree', value: s.roast_degree?.total ?? 0 },
-      { subject: 'Defects (Total)', value: s.defects?.total ?? 0 },
+      { subject: 'Appearance', value: appearanceAvg },
+      { subject: 'Aroma', value: aromaAvg },
+      { subject: 'Texture', value: textureAvg },
+      { subject: 'Flavor', value: flavorAvg },
+      { subject: 'Aftertaste', value: aftertasteAvg },
+      { subject: 'Defects', value: s.defects?.total ?? 0 },
     ]
   }
 
@@ -597,13 +497,178 @@ const FinalResults = () => {
                               {detailLoading ? (
                                 <div className="text-sm text-muted-foreground">{t('finalResults.details.loadingSensory')}</div>
                               ) : sensoryDetail ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-                                  {[{ k: 'cacao', label: t('finalResults.sensory.cacao'), v: sensoryDetail.cacao?.value || 0 }, { k: 'acidity', label: t('finalResults.sensory.acidityTotal'), v: sensoryDetail.acidity?.total || 0 }, { k: 'fresh_fruit', label: t('finalResults.sensory.freshFruitTotal'), v: sensoryDetail.fresh_fruit?.total || 0 }, { k: 'brown_fruit', label: t('finalResults.sensory.brownFruitTotal'), v: sensoryDetail.brown_fruit?.total || 0 }, { k: 'floral', label: t('finalResults.sensory.floralTotal'), v: sensoryDetail.floral?.total || 0 }, { k: 'vegetal', label: t('finalResults.sensory.vegetalTotal'), v: sensoryDetail.vegetal?.total || 0 }, { k: 'wood', label: t('finalResults.sensory.woodTotal'), v: sensoryDetail.wood?.total || 0 }, { k: 'spice', label: t('finalResults.sensory.spiceTotal'), v: sensoryDetail.spice?.total || 0 }, { k: 'nut', label: t('finalResults.sensory.nutTotal'), v: sensoryDetail.nut?.total || 0 }, { k: 'caramel_panela', label: t('finalResults.sensory.caramelPanela'), v: sensoryDetail.caramel_panela?.value || 0 }, { k: 'bitterness', label: t('finalResults.sensory.bitterness'), v: sensoryDetail.bitterness?.value || 0 }, { k: 'astringency', label: t('finalResults.sensory.astringency'), v: sensoryDetail.astringency?.value || 0 }, { k: 'roast_degree', label: t('finalResults.sensory.roastDegree'), v: sensoryDetail.roast_degree?.total || 0 }, { k: 'defects', label: t('finalResults.sensory.defectsTotal'), v: sensoryDetail.defects?.total || 0 }].map((item) => (
-                                    <div key={item.k} className="flex items-center justify-between p-3 rounded border">
-                                      <span className="text-xs sm:text-sm truncate">{item.label}</span>
-                                      <span className="font-semibold text-sm">{Number(item.v).toFixed(1)}/10</span>
+                                <div className="space-y-4">
+                                  {/* Appearance Section */}
+                                  <div>
+                                    <h4 className="font-semibold text-sm mb-2">Appearance (5%)</h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
+                                      <div className="flex items-center justify-between p-2 rounded border">
+                                        <span className="text-xs">Color</span>
+                                        <span className="font-semibold text-sm">{Number(sensoryDetail.appearance?.color || 0).toFixed(1)}/10</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border">
+                                        <span className="text-xs">Gloss</span>
+                                        <span className="font-semibold text-sm">{Number(sensoryDetail.appearance?.gloss || 0).toFixed(1)}/10</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border">
+                                        <span className="text-xs">Surface Homogeneity</span>
+                                        <span className="font-semibold text-sm">{Number(sensoryDetail.appearance?.surfaceHomogeneity || 0).toFixed(1)}/10</span>
+                                      </div>
                                     </div>
-                                  ))}
+                                  </div>
+
+                                  {/* Aroma Section */}
+                                  <div>
+                                    <h4 className="font-semibold text-sm mb-2">Aroma (25%)</h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm mb-2">
+                                      <div className="flex items-center justify-between p-2 rounded border">
+                                        <span className="text-xs">Intensity</span>
+                                        <span className="font-semibold text-sm">{Number(sensoryDetail.aroma?.intensity || 0).toFixed(1)}/10</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border">
+                                        <span className="text-xs">Quality</span>
+                                        <span className="font-semibold text-sm">{Number(sensoryDetail.aroma?.quality || 0).toFixed(1)}/10</span>
+                                      </div>
+                                    </div>
+                                    <div className="text-xs text-muted-foreground mb-1">Specific Notes:</div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
+                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                        <span className="text-xs">Floral</span>
+                                        <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.floral || 0).toFixed(1)}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                        <span className="text-xs">Fruity</span>
+                                        <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.fruity || 0).toFixed(1)}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                        <span className="text-xs">Toasted</span>
+                                        <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.toasted || 0).toFixed(1)}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                        <span className="text-xs">Hazelnut</span>
+                                        <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.hazelnut || 0).toFixed(1)}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                        <span className="text-xs">Earthy</span>
+                                        <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.earthy || 0).toFixed(1)}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                        <span className="text-xs">Spicy</span>
+                                        <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.spicy || 0).toFixed(1)}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                        <span className="text-xs">Milky</span>
+                                        <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.milky || 0).toFixed(1)}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                        <span className="text-xs">Woody</span>
+                                        <span className="font-semibold text-xs">{Number(sensoryDetail.aroma?.specificNotes?.woody || 0).toFixed(1)}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Texture Section */}
+                                  <div>
+                                    <h4 className="font-semibold text-sm mb-2">Texture (20%)</h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
+                                      <div className="flex items-center justify-between p-2 rounded border">
+                                        <span className="text-xs">Smoothness</span>
+                                        <span className="font-semibold text-sm">{Number(sensoryDetail.texture?.smoothness || 0).toFixed(1)}/10</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border">
+                                        <span className="text-xs">Melting</span>
+                                        <span className="font-semibold text-sm">{Number(sensoryDetail.texture?.melting || 0).toFixed(1)}/10</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border">
+                                        <span className="text-xs">Body</span>
+                                        <span className="font-semibold text-sm">{Number(sensoryDetail.texture?.body || 0).toFixed(1)}/10</span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Flavor Section */}
+                                  <div>
+                                    <h4 className="font-semibold text-sm mb-2">Flavor (40%)</h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm mb-2">
+                                      <div className="flex items-center justify-between p-2 rounded border">
+                                        <span className="text-xs">Sweetness</span>
+                                        <span className="font-semibold text-sm">{Number(sensoryDetail.flavor?.sweetness || 0).toFixed(1)}/10</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border">
+                                        <span className="text-xs">Bitterness</span>
+                                        <span className="font-semibold text-sm">{Number(sensoryDetail.flavor?.bitterness || 0).toFixed(1)}/10</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border">
+                                        <span className="text-xs">Acidity</span>
+                                        <span className="font-semibold text-sm">{Number(sensoryDetail.flavor?.acidity || 0).toFixed(1)}/10</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border">
+                                        <span className="text-xs">Intensity</span>
+                                        <span className="font-semibold text-sm">{Number(sensoryDetail.flavor?.intensity || 0).toFixed(1)}/10</span>
+                                      </div>
+                                    </div>
+                                    <div className="text-xs text-muted-foreground mb-1">Flavor Notes:</div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 text-sm">
+                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                        <span className="text-xs">Citrus</span>
+                                        <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.citrus || 0).toFixed(1)}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                        <span className="text-xs">Red Fruits</span>
+                                        <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.redFruits || 0).toFixed(1)}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                        <span className="text-xs">Nuts</span>
+                                        <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.nuts || 0).toFixed(1)}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                        <span className="text-xs">Caramel</span>
+                                        <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.caramel || 0).toFixed(1)}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                        <span className="text-xs">Malt</span>
+                                        <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.malt || 0).toFixed(1)}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                        <span className="text-xs">Wood</span>
+                                        <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.wood || 0).toFixed(1)}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                                        <span className="text-xs">Spices</span>
+                                        <span className="font-semibold text-xs">{Number(sensoryDetail.flavor?.flavorNotes?.spices || 0).toFixed(1)}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Aftertaste Section */}
+                                  <div>
+                                    <h4 className="font-semibold text-sm mb-2">Aftertaste (10%)</h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
+                                      <div className="flex items-center justify-between p-2 rounded border">
+                                        <span className="text-xs">Persistence</span>
+                                        <span className="font-semibold text-sm">{Number(sensoryDetail.aftertaste?.persistence || 0).toFixed(1)}/10</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border">
+                                        <span className="text-xs">Quality</span>
+                                        <span className="font-semibold text-sm">{Number(sensoryDetail.aftertaste?.quality || 0).toFixed(1)}/10</span>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2 rounded border">
+                                        <span className="text-xs">Final Balance</span>
+                                        <span className="font-semibold text-sm">{Number(sensoryDetail.aftertaste?.finalBalance || 0).toFixed(1)}/10</span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Defects Section */}
+                                  <div>
+                                    <h4 className="font-semibold text-sm mb-2">Defects</h4>
+                                    <div className="grid grid-cols-1 gap-2 text-sm">
+                                      <div className="flex items-center justify-between p-2 rounded border bg-destructive/10">
+                                        <span className="text-xs">Total Defects</span>
+                                        <span className="font-semibold text-sm">{Number(sensoryDetail.defects?.total || 0).toFixed(1)}/10</span>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
                               ) : (
                                 <div className="text-sm text-muted-foreground">No sensory evaluation found.</div>
