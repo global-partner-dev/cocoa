@@ -325,7 +325,7 @@ const FinalResults = () => {
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                           <div className="flex items-center gap-2">
                             {i === 0 ? <Trophy className="w-4 h-4 text-yellow-600" /> : <Star className="w-4 h-4 text-yellow-600" />}
-                            <span className="font-medium text-[hsl(var(--chocolate-dark))] text-lg sm:text-base">{r.samples.tracking_code}</span>
+                            <span className="font-medium text-[hsl(var(--chocolate-dark))] text-lg sm:text-base">{getProductName(r.samples)}</span>
                           </div>
                           <Badge variant="secondary" className="w-fit">{t('finalResults.row.rank')} #{i + 1}</Badge>
                         </div>
