@@ -1453,7 +1453,9 @@
       "payEvaluate": "Pagar y Evaluar",
       "paid": "Pagado",
       "evaluated": "evaluado",
-      "evaluate": "Evaluar"
+      "evaluate": "Evaluar",
+      "filterByContest": "Filtrar por concurso",
+      "allContests": "Todos los Concursos"
     },
     "notifications": {
       "title": "Notificaciones Recientes",

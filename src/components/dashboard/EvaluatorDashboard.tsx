@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Bell, CheckCircle, Clock, DollarSign, RefreshCw, Star, TrendingUp, AlertTriangle, FileText, Award, Gavel, Info, Package, Mail, Check, Trash2, CreditCard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import SensoryEvaluationForm from "./SensoryEvaluationForm";
@@ -45,6 +46,8 @@ const EvaluatorDashboard = () => {
   const [paidSamples, setPaidSamples] = useState<Set<string>>(new Set());
   // Track which samples current evaluator already evaluated
   const [evaluatedByMe, setEvaluatedByMe] = useState<Set<string>>(new Set());
+  // Contest filter
+  const [selectedContestId, setSelectedContestId] = useState<string>('all');
 
   // Recent notifications (max 5)
   // Notification filters
@@ -72,6 +75,20 @@ const EvaluatorDashboard = () => {
     staleTime: 5_000,
   });
 
+  // Fetch all contests for the filter dropdown
+  const { data: contests = [], isLoading: contestsLoading } = useQuery({
+    queryKey: ['evaluator-contests'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('contests')
+        .select('id, name')
+        .order('name', { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+    staleTime: 60_000,
+  });
+
   // Now that unreadCountFromDb is declared, derive values that depend on it
   const unreadNotifications = unreadCountFromDb; // use DB-backed count for accuracy
   const paidCount = paidSamples.size;
@@ -79,7 +96,8 @@ const EvaluatorDashboard = () => {
   const loadTop = async () => {
     try {
       setLoading(true);
-      const res = await ResultsService.getTopSamplesByScore(10);
+      const contestFilter = selectedContestId === 'all' ? undefined : selectedContestId;
+      const res = await ResultsService.getTopSamplesByScore(10, contestFilter);
       if (!res.success) throw new Error(res.error || t('evaluatorDashboard.toasts.failedLoadTop10'));
       setTopSamples(res.data || []);
     } catch (e: any) {
@@ -113,7 +131,7 @@ const EvaluatorDashboard = () => {
         }
       } catch {}
     })();
-  }, []);
+  }, [selectedContestId]);
 
   const refresh = async () => {
     await loadTop();
@@ -548,8 +566,27 @@ const EvaluatorDashboard = () => {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
         <Card className="xl:col-span-2">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base sm:text-lg">{t('evaluatorDashboard.top10.title')}</CardTitle>
-            <CardDescription className="text-xs sm:text-sm">{t('evaluatorDashboard.top10.description')}</CardDescription>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <CardTitle className="text-base sm:text-lg">{t('evaluatorDashboard.top10.title')}</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">{t('evaluatorDashboard.top10.description')}</CardDescription>
+              </div>
+              <div className="w-full sm:w-[200px]">
+                <Select value={selectedContestId} onValueChange={setSelectedContestId}>
+                  <SelectTrigger className="h-9 text-xs sm:text-sm">
+                    <SelectValue placeholder={t('evaluatorDashboard.top10.filterByContest')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('evaluatorDashboard.top10.allContests')}</SelectItem>
+                    {contests.map((contest: any) => (
+                      <SelectItem key={contest.id} value={contest.id}>
+                        {contest.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             {loading ? (

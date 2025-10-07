@@ -1453,7 +1453,9 @@
       "payEvaluate": "Pay & Evaluate",
       "paid": "Paid",
       "evaluated": "evaluated",
-      "evaluate": "Evaluate"
+      "evaluate": "Evaluate",
+      "filterByContest": "Filter by contest",
+      "allContests": "All Contests"
     },
     "notifications": {
       "title": "Recent Notifications",
