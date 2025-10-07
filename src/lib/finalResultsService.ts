@@ -375,4 +375,59 @@ export class FinalResultsService {
       },
     };
   }
+
+  /**
+   * Get all judge comments from final evaluations for a specific sample
+   * @param sampleId - Sample ID to fetch comments for
+   */
+  static async getAllJudgeComments(sampleId: string): Promise<FinalResultsServiceResponse<any[]>> {
+    try {
+      console.log(`Fetching all judge comments from final_evaluations for sample: ${sampleId}`);
+
+      const { data: evaluations, error } = await supabase
+        .from('final_evaluations')
+        .select(`
+          id,
+          evaluation_date,
+          flavor_comments,
+          producer_recommendations,
+          additional_positive,
+          overall_quality,
+          created_at,
+          evaluator_id
+        `)
+        .eq('sample_id', sampleId)
+        .order('evaluation_date', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching judge comments from final_evaluations:', error);
+        throw error;
+      }
+
+      if (!evaluations || evaluations.length === 0) {
+        console.log('No judge comments found in final_evaluations for sample');
+        return { success: true, data: [] };
+      }
+
+      // Transform to anonymized judge comments
+      const comments = evaluations.map((evaluation, index) => ({
+        judgeNumber: index + 1,
+        evaluationDate: evaluation.evaluation_date || evaluation.created_at,
+        flavor_comments: evaluation.flavor_comments || '',
+        producer_recommendations: evaluation.producer_recommendations || '',
+        additional_positive: evaluation.additional_positive || '',
+        overall_quality: evaluation.overall_quality || 0,
+      }));
+
+      console.log(`Successfully fetched ${comments.length} judge comments from final_evaluations`);
+      return { success: true, data: comments };
+
+    } catch (error) {
+      console.error('Error in getAllJudgeComments:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch judge comments'
+      };
+    }
+  }
 }

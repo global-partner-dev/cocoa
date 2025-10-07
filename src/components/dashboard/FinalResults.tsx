@@ -10,10 +10,20 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Responsi
 import { generateParticipantReport } from '@/lib/pdfReport'
 import { useTranslation } from 'react-i18next'
 import { ContestsService, type ContestDisplay } from '@/lib/contestsService'
-import { ResultsService, JudgeComment } from '@/lib/resultsService'
+import { ResultsService } from '@/lib/resultsService'
 import { FinalResultsService } from '@/lib/finalResultsService'
 
 // Aggregates final evaluations and provides a details panel with radar + PDF like ParticipantResults
+
+// Judge comment interface for final evaluations
+interface JudgeComment {
+  judgeNumber: number;
+  evaluationDate: string;
+  flavor_comments: string;
+  producer_recommendations: string;
+  additional_positive: string;
+  overall_quality: number;
+}
 
 type Row = {
   sample_id: string
@@ -175,7 +185,7 @@ const FinalResults = () => {
     try {
       setJudgeCommentsLoading(true)
       
-      const response = await ResultsService.getAllJudgeComments(sampleId)
+      const response = await FinalResultsService.getAllJudgeComments(sampleId)
       
       if (!response.success) {
         throw new Error(response.error || 'Failed to load judge comments')
@@ -706,18 +716,6 @@ const FinalResults = () => {
                                     </AccordionTrigger>
                                     <AccordionContent>
                                       <div className="space-y-3 pt-2">
-                                        {judge.sample_notes && (
-                                          <div className="p-3 bg-gray-50 rounded">
-                                            <div className="text-xs font-semibold text-muted-foreground mb-1">Sample Notes</div>
-                                            <div className="text-sm">{judge.sample_notes}</div>
-                                          </div>
-                                        )}
-                                        {judge.texture_notes && (
-                                          <div className="p-3 bg-gray-50 rounded">
-                                            <div className="text-xs font-semibold text-muted-foreground mb-1">Texture Notes</div>
-                                            <div className="text-sm">{judge.texture_notes}</div>
-                                          </div>
-                                        )}
                                         {judge.flavor_comments && (
                                           <div className="p-3 bg-gray-50 rounded">
                                             <div className="text-xs font-semibold text-muted-foreground mb-1">Flavor Comments</div>
@@ -736,8 +734,7 @@ const FinalResults = () => {
                                             <div className="text-sm">{judge.additional_positive}</div>
                                           </div>
                                         )}
-                                        {!judge.sample_notes && !judge.texture_notes && !judge.flavor_comments && 
-                                         !judge.producer_recommendations && !judge.additional_positive && (
+                                        {!judge.flavor_comments && !judge.producer_recommendations && !judge.additional_positive && (
                                           <p className="text-sm text-muted-foreground italic">No comments provided by this judge.</p>
                                         )}
                                       </div>
