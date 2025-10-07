@@ -65,6 +65,25 @@ export interface JudgeComment {
 export class ResultsService {
   
   /**
+   * Helper function to extract product name from sample data
+   */
+  private static getProductName(sample: any): string {
+    const category = sample?.category;
+    
+    if (category === 'cocoa_bean' && sample.cocoa_bean && sample.cocoa_bean.length > 0) {
+      return sample.cocoa_bean[0].farm_name || 'Unknown Bean';
+    } else if (category === 'cocoa_liquor' && sample.cocoa_liquor && sample.cocoa_liquor.length > 0) {
+      return sample.cocoa_liquor[0].name || 'Unknown Liquor';
+    } else if (category === 'chocolate' && sample.chocolate && sample.chocolate.length > 0) {
+      return sample.chocolate[0].name || 'Unknown Chocolate';
+    }
+    
+    // Fallback to internal code if no product name found
+    const internalCode = this.generateInternalCode(sample.created_at, sample.id);
+    return `Sample ${internalCode}`;
+  }
+  
+  /**
    * Get top 10 samples based on sensory evaluation scores
    * @param limit - Maximum number of results to return (default: 10)
    * @param contestId - Optional contest ID to filter results by specific contest
@@ -96,6 +115,15 @@ export class ResultsService {
             ),
             profiles (
               name
+            ),
+            cocoa_bean (
+              farm_name
+            ),
+            cocoa_liquor (
+              name
+            ),
+            chocolate (
+              name
             )
           )
         `)
@@ -121,6 +149,7 @@ export class ResultsService {
         const participant = sample?.profiles;
         const contestId = contest?.id;
         const internalCode = this.generateInternalCode(sample.created_at, sample.id);
+        const productName = this.getProductName(sample);
 
         // overallScore uses averaged overall_quality (0-10)
         const overallScore = Number(row.average_score);
@@ -138,7 +167,7 @@ export class ResultsService {
 
         return {
           id: row.sample_id,
-          sampleName: `Sample ${internalCode}`,
+          sampleName: productName,
           contestId: contestId,
           contestName: contest?.name || 'Unknown Contest',
           participantName: participant?.name || 'Unknown Participant',
@@ -209,12 +238,22 @@ export class ResultsService {
             status,
             created_at,
             contest_id,
+            category,
             contests (
               id,
               name,
               description
             ),
             profiles (
+              name
+            ),
+            cocoa_bean (
+              farm_name
+            ),
+            cocoa_liquor (
+              name
+            ),
+            chocolate (
               name
             )
           )
@@ -247,6 +286,7 @@ export class ResultsService {
         const participant = sample.profiles as any;
         
         const internalCode = this.generateInternalCode(sample.created_at, sample.id);
+        const productName = this.getProductName(sample);
         
         const sensoryEvaluation = {
           aroma: (result.acidity_total + result.fresh_fruit_total + result.floral_total) / 3,
@@ -281,7 +321,7 @@ export class ResultsService {
 
         return {
           id: result.id,
-          sampleName: `Sample ${internalCode}`,
+          sampleName: productName,
           contestName: contest?.name || 'Unknown Contest',
           participantName: participant?.name || 'Unknown Participant',
           submissionDate: new Date(sample.created_at).toLocaleDateString(),
@@ -354,12 +394,22 @@ export class ResultsService {
             created_at,
             user_id,
             contest_id,
+            category,
             contests (
               id,
               name,
               description
             ),
             profiles (
+              name
+            ),
+            cocoa_bean (
+              farm_name
+            ),
+            cocoa_liquor (
+              name
+            ),
+            chocolate (
               name
             )
           )
@@ -394,6 +444,7 @@ export class ResultsService {
         
         // Generate internal code
         const internalCode = this.generateInternalCode(sample.created_at, sample.id);
+        const productName = this.getProductName(sample);
         
         // Calculate sensory scores based on the sensory evaluation data (same as other methods)
         const sensoryEvaluation = {
@@ -437,7 +488,7 @@ export class ResultsService {
         
         return {
           id: result.id,
-          sampleName: `Sample ${internalCode}`,
+          sampleName: productName,
           contestName: contest?.name || 'Unknown Contest',
           participantName: participant?.name || 'Unknown Participant',
           submissionDate: new Date(sample.created_at).toLocaleDateString(),

@@ -24,8 +24,12 @@ type Row = {
     id: string
     tracking_code: string
     created_at: string
+    category: string | null
     contests: { id: string; name: string }
     profiles: { name: string | null }
+    cocoa_bean: Array<{ farm_name: string }> | null
+    cocoa_liquor: Array<{ name: string }> | null
+    chocolate: Array<{ name: string }> | null
   }
 }
 
@@ -119,11 +123,21 @@ const FinalResults = () => {
             tracking_code,
             created_at,
             contest_id,
+            category,
             contests (
               id,
               name
             ),
             profiles (
+              name
+            ),
+            cocoa_bean (
+              farm_name
+            ),
+            cocoa_liquor (
+              name
+            ),
+            chocolate (
               name
             )
           )
@@ -168,11 +182,29 @@ const FinalResults = () => {
 
   useEffect(() => { load() }, [])
 
+  const getProductName = (sample: Row['samples']): string => {
+    const category = sample.category
+    
+    if (category === 'cocoa_bean' && sample.cocoa_bean && sample.cocoa_bean.length > 0) {
+      return sample.cocoa_bean[0].farm_name || 'Unknown Bean'
+    } else if (category === 'cocoa_liquor' && sample.cocoa_liquor && sample.cocoa_liquor.length > 0) {
+      return sample.cocoa_liquor[0].name || 'Unknown Liquor'
+    } else if (category === 'chocolate' && sample.chocolate && sample.chocolate.length > 0) {
+      return sample.chocolate[0].name || 'Unknown Chocolate'
+    }
+    
+    // Fallback to internal code if no product name found
+    const internalCode = generateInternalCode(sample.created_at, sample.id)
+    return `Sample ${internalCode}`
+  }
+
   const toSampleResultLike = (r: Row, rank: number, total: number): SampleResultLike => {
     const internalCode = generateInternalCode(r.samples.created_at, r.samples.id)
+    const productName = getProductName(r.samples)
+    
     return {
       id: r.sample_id,
-      sampleName: `Sample ${internalCode}`,
+      sampleName: productName,
       contestName: r.samples.contests?.name ?? 'Unknown Contest',
       participantName: r.samples.profiles?.name ?? 'Unknown Participant',
       submissionDate: new Date(r.samples.created_at).toLocaleDateString(),
