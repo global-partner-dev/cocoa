@@ -97,7 +97,7 @@ const EvaluatorDashboard = () => {
     try {
       setLoading(true);
       const contestFilter = selectedContestId === 'all' ? undefined : selectedContestId;
-      const res = await ResultsService.getTopSamplesByScore(10, contestFilter);
+      const res = await ResultsService.getTopSamplesByScoreWithOutlierFiltering(10, contestFilter);
       if (!res.success) throw new Error(res.error || t('evaluatorDashboard.toasts.failedLoadTop10'));
       setTopSamples(res.data || []);
     } catch (e: any) {

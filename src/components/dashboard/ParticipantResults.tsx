@@ -78,7 +78,7 @@ const ParticipantResults = () => {
 
       // Load top samples and stats in parallel
       const [topSamplesResponse, statsResponse] = await Promise.all([
-        ResultsService.getTopSamplesByScore(10, contestId),
+        ResultsService.getTopSamplesByScoreWithOutlierFiltering(10, contestId),
         ResultsService.getResultsStats(contestId)
       ]);
 

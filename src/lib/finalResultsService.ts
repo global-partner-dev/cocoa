@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { filterOutliers, FilteredResult, OutlierConfig, DEFAULT_OUTLIER_CONFIG } from './outlierDetection';
 
 /**
  * Final Results Service
@@ -76,6 +77,15 @@ export interface AggregatedFinalResult {
   count: number;
   latest: string;
   samples: SampleInfo;
+  // Outlier filtering metadata
+  outlierFilteringApplied?: boolean;
+  outlierMetadata?: {
+    originalScore: number;
+    filteredScore: number;
+    totalEvaluations: number;
+    outliersDetected: number;
+    standardDeviation: number;
+  };
 }
 
 export interface FinalResultsServiceResponse<T = any> {
@@ -168,6 +178,124 @@ export class FinalResultsService {
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Failed to fetch aggregated results' 
+      };
+    }
+  }
+
+  /**
+   * Get aggregated final evaluation results with outlier filtering
+   * Groups by sample_id and calculates average scores with outlier detection
+   * @param contestId - Optional contest ID to filter results
+   * @param outlierConfig - Configuration for outlier detection (optional, uses defaults if not provided)
+   */
+  static async getAggregatedResultsWithOutlierFiltering(
+    contestId?: string,
+    outlierConfig: Partial<OutlierConfig> = {}
+  ): Promise<FinalResultsServiceResponse<AggregatedFinalResult[]>> {
+    try {
+      console.log(`Fetching aggregated final results with outlier filtering${contestId ? ` for contest ${contestId}` : ''}...`);
+      
+      let query = supabase
+        .from('final_evaluations')
+        .select(`
+          id,
+          sample_id,
+          overall_quality,
+          evaluation_date,
+          sample:sample_id!inner (
+            id,
+            tracking_code,
+            created_at,
+            contest_id,
+            category,
+            contests (
+              id,
+              name
+            ),
+            profiles (
+              name
+            ),
+            cocoa_bean (
+              farm_name
+            ),
+            cocoa_liquor (
+              name
+            ),
+            chocolate (
+              name
+            )
+          )
+        `);
+      
+      if (contestId) {
+        query = query.eq('sample.contest_id', contestId);
+      }
+      
+      const { data, error } = await query;
+      if (error) throw error;
+
+      // Group evaluations by sample_id
+      const sampleEvaluationsMap = new Map<string, Array<{ id: string; score: number; date: string; sample: any }>>();
+      
+      for (const r of (data || [])) {
+        const sampleId = (r as any).sample_id as string;
+        const score = Number((r as any).overall_quality || 0);
+        const date = (r as any).evaluation_date || (r as any).created_at;
+        const sample = (r as any).sample;
+        
+        if (!sampleEvaluationsMap.has(sampleId)) {
+          sampleEvaluationsMap.set(sampleId, []);
+        }
+        
+        sampleEvaluationsMap.get(sampleId)!.push({
+          id: (r as any).id,
+          score,
+          date,
+          sample
+        });
+      }
+
+      // Apply outlier filtering to each sample
+      const results: AggregatedFinalResult[] = [];
+
+      for (const [sampleId, evals] of sampleEvaluationsMap.entries()) {
+        // Apply outlier filtering
+        const evaluationScores = evals.map(e => ({ score: e.score, id: e.id }));
+        const filterResult = filterOutliers(evaluationScores, outlierConfig);
+        
+        // Get latest evaluation date
+        const latestDate = evals.reduce((latest, curr) => {
+          return new Date(curr.date) > new Date(latest) ? curr.date : latest;
+        }, evals[0].date);
+        
+        results.push({
+          sample_id: sampleId,
+          avg_score: filterResult.filteredAverage,
+          count: filterResult.totalCount,
+          latest: latestDate,
+          samples: evals[0].sample,
+          outlierFilteringApplied: true,
+          outlierMetadata: {
+            originalScore: filterResult.originalAverage,
+            filteredScore: filterResult.filteredAverage,
+            totalEvaluations: filterResult.totalCount,
+            outliersDetected: filterResult.outlierCount,
+            standardDeviation: filterResult.standardDeviation
+          }
+        });
+      }
+
+      // Sort by filtered average score descending
+      results.sort((a, b) => b.avg_score - a.avg_score);
+
+      console.log(`Successfully fetched ${results.length} aggregated final results with outlier filtering`);
+      return { success: true, data: results };
+      
+    } catch (error) {
+      console.error('Error in getAggregatedResultsWithOutlierFiltering:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to fetch aggregated results with outlier filtering' 
       };
     }
   }

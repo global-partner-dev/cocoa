@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { filterOutliers, FilteredResult, OutlierConfig, DEFAULT_OUTLIER_CONFIG } from './outlierDetection';
 
 export interface SampleResult {
   id: string;
@@ -35,6 +36,15 @@ export interface SampleResult {
   recommendations: string[];
   trackingCode: string;
   internalCode: string;
+  // Outlier filtering metadata
+  outlierFilteringApplied?: boolean;
+  outlierMetadata?: {
+    originalScore: number;
+    filteredScore: number;
+    totalEvaluations: number;
+    outliersDetected: number;
+    standardDeviation: number;
+  };
 }
 
 export interface ResultsServiceResponse {
@@ -195,6 +205,190 @@ export class ResultsService {
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Failed to fetch top samples' 
+      };
+    }
+  }
+
+  /**
+   * Get top samples with outlier filtering applied
+   * Fetches individual evaluations per sample and recalculates averages with outlier detection
+   * @param limit - Maximum number of results to return (default: 10)
+   * @param contestId - Optional contest ID to filter results by specific contest
+   * @param outlierConfig - Configuration for outlier detection (optional, uses defaults if not provided)
+   */
+  static async getTopSamplesByScoreWithOutlierFiltering(
+    limit: number = 10, 
+    contestId?: string,
+    outlierConfig: Partial<OutlierConfig> = {}
+  ): Promise<ResultsServiceResponse> {
+    try {
+      console.log(`Fetching top ${limit} samples with outlier filtering${contestId ? ` for contest ${contestId}` : ''}...`);
+      
+      // Step 1: Fetch all approved sensory evaluations with sample details
+      let query = supabase
+        .from('sensory_evaluations')
+        .select(`
+          id,
+          sample_id,
+          overall_quality,
+          evaluation_date,
+          sample!inner (
+            id,
+            tracking_code,
+            status,
+            category,
+            created_at,
+            contest_id,
+            contests (
+              id,
+              name,
+              description
+            ),
+            profiles (
+              name
+            ),
+            cocoa_bean (
+              farm_name
+            ),
+            cocoa_liquor (
+              name
+            ),
+            chocolate (
+              name
+            )
+          )
+        `)
+        .eq('verdict', 'Approved')
+        .not('overall_quality', 'is', null);
+      
+      // Apply contest filter if provided
+      if (contestId) {
+        query = query.eq('sample.contest_id', contestId);
+      }
+      
+      const { data: evaluations, error } = await query;
+      if (error) throw error;
+
+      if (!evaluations || evaluations.length === 0) {
+        return { success: true, data: [] };
+      }
+
+      // Step 2: Group evaluations by sample_id
+      const sampleEvaluationsMap = new Map<string, Array<{ id: string; score: number; date: string; sample: any }>>();
+      
+      for (const evaluation of evaluations) {
+        const sampleId = (evaluation as any).sample_id;
+        const score = Number((evaluation as any).overall_quality);
+        const date = (evaluation as any).evaluation_date;
+        const sample = (evaluation as any).sample;
+        
+        if (!sampleEvaluationsMap.has(sampleId)) {
+          sampleEvaluationsMap.set(sampleId, []);
+        }
+        
+        sampleEvaluationsMap.get(sampleId)!.push({
+          id: (evaluation as any).id,
+          score,
+          date,
+          sample
+        });
+      }
+
+      // Step 3: Apply outlier filtering to each sample
+      const filteredSamples: Array<{
+        sampleId: string;
+        filteredScore: number;
+        originalScore: number;
+        latestDate: string;
+        sample: any;
+        filterResult: FilteredResult;
+      }> = [];
+
+      for (const [sampleId, evals] of sampleEvaluationsMap.entries()) {
+        // Apply outlier filtering
+        const evaluationScores = evals.map(e => ({ score: e.score, id: e.id }));
+        const filterResult = filterOutliers(evaluationScores, outlierConfig);
+        
+        // Get latest evaluation date
+        const latestDate = evals.reduce((latest, curr) => {
+          return new Date(curr.date) > new Date(latest) ? curr.date : latest;
+        }, evals[0].date);
+        
+        filteredSamples.push({
+          sampleId,
+          filteredScore: filterResult.filteredAverage,
+          originalScore: filterResult.originalAverage,
+          latestDate,
+          sample: evals[0].sample, // All evaluations have the same sample data
+          filterResult
+        });
+      }
+
+      // Step 4: Sort by filtered score and take top N
+      filteredSamples.sort((a, b) => b.filteredScore - a.filteredScore);
+      const topSamples = filteredSamples.slice(0, limit);
+
+      // Step 5: Transform to SampleResult format
+      const transformedResults: SampleResult[] = topSamples.map((item, index) => {
+        const sample = item.sample;
+        const contest = sample?.contests;
+        const participant = sample?.profiles;
+        const contestId = contest?.id;
+        const internalCode = this.generateInternalCode(sample.created_at, sample.id);
+        const productName = this.getProductName(sample);
+
+        const overallScore = item.filteredScore;
+
+        const sensoryEvaluation = {
+          aroma: overallScore,
+          flavor: overallScore,
+          texture: 7,
+          aftertaste: overallScore,
+          balance: overallScore,
+          overall: overallScore,
+          notes: item.filterResult.outlierCount > 0 
+            ? `Averaged from ${item.filterResult.totalCount} judges (${item.filterResult.outlierCount} outlier${item.filterResult.outlierCount > 1 ? 's' : ''} filtered)`
+            : `Averaged from ${item.filterResult.totalCount} judges`
+        };
+
+        return {
+          id: item.sampleId,
+          sampleName: productName,
+          contestId: contestId,
+          contestName: contest?.name || 'Unknown Contest',
+          participantName: participant?.name || 'Unknown Participant',
+          submissionDate: new Date(sample.created_at).toLocaleDateString(),
+          evaluationDate: new Date(item.latestDate).toLocaleDateString(),
+          status: 'published' as const,
+          sensoryEvaluation,
+          overallScore,
+          ranking: index + 1,
+          totalParticipants: topSamples.length,
+          category: sample?.category || 'cocoa_bean',
+          awards: (index + 1) <= 3 ? ((index + 1) === 1 ? ['Gold Medal', 'Best in Show'] : (index + 1) === 2 ? ['Silver Medal'] : ['Bronze Medal']) : undefined,
+          judgeComments: 'Aggregated result with outlier filtering applied.',
+          recommendations: [],
+          trackingCode: sample.tracking_code,
+          internalCode,
+          outlierFilteringApplied: true,
+          outlierMetadata: {
+            originalScore: item.originalScore,
+            filteredScore: item.filteredScore,
+            totalEvaluations: item.filterResult.totalCount,
+            outliersDetected: item.filterResult.outlierCount,
+            standardDeviation: item.filterResult.standardDeviation
+          }
+        };
+      });
+
+      console.log(`Successfully fetched ${transformedResults.length} top samples with outlier filtering`);
+      return { success: true, data: transformedResults };
+      
+    } catch (error) {
+      console.error('Error in getTopSamplesByScoreWithOutlierFiltering:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to fetch top samples with outlier filtering' 
       };
     }
   }

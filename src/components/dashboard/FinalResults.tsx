@@ -123,7 +123,7 @@ const FinalResults = () => {
     try {
       setLoading(true)
       const contestIdFilter = selectedContestId !== 'all' ? selectedContestId : undefined
-      const response = await FinalResultsService.getAggregatedResults(contestIdFilter)
+      const response = await FinalResultsService.getAggregatedResultsWithOutlierFiltering(contestIdFilter)
       
       if (!response.success) {
         throw new Error(response.error || 'Failed to load results')
